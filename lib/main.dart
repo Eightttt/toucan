@@ -25,6 +25,7 @@ class MyApp extends StatelessWidget {
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
         primarySwatch: Colors.orange,
+        fontFamily: 'Inter',
       ),
       home: const MyHomePage(header: 'Flutter Demo TouCan Home Page'),
     );
@@ -75,7 +76,14 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
-        title: Text(widget.header),
+        title: Text(
+          widget.header,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+
+          ),
+        ),
+        centerTitle: true,
       ),
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
