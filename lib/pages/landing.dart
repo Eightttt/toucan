@@ -17,9 +17,9 @@ class _LandingState extends State<Landing> {
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: <Widget>[
-                  Image.asset('assets/toucan-title-logo.png', height: 102,),
+                  Image.asset('assets/toucan-title-logo.png', height: 102),
                   const Preview(),
                   const Buttons(),
                 ],
@@ -40,11 +40,11 @@ class Preview extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Image.asset('assets/preview.png', height: 281,),
+        Image.asset('assets/preview.png', height: 371,),
         const Text(
           'Stay on top of your goals \nwith Toucan',
           style: TextStyle(
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w900,
               fontSize: 20,
           ),
           textAlign: TextAlign.center,
@@ -65,33 +65,25 @@ class Buttons extends StatelessWidget {
       children: <Widget>[
         ElevatedButton(
           onPressed: (){}, // TODO: Route to Signup page
-            style: ButtonStyle(
-              foregroundColor: MaterialStateProperty.all<Color>(const Color(0xFFFDFDF5)),
-              overlayColor: MaterialStateProperty.resolveWith<Color?>(
-                    (Set<MaterialState> states) {
-                  if (states.contains(MaterialState.hovered)) {
-                    return const Color(0xD7D07205);
-                  }
-                  if (states.contains(MaterialState.focused) ||
-                      states.contains(MaterialState.pressed)) {
-                    return const Color(0xD7D07205);
-                  }
-                  return null; // Defer to the widget's default.
-                },
+            style: ElevatedButton.styleFrom(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              elevation: 8,
+              minimumSize: const Size(160, 40),
+              textStyle: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 15,
+                letterSpacing: 0.5,
               ),
+              foregroundColor: const Color(0xFFFDFDF5),
+
             ),
-          child: const Text(
-            'Sign Up',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Color(0xFFFDFDF5),
-            ),
-          )
+          child: const Text('Sign Up')
         ),
         TextButton(
           onPressed: () {}, // TODO: Route to Log-in page
-          style: ButtonStyle(
-            foregroundColor: MaterialStateProperty.all<Color>(const Color(0xD72D2D2D)),
+          style: TextButton.styleFrom(
+              foregroundColor: const Color(0xD72D2D2D),
+            textStyle: const TextStyle(fontSize: 11)
           ),
           child: const Text('Log-in'),
         )
