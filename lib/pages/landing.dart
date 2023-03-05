@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:toucan/pages/signup.dart';
+import 'package:toucan/pages/login.dart';
 
 class Landing extends StatefulWidget {
   const Landing({Key? key}) : super(key: key);
@@ -44,7 +46,7 @@ class Preview extends StatelessWidget {
         const Text(
           'Stay on top of your goals \nwith Toucan',
           style: TextStyle(
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w600,
               fontSize: 20,
           ),
           textAlign: TextAlign.center,
@@ -54,40 +56,75 @@ class Preview extends StatelessWidget {
   }
 }
 
-class Buttons extends StatelessWidget {
+class Buttons extends StatefulWidget {
   const Buttons({
     super.key,
   });
+
+  @override
+  State<Buttons> createState() => _ButtonsState();
+}
+
+class _ButtonsState extends State<Buttons> {
+
+  bool hasAccount = false;
+
+  showSignUpSheet() {
+    // TODO: Animate other elements
+    return showModalBottomSheet<void>(
+      isScrollControlled: true,
+      enableDrag: false,
+      context: context,
+      builder: (BuildContext context) {
+        return SignUp(showLogInSheet);
+      }
+    );
+  }
+
+  showLogInSheet() {
+    // TODO: Animate other elements
+    return showModalBottomSheet<void>(
+        enableDrag: false,
+        context: context,
+        builder: (BuildContext context) {
+          return const LogIn();
+        }
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
         ElevatedButton(
-          onPressed: (){}, // TODO: Route to Signup page
-            style: ElevatedButton.styleFrom(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              elevation: 8,
-              minimumSize: const Size(160, 40),
-              textStyle: const TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 15,
-                letterSpacing: 0.5,
+          onPressed: () {
+            showSignUpSheet();
+        },
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size(160, 40),
+            textStyle: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 15,
+              letterSpacing: 0.5,
               ),
-              foregroundColor: const Color(0xFFFDFDF5),
-
             ),
           child: const Text('Sign Up')
         ),
         TextButton(
-          onPressed: () {}, // TODO: Route to Log-in page
+            onPressed: () {
+              showLogInSheet();
+            },
           style: TextButton.styleFrom(
               foregroundColor: const Color(0xD72D2D2D),
-            textStyle: const TextStyle(fontSize: 11)
+              textStyle: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w300,
+              )
           ),
           child: const Text('Log-in'),
-        )
+        ),
       ],
     );
   }
 }
+
