@@ -123,7 +123,7 @@ class _SignUpState extends State<SignUp> {
 
         // ======== ENTER BUTTON ========
         Container(
-          margin: const EdgeInsets.fromLTRB(47, 3, 47, 100),
+          margin: const EdgeInsets.fromLTRB(47, 3, 47, 50),
           child: ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop(context);
@@ -135,7 +135,7 @@ class _SignUpState extends State<SignUp> {
         // ======== ALREADY HAVE AN ACCOUNT ========
         Container(
           alignment: Alignment.center,
-          margin: const EdgeInsets.fromLTRB(47, 3, 47, 100),
+          margin: const EdgeInsets.fromLTRB(47, 3, 47, 150),
           child: TextButton(
               onPressed: () async {
                 Navigator.of(context).pop(context);

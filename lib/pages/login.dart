@@ -76,6 +76,34 @@ class _LogInState extends State<LogIn> {
             },
           ),
         ),
+
+        // ======== FORGOT PASSWORD ========
+        Container(
+          margin: const EdgeInsets.fromLTRB(47, 0, 47, 0),
+          child: TextButton(
+            style: TextButton.styleFrom(
+              textStyle: const TextStyle(
+                fontSize: 12,
+              )
+            ),
+              onPressed: () async {
+                // TODO: Add forgot password feature
+                Navigator.of(context).pop(context);
+              },
+              child: const Text('Forgot Password?')
+          ),
+        ),
+
+        // ======== ENTER BUTTON ========
+        Container(
+          margin: const EdgeInsets.fromLTRB(47, 28, 47, 100),
+          child: ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop(context);
+              },
+              child: const Text('Enter')
+          ),
+        ),
       ],
     );
   }

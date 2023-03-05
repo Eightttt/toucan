@@ -45,7 +45,7 @@ void main() {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          minimumSize: const Size(double.infinity, 48),
+          minimumSize: const Size(double.infinity, 58),
           elevation: 8,
           textStyle: const TextStyle(
             fontWeight: FontWeight.w600,
