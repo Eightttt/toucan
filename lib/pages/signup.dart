@@ -9,6 +9,63 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
+
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: MediaQuery.of(context).size.height * .9,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ======== TITLE ========
+          Expanded(
+            flex: 1,
+            child: Container(
+                alignment: Alignment.center,
+                child: const Text(
+                  'Set-up your Account',
+                  style: TextStyle(
+                    color: Color(0xfff28705),
+                    fontWeight: FontWeight.w700,
+                    fontSize: 25,
+                  ),
+                )),
+          ),
+
+          // ======== FORM ========
+          const SignUpForm(),
+
+          // ======== ALREADY HAVE AN ACCOUNT ========
+          Expanded(
+            flex: 1,
+            child: Container(
+              alignment: Alignment.center,
+              child: TextButton(
+                  onPressed: () async {
+                    Navigator.of(context).pop(context);
+                    await Future.delayed(const Duration(milliseconds: 200),
+                        widget.showLogInSheet);
+                  },
+                  child: const Text('Already have an account?')),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class SignUpForm extends StatefulWidget {
+  const SignUpForm({
+    super.key,
+  });
+
+  @override
+  State<SignUpForm> createState() => _SignUpFormState();
+}
+
+class _SignUpFormState extends State<SignUpForm> {
   final formKey = GlobalKey<FormState>();
   String password = "";
 
@@ -29,202 +86,169 @@ class _SignUpState extends State<SignUp> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: MediaQuery.of(context).size.height * .9,
+    return Form(
+      key: formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children:  [
-          // ======== TITLE ========
-          Expanded(
-            flex: 1,
-            child: Container(
-              alignment: Alignment.center,
+        children: [
+          // ======== USERNAME ========
+          Container(
+              margin: const EdgeInsets.fromLTRB(57, 0, 0, 3),
               child: const Text(
-                'Set-up your Account',
+                'Username',
                 style: TextStyle(
-                color: Color(0xfff28705),
-                  fontWeight: FontWeight.w700,
-                  fontSize: 25,
+                  color: Color(0xfff28705),
+                  fontWeight: FontWeight.w600,
                 ),
-              )
-            ),
-          ),
+              )),
 
-          // ======== FORM ========
-          Form(
-            key: formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // ======== USERNAME ========
-                Container(
-                  margin: const EdgeInsets.fromLTRB(57, 0, 0, 3),
-                  child: const Text(
-                    'Username',
-                    style: TextStyle(
-                      color: Color(0xfff28705),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  )
-                ),
-
-                Container(
-                  margin: const EdgeInsets.fromLTRB(47, 3, 47, 0),
-                  child: TextFormField(
-                    maxLength: 16,
-                    decoration: const InputDecoration(
-                      errorMaxLines: 3,
-                      prefixIcon: Padding(
-                        padding: EdgeInsets.fromLTRB(12, 0, 10, 0),
-                        child: Icon(Icons.person_outline_rounded, size: 21,),
-                      ),
-                      counterText: "",
-                    ),
-                    validator: (value) {
-                      const pattern = r"^(?=[a-zA-Z0-9._]{4,20}$)(?!.*[_.]{2})[^_.].*[^_.]$";
-                      final regEx = RegExp(pattern);
-
-                      if (value!.length < 4 || value.length > 20) {
-                        return 'Must be within 4 to 20 alphanumeric characters, underscores, or periods';
-                      } else if (!regEx.hasMatch(value)) {
-                        return 'Must not have leading, trailing, and repeating underscores and periods';
-                      } else {
-                        return null;
-                      }
-                    },
+          Container(
+            margin: const EdgeInsets.fromLTRB(47, 3, 47, 0),
+            child: TextFormField(
+              maxLength: 16,
+              decoration: const InputDecoration(
+                errorMaxLines: 3,
+                prefixIcon: Padding(
+                  padding: EdgeInsets.fromLTRB(12, 0, 10, 0),
+                  child: Icon(
+                    Icons.person_outline_rounded,
+                    size: 21,
                   ),
                 ),
-
-                // ======== EMAIL ========
-                Container(
-                    margin: const EdgeInsets.fromLTRB(57, 10, 0, 3),
-                    child: const Text(
-                      'E-mail',
-                      style: TextStyle(
-                        color: Color(0xfff28705),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    )
-                ),
-                Container(
-                  margin: const EdgeInsets.fromLTRB(47, 3, 47, 0),
-                  child: TextFormField(
-                    decoration: const InputDecoration(
-                      errorMaxLines: 3,
-                      prefixIcon: Padding(
-                        padding: EdgeInsets.fromLTRB(12, 0, 10, 0),
-                        child: Icon(Icons.email_outlined, size: 21,),
-                      ),
-                    ),
-                    validator: (value) {
-                      const pattern = r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+";
-                      final regEx = RegExp(pattern);
-                      if (!regEx.hasMatch(value!)) {
-                        return 'Must be a valid email';
-                      } else {
-                        return null;
-                      }
-                    },
-                  ),
-                ),
-
-                // ======== PASSWORD ========
-                Container(
-                    margin: const EdgeInsets.fromLTRB(57, 10, 0, 3),
-                    child: const Text(
-                      'Password',
-                      style: TextStyle(
-                        color: Color(0xfff28705),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    )
-                ),
-                Container(
-                  margin: const EdgeInsets.fromLTRB(47, 3, 47, 0),
-                  child: TextFormField(
-                      obscureText: true,
-                      decoration: const InputDecoration(
-                        errorMaxLines: 3,
-                        prefixIcon: Padding(
-                          padding: EdgeInsets.fromLTRB(12, 0, 10, 0),
-                          child: Icon(Icons.lock_outline_rounded, size: 21,),
-                        ),
-                      ),
-                      validator: (value) {
-                        const pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{7,}$";
-                        final regEx = RegExp(pattern);
-
-                        if (value!.length < 7) {
-                          return 'Must be at least 7 characters long';
-                        } else if (!regEx.hasMatch(value)) {
-                          return 'Must have one uppercase, lowercase, number, and special character';
-                        } else {
-                          return null;
-                        }
-                      },
-                      onChanged: (value) => password = value
-                  ),
-                ),
-
-                // ======== CONFIRM PASSWORD ========
-                Container(
-                    margin: const EdgeInsets.fromLTRB(57, 10, 0, 3),
-                    child: const Text(
-                      'Confirm Password',
-                      style: TextStyle(
-                        color: Color(0xfff28705),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    )
-                ),
-                Container(
-                  margin: const EdgeInsets.fromLTRB(47, 3, 47, 30),
-                  child: TextFormField(
-                    obscureText: true,
-                    decoration: const InputDecoration(
-                      errorMaxLines: 3,
-                      prefixIcon: Padding(
-                        padding: EdgeInsets.fromLTRB(12, 0, 10, 0),
-                        child: Icon(Icons.lock_outline_rounded, size: 21,),
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value != password) {
-                        return 'Passwords don\'t match';
-                      } else {
-                        return null;
-                      }
-                    },
-                  ),
-                ),
-
-                // ======== ENTER BUTTON ========
-                Container(
-                  margin: const EdgeInsets.fromLTRB(47, 3, 47, 0),
-                  child: ElevatedButton(
-                      onPressed: signUpUser,
-                      child: const Text('Enter')
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // ======== ALREADY HAVE AN ACCOUNT ========
-          Expanded(
-            flex: 1,
-            child: Container(
-              alignment: Alignment.center,
-              child: TextButton(
-                  onPressed: () async {
-                    Navigator.of(context).pop(context);
-                    await Future.delayed(const Duration(milliseconds: 200), widget.showLogInSheet
-                    );
-                  },
-                  child: const Text('Already have an account?')
+                counterText: "",
               ),
+              validator: (value) {
+                const pattern =
+                    r"^(?=[a-zA-Z0-9._]{4,20}$)(?!.*[_.]{2})[^_.].*[^_.]$";
+                final regEx = RegExp(pattern);
+
+                if (value!.length < 4 || value.length > 20) {
+                  return 'Must be within 4 to 20 alphanumeric characters, underscores, or periods';
+                } else if (!regEx.hasMatch(value)) {
+                  return 'Must not have leading, trailing, and repeating underscores and periods';
+                } else {
+                  return null;
+                }
+              },
             ),
-          )
+          ),
+
+          // ======== EMAIL ========
+          Container(
+              margin: const EdgeInsets.fromLTRB(57, 10, 0, 3),
+              child: const Text(
+                'E-mail',
+                style: TextStyle(
+                  color: Color(0xfff28705),
+                  fontWeight: FontWeight.w600,
+                ),
+              )),
+          Container(
+            margin: const EdgeInsets.fromLTRB(47, 3, 47, 0),
+            child: TextFormField(
+              decoration: const InputDecoration(
+                errorMaxLines: 3,
+                prefixIcon: Padding(
+                  padding: EdgeInsets.fromLTRB(12, 0, 10, 0),
+                  child: Icon(
+                    Icons.email_outlined,
+                    size: 21,
+                  ),
+                ),
+              ),
+              validator: (value) {
+                const pattern =
+                    r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+";
+                final regEx = RegExp(pattern);
+                if (!regEx.hasMatch(value!)) {
+                  return 'Must be a valid email';
+                } else {
+                  return null;
+                }
+              },
+            ),
+          ),
+
+          // ======== PASSWORD ========
+          Container(
+              margin: const EdgeInsets.fromLTRB(57, 10, 0, 3),
+              child: const Text(
+                'Password',
+                style: TextStyle(
+                  color: Color(0xfff28705),
+                  fontWeight: FontWeight.w600,
+                ),
+              )),
+          Container(
+            margin: const EdgeInsets.fromLTRB(47, 3, 47, 0),
+            child: TextFormField(
+                obscureText: true,
+                decoration: const InputDecoration(
+                  errorMaxLines: 3,
+                  prefixIcon: Padding(
+                    padding: EdgeInsets.fromLTRB(12, 0, 10, 0),
+                    child: Icon(
+                      Icons.lock_outline_rounded,
+                      size: 21,
+                    ),
+                  ),
+                ),
+                validator: (value) {
+                  const pattern =
+                      r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{7,}$";
+                  final regEx = RegExp(pattern);
+
+                  if (value!.length < 7) {
+                    return 'Must be at least 7 characters long';
+                  } else if (!regEx.hasMatch(value)) {
+                    return 'Must have one uppercase, lowercase, number, and special character';
+                  } else {
+                    return null;
+                  }
+                },
+                onChanged: (value) => password = value),
+          ),
+
+          // ======== CONFIRM PASSWORD ========
+          Container(
+              margin: const EdgeInsets.fromLTRB(57, 10, 0, 3),
+              child: const Text(
+                'Confirm Password',
+                style: TextStyle(
+                  color: Color(0xfff28705),
+                  fontWeight: FontWeight.w600,
+                ),
+              )),
+          Container(
+            margin: const EdgeInsets.fromLTRB(47, 3, 47, 30),
+            child: TextFormField(
+              obscureText: true,
+              decoration: const InputDecoration(
+                errorMaxLines: 3,
+                prefixIcon: Padding(
+                  padding: EdgeInsets.fromLTRB(12, 0, 10, 0),
+                  child: Icon(
+                    Icons.lock_outline_rounded,
+                    size: 21,
+                  ),
+                ),
+              ),
+              validator: (value) {
+                if (value != password) {
+                  return 'Passwords don\'t match';
+                } else {
+                  return null;
+                }
+              },
+            ),
+          ),
+
+          // ======== ENTER BUTTON ========
+          Container(
+            margin: const EdgeInsets.fromLTRB(47, 3, 47, 0),
+            child: ElevatedButton(
+                onPressed: signUpUser, child: const Text('Enter')),
+          ),
         ],
       ),
     );
