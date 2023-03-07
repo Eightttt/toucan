@@ -2,14 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:toucan/pages/signup.dart';
 import 'package:toucan/pages/login.dart';
 
-class Landing extends StatefulWidget {
+class Landing extends StatelessWidget {
   const Landing({Key? key}) : super(key: key);
 
-  @override
-  State<Landing> createState() => _LandingState();
-}
-
-class _LandingState extends State<Landing> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -67,8 +62,6 @@ class Buttons extends StatefulWidget {
 }
 
 class _ButtonsState extends State<Buttons> {
-
-  bool hasAccount = false;
 
   showSignUpSheet() {
     // TODO: Animate other elements

@@ -1,15 +1,8 @@
 import 'package:flutter/material.dart';
 
-class SignUp extends StatefulWidget {
+class SignUp extends StatelessWidget {
   final VoidCallback showLogInSheet;
   const SignUp(this.showLogInSheet, {super.key});
-
-  @override
-  State<SignUp> createState() => _SignUpState();
-}
-
-class _SignUpState extends State<SignUp> {
-
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +38,7 @@ class _SignUpState extends State<SignUp> {
               onPressed: () async {
                 Navigator.of(context).pop(context);
                 await Future.delayed(const Duration(milliseconds: 200),
-                    widget.showLogInSheet);
+                    showLogInSheet);
               },
               child: const Text('Already have an account?')),
           )
