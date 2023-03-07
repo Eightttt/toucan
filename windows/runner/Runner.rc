@@ -95,7 +95,7 @@ BEGIN
             VALUE "InternalName", "toucan" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2023 toucan.com. All rights reserved." "\0"
             VALUE "OriginalFilename", "toucan.exe" "\0"
-            VALUE "ProductName", "toucan" "\0"
+            VALUE "ProductName", "Toucan" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

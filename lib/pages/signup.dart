@@ -15,40 +15,39 @@ class _SignUpState extends State<SignUp> {
   Widget build(BuildContext context) {
     return SizedBox(
       height: MediaQuery.of(context).size.height * .9,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: ListView(
         children: [
           // ======== TITLE ========
-          Expanded(
-            flex: 1,
-            child: Container(
-                alignment: Alignment.center,
-                child: const Text(
-                  'Set-up your Account',
-                  style: TextStyle(
-                    color: Color(0xfff28705),
-                    fontWeight: FontWeight.w700,
-                    fontSize: 25,
-                  ),
-                )),
-          ),
+          Container(
+            margin: EdgeInsets.fromLTRB(
+                0, MediaQuery.of(context).size.height * .075,
+                0, MediaQuery.of(context).size.height * .06),
+            alignment: Alignment.center,
+            child: const Text(
+              'Set-up your Account',
+              style: TextStyle(
+                color: Color(0xfff28705),
+                fontWeight: FontWeight.w700,
+                fontSize: 25,
+              ),
+            )),
 
           // ======== FORM ========
           const SignUpForm(),
 
           // ======== ALREADY HAVE AN ACCOUNT ========
-          Expanded(
-            flex: 1,
-            child: Container(
-              alignment: Alignment.center,
-              child: TextButton(
-                  onPressed: () async {
-                    Navigator.of(context).pop(context);
-                    await Future.delayed(const Duration(milliseconds: 200),
-                        widget.showLogInSheet);
-                  },
-                  child: const Text('Already have an account?')),
-            ),
+          Container(
+            margin: EdgeInsets.fromLTRB(
+                0, MediaQuery.of(context).size.height * .075,
+                0, MediaQuery.of(context).size.height * .06),
+            alignment: Alignment.center,
+            child: TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop(context);
+                await Future.delayed(const Duration(milliseconds: 200),
+                    widget.showLogInSheet);
+              },
+              child: const Text('Already have an account?')),
           )
         ],
       ),
