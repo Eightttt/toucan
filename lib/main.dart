@@ -17,49 +17,65 @@ void main() {
 
   const Color toucanWhite = Color(0xFFFDFDF5);
 
-  runApp(MaterialApp(
-    title: 'Flutter Demo',
-    theme: ThemeData(
-      primarySwatch: mainAppColor,
-      scaffoldBackgroundColor: toucanWhite,
-      fontFamily: 'Inter',
-      iconTheme: const IconThemeData(color: mainAppColor),
-      bottomSheetTheme: const BottomSheetThemeData(
-        backgroundColor: toucanWhite,
-        elevation: 20,
-        modalBarrierColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(36))
-        ),
-      ),
-      inputDecorationTheme: const InputDecorationTheme(
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: mainAppColor),
-          borderRadius: BorderRadius.all(Radius.circular(17)),
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-        ),
-        prefixIconColor: mainAppColor,
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          minimumSize: const Size(double.infinity, 58),
-          elevation: 8,
-          textStyle: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 19,
-            letterSpacing: 0.5,
-          ),
-          foregroundColor: toucanWhite,
-        ),
-      ),
+  runApp(ToucanApp(mainAppColor: mainAppColor, toucanWhite: toucanWhite));
+}
 
-    ),
-    initialRoute: '/',
-    routes: {
-      '/': (context) => const Landing(),
-    }
-  ));
+class ToucanApp extends StatelessWidget {
+  const ToucanApp({
+    super.key,
+    required this.mainAppColor,
+    required this.toucanWhite,
+  });
+
+  final MaterialColor mainAppColor;
+  final Color toucanWhite;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: mainAppColor,
+        scaffoldBackgroundColor: toucanWhite,
+        fontFamily: 'Inter',
+        iconTheme: IconThemeData(color: mainAppColor),
+        bottomSheetTheme: BottomSheetThemeData(
+          backgroundColor: toucanWhite,
+          elevation: 20,
+          modalBarrierColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(36))
+          ),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: mainAppColor),
+            borderRadius: BorderRadius.all(Radius.circular(17)),
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+          ),
+          prefixIconColor: mainAppColor,
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            minimumSize: const Size(double.infinity, 58),
+            elevation: 8,
+            textStyle: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 19,
+              letterSpacing: 0.5,
+            ),
+            foregroundColor: toucanWhite,
+          ),
+        ),
+
+      ),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const Landing(),
+      }
+    );
+  }
 }
