@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:toucan/pages/signup.dart';
-import 'package:toucan/pages/login.dart';
+import 'package:toucan/pages/authenticate/signup.dart';
+import 'package:toucan/pages/authenticate/login.dart';
 
 class Landing extends StatelessWidget {
   const Landing({Key? key}) : super(key: key);
