@@ -1,8 +1,10 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:toucan/firebase_options.dart';
 import 'package:toucan/pages/landing.dart';
+import 'package:toucan/pages/models/userModel.dart';
+import 'package:toucan/pages/services/auth.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,7 +42,10 @@ class ToucanApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return StreamProvider<UserModel?>.value(
+      value: AuthService().user,
+      initialData: null,
+      child: MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(
           primarySwatch: mainAppColor,
@@ -79,9 +84,8 @@ class ToucanApp extends StatelessWidget {
             ),
           ),
         ),
-        initialRoute: '/',
-        routes: {
-          '/': (context) => const Landing(),
-        });
+        home: Landing(),
+      ),
+    );
   }
 }
