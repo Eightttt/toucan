@@ -36,6 +36,14 @@ class AuthService {
   }
 
   // sign out
+  Future logout() async {
+    try {
+      return await _authService.signOut();
+    } catch (e) {
+      print(e.toString());
+      return null;
+    }
+  }
 
   UserModel? _userFromFirebase(User? user) {
     return user != null ? UserModel(uid: user.uid) : null;
