@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "880654207788",
+    "project_id": "toucan-8676b",
+    "storage_bucket": "toucan-8676b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:880654207788:android:346e576fa96747b32e7a89",
+        "android_client_info": {
+          "package_name": "toucan.com.toucan"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "880654207788-5r2k60uu08r3klf1illmdoasfb60rmk2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcPz3qTGBE_kwvWeqJ5Z7od9hnNUel_BY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "880654207788-5r2k60uu08r3klf1illmdoasfb60rmk2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
