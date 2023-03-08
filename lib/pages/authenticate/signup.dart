@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:toucan/pages/services/auth.dart';
 
 class SignUp extends StatelessWidget {
   final VoidCallback showLogInSheet;
@@ -12,18 +13,20 @@ class SignUp extends StatelessWidget {
         children: [
           // ======== TITLE ========
           Container(
-            margin: EdgeInsets.fromLTRB(
-                0, MediaQuery.of(context).size.height * .075,
-                0, MediaQuery.of(context).size.height * .06),
-            alignment: Alignment.center,
-            child: const Text(
-              'Set-up your Account',
-              style: TextStyle(
-                color: Color(0xfff28705),
-                fontWeight: FontWeight.w700,
-                fontSize: 25,
-              ),
-            )),
+              margin: EdgeInsets.fromLTRB(
+                  0,
+                  MediaQuery.of(context).size.height * .075,
+                  0,
+                  MediaQuery.of(context).size.height * .06),
+              alignment: Alignment.center,
+              child: const Text(
+                'Set-up your Account',
+                style: TextStyle(
+                  color: Color(0xfff28705),
+                  fontWeight: FontWeight.w700,
+                  fontSize: 25,
+                ),
+              )),
 
           // ======== FORM ========
           const SignUpForm(),
@@ -31,16 +34,18 @@ class SignUp extends StatelessWidget {
           // ======== ALREADY HAVE AN ACCOUNT ========
           Container(
             margin: EdgeInsets.fromLTRB(
-                0, MediaQuery.of(context).size.height * .075,
-                0, MediaQuery.of(context).size.height * .06),
+                0,
+                MediaQuery.of(context).size.height * .075,
+                0,
+                MediaQuery.of(context).size.height * .06),
             alignment: Alignment.center,
             child: TextButton(
-              onPressed: () async {
-                Navigator.of(context).pop(context);
-                await Future.delayed(const Duration(milliseconds: 200),
-                    showLogInSheet);
-              },
-              child: const Text('Already have an account?')),
+                onPressed: () async {
+                  Navigator.of(context).pop(context);
+                  await Future.delayed(
+                      const Duration(milliseconds: 200), showLogInSheet);
+                },
+                child: const Text('Already have an account?')),
           )
         ],
       ),
@@ -58,21 +63,45 @@ class SignUpForm extends StatefulWidget {
 }
 
 class _SignUpFormState extends State<SignUpForm> {
+  final AuthService _authService = AuthService();
   final formKey = GlobalKey<FormState>();
+
+  String username = "";
+  String email = "";
   String password = "";
 
-  signUpUser() {
+  signUpUser() async {
     final isValid = formKey.currentState?.validate();
 
     if (isValid!) {
-      // TODO: save data
-      const snackBar = SnackBar(
-        content: Text("Submitted"),
-        backgroundColor: Colors.green,
-        duration: Duration(seconds: 2),
-      );
-      Navigator.of(context).pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      formKey.currentState!.save();
+      dynamic result = await _authService.register(email, password);
+      //TODO: Save username into user data
+
+      if (result == null) {
+        final snackBar = SnackBar(
+          behavior: SnackBarBehavior.floating,
+          content: Text("Sign up failed"),
+          backgroundColor: Colors.red[400],
+          margin: EdgeInsets.only(
+              bottom: MediaQuery.of(context).size.height - 80,
+              left: 50,
+              right: 50),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      } else {
+        final snackBar = SnackBar(
+          behavior: SnackBarBehavior.floating,
+          content: Text("Sign up successful"),
+          backgroundColor: Color(0xfff28705),
+          margin: EdgeInsets.only(
+              bottom: MediaQuery.of(context).size.height - 80,
+              left: 50,
+              right: 50),
+        );
+        Navigator.of(context).pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      }
     }
   }
 
@@ -93,7 +122,6 @@ class _SignUpFormState extends State<SignUpForm> {
                   fontWeight: FontWeight.w600,
                 ),
               )),
-
           Container(
             margin: const EdgeInsets.fromLTRB(47, 3, 47, 0),
             child: TextFormField(
@@ -122,6 +150,7 @@ class _SignUpFormState extends State<SignUpForm> {
                   return null;
                 }
               },
+              onSaved: (value) => username = value!,
             ),
           ),
 
@@ -158,6 +187,7 @@ class _SignUpFormState extends State<SignUpForm> {
                   return null;
                 }
               },
+              onSaved: (value) => email = value!,
             ),
           ),
 
@@ -214,25 +244,25 @@ class _SignUpFormState extends State<SignUpForm> {
           Container(
             margin: const EdgeInsets.fromLTRB(47, 3, 47, 30),
             child: TextFormField(
-              obscureText: true,
-              decoration: const InputDecoration(
-                errorMaxLines: 3,
-                prefixIcon: Padding(
-                  padding: EdgeInsets.fromLTRB(12, 0, 10, 0),
-                  child: Icon(
-                    Icons.lock_outline_rounded,
-                    size: 21,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  errorMaxLines: 3,
+                  prefixIcon: Padding(
+                    padding: EdgeInsets.fromLTRB(12, 0, 10, 0),
+                    child: Icon(
+                      Icons.lock_outline_rounded,
+                      size: 21,
+                    ),
                   ),
                 ),
-              ),
-              validator: (value) {
-                if (value != password) {
-                  return 'Passwords don\'t match';
-                } else {
-                  return null;
-                }
-              },
-            ),
+                validator: (value) {
+                  if (value != password) {
+                    return 'Passwords don\'t match';
+                  } else {
+                    return null;
+                  }
+                },
+                onSaved: (value) => password = value!),
           ),
 
           // ======== ENTER BUTTON ========
