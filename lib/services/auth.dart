@@ -1,5 +1,5 @@
 import "package:firebase_auth/firebase_auth.dart";
-import "package:toucan/pages/models/userModel.dart";
+import 'package:toucan/models/userModel.dart';
 
 class AuthService {
   final FirebaseAuth _authService = FirebaseAuth.instance;

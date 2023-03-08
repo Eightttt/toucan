@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:toucan/pages/services/auth.dart';
+import 'package:toucan/services/auth.dart';
 
 class SignUp extends StatelessWidget {
   final VoidCallback showLogInSheet;
@@ -81,7 +81,10 @@ class _SignUpFormState extends State<SignUpForm> {
       if (result == null) {
         final snackBar = SnackBar(
           behavior: SnackBarBehavior.floating,
-          content: Text("Sign up failed"),
+          content: Text(
+            "Sign up failed",
+            textAlign: TextAlign.center,
+          ),
           backgroundColor: Colors.red[400],
           margin: EdgeInsets.only(
               bottom: MediaQuery.of(context).size.height - 80,
@@ -92,7 +95,10 @@ class _SignUpFormState extends State<SignUpForm> {
       } else {
         final snackBar = SnackBar(
           behavior: SnackBarBehavior.floating,
-          content: Text("Sign up successful"),
+          content: Text(
+            "Sign up successful",
+            textAlign: TextAlign.center,
+          ),
           backgroundColor: Color(0xfff28705),
           margin: EdgeInsets.only(
               bottom: MediaQuery.of(context).size.height - 80,

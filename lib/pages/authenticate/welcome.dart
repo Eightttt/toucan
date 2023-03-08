@@ -107,7 +107,7 @@ class Buttons extends StatelessWidget {
           style: TextButton.styleFrom(
               foregroundColor: const Color(0xD72D2D2D),
               textStyle: const TextStyle(
-                fontSize: 11,
+                fontSize: 14,
                 fontWeight: FontWeight.w300,
               )),
           child: const Text('Log-in'),

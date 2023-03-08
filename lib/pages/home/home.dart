@@ -1,5 +1,5 @@
 import "package:flutter/material.dart";
-import "package:toucan/pages/services/auth.dart";
+import 'package:toucan/services/auth.dart';
 
 class Home extends StatelessWidget {
   final AuthService _authService = AuthService();

@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:toucan/firebase_options.dart';
 import 'package:toucan/pages/landing.dart';
-import 'package:toucan/pages/models/userModel.dart';
-import 'package:toucan/pages/services/auth.dart';
+import 'package:toucan/models/userModel.dart';
+import 'package:toucan/services/auth.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
