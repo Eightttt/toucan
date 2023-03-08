@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:toucan/pages/services/auth.dart';
 
 class LogIn extends StatefulWidget {
   const LogIn({
@@ -11,20 +12,35 @@ class LogIn extends StatefulWidget {
 
 // TODO: add Navigator.of(context).pop(context) after logging in
 class _LogInState extends State<LogIn> {
+  final AuthService _authService = AuthService();
   final formKey = GlobalKey<FormState>();
 
-  logInUser() {
+  String email = "";
+  String password = "";
+
+  logInUser() async {
     final isValid = formKey.currentState?.validate();
 
     if (isValid!) {
+      formKey.currentState!.save();
+      dynamic result = await _authService.login(email, password);
       // TODO: save data
-      const snackBar = SnackBar(
-        content: Text("Submitted"),
-        backgroundColor: Colors.green,
-        duration: Duration(seconds: 2),
-      );
-      Navigator.of(context).pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
+      if (result == null) {
+        final snackBar = SnackBar(
+          behavior: SnackBarBehavior.floating,
+          content: Text("Invalid log-in credentials"),
+          backgroundColor: Colors.red[400],
+          margin: EdgeInsets.only(
+              bottom: MediaQuery.of(context).size.height - 80,
+              left: 50,
+              right: 50),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      } else {
+        Navigator.of(context).pop(context);
+        // TODO: go to home page
+      }
     }
   }
 
@@ -35,20 +51,18 @@ class _LogInState extends State<LogIn> {
       child: SizedBox(
         height: MediaQuery.of(context).size.height * 0.5,
         child: ListView(
-          children:  [
+          children: [
             // ======== EMAIL ========
             Container(
                 margin: EdgeInsets.fromLTRB(
-                    57, MediaQuery.of(context).size.height * 0.05,
-                    0, 3),
+                    57, MediaQuery.of(context).size.height * 0.05, 0, 3),
                 child: const Text(
                   'E-mail',
                   style: TextStyle(
                     color: Color(0xfff28705),
                     fontWeight: FontWeight.w600,
                   ),
-                )
-            ),
+                )),
             Container(
               margin: const EdgeInsets.fromLTRB(47, 3, 47, 0),
               child: TextFormField(
@@ -56,11 +70,15 @@ class _LogInState extends State<LogIn> {
                   errorMaxLines: 3,
                   prefixIcon: Padding(
                     padding: EdgeInsets.fromLTRB(12, 0, 10, 0),
-                    child: Icon(Icons.email_outlined, size: 21,),
+                    child: Icon(
+                      Icons.email_outlined,
+                      size: 21,
+                    ),
                   ),
                 ),
                 validator: (value) {
-                  const pattern = r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+";
+                  const pattern =
+                      r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+";
                   final regEx = RegExp(pattern);
                   if (!regEx.hasMatch(value!)) {
                     return 'Invalid email';
@@ -68,6 +86,7 @@ class _LogInState extends State<LogIn> {
                     return null;
                   }
                 },
+                onSaved: (value) => email = value!,
               ),
             ),
 
@@ -80,8 +99,7 @@ class _LogInState extends State<LogIn> {
                     color: Color(0xfff28705),
                     fontWeight: FontWeight.w600,
                   ),
-                )
-            ),
+                )),
             Container(
               margin: const EdgeInsets.fromLTRB(47, 3, 47, 0),
               child: TextFormField(
@@ -90,19 +108,13 @@ class _LogInState extends State<LogIn> {
                   errorMaxLines: 3,
                   prefixIcon: Padding(
                     padding: EdgeInsets.fromLTRB(12, 0, 10, 0),
-                    child: Icon(Icons.lock_outline_rounded, size: 21,),
+                    child: Icon(
+                      Icons.lock_outline_rounded,
+                      size: 21,
+                    ),
                   ),
                 ),
-                validator: (value) {
-                  const pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{7,}$";
-                  final regEx = RegExp(pattern);
-
-                  if (!regEx.hasMatch(value!)) {
-                    return 'Incorrect Password';
-                  } else {
-                    return null;
-                  }
-                },
+                onSaved: (value) => password = value!,
               ),
             ),
 
@@ -111,32 +123,30 @@ class _LogInState extends State<LogIn> {
               alignment: Alignment.topLeft,
               margin: const EdgeInsets.fromLTRB(57, 5, 0, 0),
               child: TextButton(
-                style: TextButton.styleFrom(
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  padding: EdgeInsets.zero,
-                  textStyle: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 12,
-                  )
-                ),
+                  style: TextButton.styleFrom(
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      padding: EdgeInsets.zero,
+                      textStyle: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                      )),
                   onPressed: () async {
                     // TODO: Add forgot password feature
                     Navigator.of(context).pop(context);
                   },
-                  child: const Text('Forgot Password?')
-              ),
+                  child: const Text('Forgot Password?')),
             ),
 
             // ======== ENTER BUTTON ========
             Container(
               margin: EdgeInsets.fromLTRB(
-                  47, MediaQuery.of(context).size.height * 0.045,
-                  47, MediaQuery.of(context).size.height * 0.045),
+                  47,
+                  MediaQuery.of(context).size.height * 0.045,
+                  47,
+                  MediaQuery.of(context).size.height * 0.045),
               child: ElevatedButton(
-                  onPressed: logInUser,
-                  child: const Text('Enter')
-              ),
+                  onPressed: logInUser, child: const Text('Enter')),
             ),
           ],
         ),
