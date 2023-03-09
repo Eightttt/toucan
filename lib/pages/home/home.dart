@@ -9,11 +9,27 @@ class Home extends StatelessWidget {
     return Scaffold(
         resizeToAvoidBottomInset: false,
         body: SafeArea(
-          child: ElevatedButton(
-              onPressed: () async {
-                await _authService.logout();
-              },
-              child: Text("Log-out")),
+          child: Column(
+            children: [
+              Text(
+                'Home',
+                style: TextStyle(
+                  color: Color(0xfff28705),
+                  fontWeight: FontWeight.w700,
+                  fontSize: 25,
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.fromLTRB(
+                    47, MediaQuery.of(context).size.height - 150, 47, 0),
+                child: ElevatedButton(
+                    onPressed: () async {
+                      await _authService.logout();
+                    },
+                    child: Text("Log-out")),
+              ),
+            ],
+          ),
         ));
   }
 }
