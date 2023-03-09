@@ -54,7 +54,7 @@ class ToucanApp extends StatelessWidget {
           iconTheme: IconThemeData(color: mainAppColor),
           bottomSheetTheme: BottomSheetThemeData(
             backgroundColor: toucanWhite,
-            elevation: 20,
+            elevation: 30,
             modalBarrierColor: Colors.transparent,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.vertical(top: Radius.circular(36))),
