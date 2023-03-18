@@ -39,7 +39,7 @@ class _LogInState extends State<LogIn> {
             "Invalid log-in credentials",
             textAlign: TextAlign.center,
           ),
-          backgroundColor: Colors.red[400],
+          backgroundColor: Color(0xFFD74714),
           margin: EdgeInsets.only(
               bottom: MediaQuery.of(context).size.height - 80,
               left: 47,
