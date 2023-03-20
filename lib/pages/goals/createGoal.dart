@@ -131,7 +131,7 @@ class _CreateGoalState extends State<CreateGoal> {
                               child: Text("Confirm")),
                         ),
                       ],
-                    )
+                    ),
                   ],
                 ),
               ),

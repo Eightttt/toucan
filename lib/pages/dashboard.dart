@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 import "package:intl/intl.dart";
 import "package:toucan/pages/goals/createGoal.dart";
+import "package:toucan/pages/createPost.dart";
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
@@ -19,7 +20,7 @@ class _DashboardState extends State<Dashboard> {
         enableDrag: false,
         context: context,
         builder: (BuildContext context) {
-          return CreateGoal();
+          return CreatePost();
         });
   }
 
