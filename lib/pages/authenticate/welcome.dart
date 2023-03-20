@@ -45,7 +45,8 @@ class Preview extends StatelessWidget {
           height: 371,
         ),
         const Text(
-          'Stay on top of your goals \nwith Toucan',
+          'Stay on top of your goals \n'
+          'with Toucan',
           style: TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: 20,
