@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 import "package:intl/intl.dart";
+import "package:toucan/pages/goals/createGoal.dart";
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
@@ -10,8 +11,17 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   DateTime today = new DateTime.now();
-
   List<String> goals = ['Fitness Goal', 'Book Club'];
+
+  showCreateGoalSheet() {
+    return showModalBottomSheet<void>(
+        isScrollControlled: true,
+        enableDrag: false,
+        context: context,
+        builder: (BuildContext context) {
+          return CreateGoal();
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +89,9 @@ class _DashboardState extends State<Dashboard> {
             ),
           ),
           ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                showCreateGoalSheet();
+              },
               child: Icon(
                 Icons.add_box_rounded,
                 size: 30,
