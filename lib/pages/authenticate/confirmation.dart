@@ -1,5 +1,4 @@
 import "package:flutter/material.dart";
-import 'package:toucan/services/auth.dart';
 
 class Confirmation extends StatelessWidget {
   const Confirmation({Key? key}) : super(key: key);
