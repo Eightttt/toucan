@@ -14,45 +14,52 @@ class Confirmation extends StatelessWidget {
           alignment: Alignment.centerRight,
           child: Image.asset(
             'assets/toucan-title-logo.png',
-            width: 140,
+            width: 111,
           ),
         ),
       ),
       body: Center(
-        child: Padding(
-          padding: EdgeInsets.all(30),
-          child: Column(
-            children: [
-              SizedBox(height: 100),
-              Text(
-                'Thank you for registering!',
-                style: TextStyle(
-                  color: Color(0xfff28705),
-                  fontWeight: FontWeight.w700,
-                  fontSize: 20,
-                ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Thank you for registering!',
+              style: TextStyle(
+                color: Color(0xfff28705),
+                fontWeight: FontWeight.w600,
+                fontSize: 20,
               ),
-              Image.asset('assets/confirmation.png'),
-              SizedBox(height: 20),
-              Text(
-                'We look forward to being your \n'
-                'goal partner',
-                style: TextStyle(
-                  color: Color(0xfff28705),
-                  fontWeight: FontWeight.w700,
-                  fontSize: 16,
-                ),
-                textAlign: TextAlign.center,
+            ),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+            Align(
+              alignment: Alignment.centerRight,
+              child: Image.asset(
+                'assets/confirmation.png',
+                width: 345,
               ),
-              SizedBox(height: 150),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('Get Started'),
+            ),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+            Text(
+              'We look forward to being your \n'
+              'goal partner',
+              style: TextStyle(
+                color: Color(0xfff28705),
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
               ),
-            ],
-          ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(204, 48),
+              ),
+              child: Text('Get Started'),
+            ),
+          ],
         ),
       ),
     );

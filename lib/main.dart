@@ -76,10 +76,10 @@ class ToucanApp extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
-              minimumSize: const Size(double.infinity, 58),
+              minimumSize: const Size(double.infinity, 48),
               elevation: 8,
               textStyle: const TextStyle(
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w700,
                 fontSize: 19,
                 letterSpacing: 0.5,
               ),
