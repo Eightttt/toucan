@@ -42,6 +42,9 @@ class ToucanApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    precacheImage(Image.asset('assets/toucan-title-logo.png').image, context);
+    precacheImage(Image.asset('assets/preview.png').image, context);
+    precacheImage(Image.asset('assets/confirmation.png').image, context);
     return StreamProvider<UserModel?>.value(
       value: AuthService().user,
       initialData: null,

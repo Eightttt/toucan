@@ -3,9 +3,8 @@ import 'package:toucan/pages/authenticate/signup.dart';
 import 'package:toucan/pages/authenticate/login.dart';
 
 class Welcome extends StatelessWidget {
-  const Welcome({
-    super.key,
-  });
+  const Welcome({super.key});
+  
 
   @override
   Widget build(BuildContext context) {
@@ -59,9 +58,7 @@ class Preview extends StatelessWidget {
 }
 
 class Buttons extends StatelessWidget {
-  const Buttons({
-    super.key,
-  });
+  const Buttons({super.key});
 
   @override
   Widget build(BuildContext context) {

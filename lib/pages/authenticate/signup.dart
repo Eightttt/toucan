@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:toucan/pages/authenticate/confirmation.dart';
 import 'package:toucan/services/auth.dart';
 import 'package:toucan/shared/loading.dart';
 
@@ -81,7 +82,8 @@ class SignUpForm extends StatefulWidget {
   const SignUpForm(this.showLoading);
 
   @override
-  State<SignUpForm> createState() => _SignUpFormState(showLoading);
+  State<SignUpForm> createState() =>
+      _SignUpFormState(showLoading);
 }
 
 class _SignUpFormState extends State<SignUpForm> {
@@ -119,21 +121,9 @@ class _SignUpFormState extends State<SignUpForm> {
         );
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
       } else {
-        // TODO: remove snackbar, add get started page
-        final snackBar = SnackBar(
-          behavior: SnackBarBehavior.floating,
-          content: Text(
-            "Sign up successful",
-            textAlign: TextAlign.center,
-          ),
-          backgroundColor: Color(0xfff28705),
-          margin: EdgeInsets.only(
-              bottom: MediaQuery.of(context).size.height - 80,
-              left: 50,
-              right: 50),
-        );
-        Navigator.of(context).pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        Navigator.of(context).pushReplacement(MaterialPageRoute(
+            builder: (BuildContext context) =>
+                Confirmation()));
       }
     }
   }

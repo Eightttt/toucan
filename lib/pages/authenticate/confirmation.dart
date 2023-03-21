@@ -7,6 +7,9 @@ class Confirmation extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         title: Align(
           alignment: Alignment.centerRight,
           child: Image.asset(
@@ -17,7 +20,7 @@ class Confirmation extends StatelessWidget {
       ),
       body: Center(
         child: Padding(
-          padding:EdgeInsets.all(30),
+          padding: EdgeInsets.all(30),
           child: Column(
             children: [
               SizedBox(height: 100),
@@ -29,7 +32,7 @@ class Confirmation extends StatelessWidget {
                   fontSize: 20,
                 ),
               ),
-              Image.asset('assets/toucan-confirmation-temp.PNG'),
+              Image.asset('assets/confirmation.png'),
               SizedBox(height: 20),
               Text(
                 'We look forward to being your \n'
@@ -43,8 +46,10 @@ class Confirmation extends StatelessWidget {
               ),
               SizedBox(height: 150),
               ElevatedButton(
-                  onPressed: () {},
-                  child: Text('Get Started'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('Get Started'),
               ),
             ],
           ),
