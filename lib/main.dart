@@ -51,42 +51,61 @@ class ToucanApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(
-          primarySwatch: mainAppColor,
-          scaffoldBackgroundColor: toucanWhite,
-          fontFamily: 'Inter',
-          iconTheme: IconThemeData(color: mainAppColor),
-          bottomSheetTheme: BottomSheetThemeData(
-            backgroundColor: toucanWhite,
-            elevation: 30,
-            modalBarrierColor: Colors.transparent,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(36))),
-          ),
-          inputDecorationTheme: InputDecorationTheme(
-            enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: mainAppColor),
-              borderRadius: BorderRadius.all(Radius.circular(17)),
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-            ),
-            prefixIconColor: mainAppColor,
-          ),
-          elevatedButtonTheme: ElevatedButtonThemeData(
-            style: ElevatedButton.styleFrom(
+            primarySwatch: mainAppColor,
+            scaffoldBackgroundColor: toucanWhite,
+            fontFamily: 'Inter',
+            iconTheme: IconThemeData(color: mainAppColor),
+            bottomSheetTheme: BottomSheetThemeData(
+              backgroundColor: toucanWhite,
+              elevation: 30,
+              modalBarrierColor: Colors.transparent,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
-              minimumSize: const Size(double.infinity, 48),
-              elevation: 8,
-              textStyle: const TextStyle(
-                fontWeight: FontWeight.w700,
-                fontSize: 19,
-                letterSpacing: 0.5,
-              ),
-              foregroundColor: toucanWhite,
+                  borderRadius:
+                      BorderRadius.vertical(top: Radius.circular(36))),
             ),
-          ),
-        ),
+            inputDecorationTheme: InputDecorationTheme(
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: mainAppColor),
+                borderRadius: BorderRadius.all(Radius.circular(17)),
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+              ),
+              prefixIconColor: mainAppColor,
+            ),
+            elevatedButtonTheme: ElevatedButtonThemeData(
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
+                minimumSize: const Size(double.infinity, 48),
+                elevation: 8,
+                textStyle: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 19,
+                  letterSpacing: 0.5,
+                ),
+                foregroundColor: toucanWhite,
+              ),
+            ),
+            floatingActionButtonTheme: FloatingActionButtonThemeData(
+              foregroundColor: toucanWhite,
+              backgroundColor: mainAppColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+            cardTheme: CardTheme(
+              color: toucanWhite,
+              elevation: 3,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            bottomNavigationBarTheme: BottomNavigationBarThemeData(
+                selectedIconTheme: IconThemeData(color: mainAppColor),
+                unselectedIconTheme: IconThemeData(color: Colors.black),
+                backgroundColor: toucanWhite,
+                elevation: 0)),
         home: Landing(),
       ),
     );
