@@ -55,7 +55,7 @@ class _DashboardState extends State<Dashboard> {
                           alignment: Alignment.topRight,
                           child: CircleAvatar(
                             backgroundImage: Image.asset(
-                              "assets/temp-avi.jpg",
+                              "assets/temp-img1.png",
                               fit: BoxFit.cover,
                             ).image,
                             radius: MediaQuery.of(context).size.width * .125,
