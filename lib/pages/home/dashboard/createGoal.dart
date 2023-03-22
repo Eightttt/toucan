@@ -45,10 +45,16 @@ class _CreateGoalState extends State<CreateGoal> {
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: formKeyGoal,
-      child: SizedBox(
-        height: MediaQuery.of(context).size.height * 0.65,
+    return Container(
+      decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(26))
+          //more than 50% of width makes circle
+          ),
+      margin: EdgeInsets.only(left: 15, right: 15),
+      height: MediaQuery.of(context).size.height * 0.65,
+      child: Form(
+        key: formKeyGoal,
         child: ListView(
           children: [
             Align(
@@ -79,7 +85,7 @@ class _CreateGoalState extends State<CreateGoal> {
                     },
                     onSaved: (value) => _goalTitle = value!,
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 15),
 
                   // GOAL TAG
                   DropdownButtonFormField(
@@ -105,22 +111,21 @@ class _CreateGoalState extends State<CreateGoal> {
                       }
                     },
                   ),
-                  SizedBox(height: 20),
-                  Align(
+                  Container(
+                    padding: EdgeInsets.fromLTRB(10, 20, 0, 8),
                     alignment: Alignment.topLeft,
                     child: Text("Goal Duration"),
                   ),
-                  SizedBox(
-                    width: 20,
-                  ),
-                  SizedBox(height: 20),
                   Row(
                     children: [
                       Expanded(
                         // GOAL DURATION
                         child: TextFormField(
                           readOnly: true,
-                          decoration: InputDecoration(hintText: "Start Date:"),
+                          decoration: InputDecoration(
+                            hintText: "Start Date:",
+                            errorMaxLines: 3,
+                          ),
                           controller: _startDate,
                           onTap: () async {
                             DateTime? pickeddate = await showDatePicker(
@@ -135,7 +140,7 @@ class _CreateGoalState extends State<CreateGoal> {
                           },
                           validator: (value) {
                             if (value!.length <= 0) {
-                              return 'Choose a date to start';
+                              return 'Choose a date';
                             } else {
                               return null;
                             }
@@ -147,7 +152,10 @@ class _CreateGoalState extends State<CreateGoal> {
                       Expanded(
                         child: TextFormField(
                           readOnly: true,
-                          decoration: InputDecoration(hintText: "End Date:"),
+                          decoration: InputDecoration(
+                            hintText: "End Date:",
+                            errorMaxLines: 3,
+                          ),
                           controller: _endDate,
                           onTap: () async {
                             DateTime? pickeddate = await showDatePicker(
@@ -162,7 +170,7 @@ class _CreateGoalState extends State<CreateGoal> {
                           },
                           validator: (value) {
                             if (value!.length <= 0) {
-                              return 'Choose a date to end';
+                              return 'Choose a date';
                             } else {
                               return null;
                             }
@@ -172,12 +180,11 @@ class _CreateGoalState extends State<CreateGoal> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 20),
-                  Align(
+                  Container(
+                    padding: EdgeInsets.fromLTRB(10, 20, 0, 8),
                     alignment: Alignment.topLeft,
                     child: Text("Notify every"),
                   ),
-                  SizedBox(height: 20),
                   Row(
                     children: [
                       Expanded(
@@ -192,7 +199,10 @@ class _CreateGoalState extends State<CreateGoal> {
                                 setState(() => period = 1);
                               }
                             },
-                            decoration: InputDecoration(hintText: "1"),
+                            decoration: InputDecoration(
+                              hintText: "1",
+                              errorMaxLines: 3,
+                            ),
                             keyboardType: TextInputType.number,
                             inputFormatters: <TextInputFormatter>[
                               FilteringTextInputFormatter.allow(
@@ -200,7 +210,7 @@ class _CreateGoalState extends State<CreateGoal> {
                             ],
                             validator: (value) {
                               if (value!.length == 0) {
-                                return 'Enter a number';
+                                return 'Enter number';
                               } else if (value == 0) {
                                 return 'Must be greater than 0';
                               } else {

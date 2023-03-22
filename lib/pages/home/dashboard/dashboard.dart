@@ -44,6 +44,7 @@ class _DashboardState extends State<Dashboard> {
   showCreateGoalSheet() {
     return showModalBottomSheet<void>(
         isScrollControlled: true,
+        backgroundColor: Colors.transparent,
         barrierColor: Color.fromARGB(85, 0, 0, 0),
         enableDrag: false,
         context: context,
