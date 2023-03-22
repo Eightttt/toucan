@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import "package:intl/intl.dart";
-import "package:toucan/pages/home/dashboard/createGoal.dart";
+import 'package:toucan/pages/home/dashboard/creategoal.dart';
 import "package:toucan/pages/home/dashboard/fadeappbar.dart";
 
 class Dashboard extends StatefulWidget {
@@ -44,6 +44,7 @@ class _DashboardState extends State<Dashboard> {
   showCreateGoalSheet() {
     return showModalBottomSheet<void>(
         isScrollControlled: true,
+        barrierColor: Color.fromARGB(85, 0, 0, 0),
         enableDrag: false,
         context: context,
         builder: (BuildContext context) {

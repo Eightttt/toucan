@@ -9,7 +9,6 @@ class LogIn extends StatefulWidget {
   State<LogIn> createState() => _LogInState();
 }
 
-// TODO: add Navigator.of(context).pop(context) after logging in
 class _LogInState extends State<LogIn> {
   final AuthService _authService = AuthService();
   final formKey = GlobalKey<FormState>();
