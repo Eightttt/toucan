@@ -190,6 +190,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_date_interval:
+    dependency: "direct main"
+    description:
+      name: flutter_date_interval
+      sha256: f65efe04c86b74faaee3bd5d2191ff4401ca68acb98fc79310fb15ac061addf2
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.1"
   flutter_launcher_icons:
     dependency: "direct dev"
     description:
@@ -414,5 +422,5 @@ packages:
     source: hosted
     version: "3.1.1"
 sdks:
-  dart: ">=2.19.0 <3.0.0"
+  dart: ">=2.19.0 <4.0.0"
   flutter: ">=2.0.0"
