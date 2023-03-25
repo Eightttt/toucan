@@ -31,45 +31,45 @@ class _DashboardState extends State<Dashboard> {
     }
   }
 
-  // // TODO: check link: https://stackoverflow.com/questions/56071731/scrollcontroller-how-can-i-detect-scroll-start-stop-and-scrolling
-  // _scrollDown() async {
-  //   // print("start animation down");
-  //   setState(() {
-  //     _isAnimating = true;
-  //   });
-  //   await _scrollController
-  //       .animateTo(
-  //     height - kToolbarHeight + 10,
-  //     duration: Duration(milliseconds: 500),
-  //     curve: Curves.fastOutSlowIn,
-  //   )
-  //       .then((_) {
-  //     setState(() {
-  //       _isAnimating = false;
-  //     });
-  //   });
-  //   // print("end animation down");
-  // }
+  // TODO: check link: https://stackoverflow.com/questions/56071731/scrollcontroller-how-can-i-detect-scroll-start-stop-and-scrolling
+  _scrollDown() async {
+    // print("start animation down");
+    setState(() {
+      _isAnimating = true;
+    });
+    await _scrollController
+        .animateTo(
+      height - kToolbarHeight + 10,
+      duration: Duration(milliseconds: 500),
+      curve: Curves.fastOutSlowIn,
+    )
+        .then((_) {
+      setState(() {
+        _isAnimating = false;
+      });
+    });
+    // print("end animation down");
+  }
 
-  // _scrollUp() async {
-  //   // print("start animation up");
-  //   setState(() {
-  //     _isAnimating = true;
-  //   });
-  //   await _scrollController
-  //       .animateTo(
-  //     _scrollController.position.minScrollExtent,
-  //     duration: Duration(milliseconds: 500),
-  //     curve: Curves.fastOutSlowIn,
-  //   )
-  //       .then((_) {
-  //     setState(() {
-  //       _isAnimating = false;
-  //     });
-  //   });
+  _scrollUp() async {
+    // print("start animation up");
+    setState(() {
+      _isAnimating = true;
+    });
+    await _scrollController
+        .animateTo(
+      _scrollController.position.minScrollExtent,
+      duration: Duration(milliseconds: 500),
+      curve: Curves.fastOutSlowIn,
+    )
+        .then((_) {
+      setState(() {
+        _isAnimating = false;
+      });
+    });
 
-  //   // print("end animation up");
-  // }
+    // print("end animation up");
+  }
 
   bool get _isShrink {
     return _scrollController.hasClients &&
@@ -79,8 +79,8 @@ class _DashboardState extends State<Dashboard> {
   @override
   void dispose() {
     _scrollController.removeListener(_scrollListener);
-    // _scrollController.position.isScrollingNotifier
-    //     .removeListener(_scrollListener);
+    _scrollController.position.isScrollingNotifier
+        .removeListener(_scrollListener);
     _scrollController.dispose();
     super.dispose();
   }
@@ -101,20 +101,20 @@ class _DashboardState extends State<Dashboard> {
   Widget build(BuildContext context) {
     DateTime today = new DateTime.now();
 
-    // WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-    //   _scrollController.position.isScrollingNotifier.addListener(() {
-    //     if (_scrollController.position.isScrollingNotifier.value) {
-    //       // print('scroll is started');
-    //     } else if (!_isAnimating) {
-    //       if (_isShrink &&
-    //           _scrollController.offset < (height - kToolbarHeight + 10)) {
-    //         _scrollDown();
-    //       } else if (!_isShrink) {
-    //         _scrollUp();
-    //       }
-    //     }
-    //   });
-    // });
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      _scrollController.position.isScrollingNotifier.addListener(() {
+        if (_scrollController.position.isScrollingNotifier.value) {
+          // print('scroll is started');
+        } else if (!_isAnimating) {
+          if (_isShrink &&
+              _scrollController.offset < (height - kToolbarHeight + 10)) {
+            _scrollDown();
+          } else if (!_isShrink) {
+            _scrollUp();
+          }
+        }
+      });
+    });
     return Scaffold(
       body: AbsorbPointer(
         absorbing: _isAnimating,
@@ -142,7 +142,11 @@ class _DashboardState extends State<Dashboard> {
                         child: IconButton(
                           disabledColor: Colors.black,
                           enableFeedback: !_isShrink ? false : true,
-                          onPressed: _isShrink ? () => print("Clicked") : null,
+                          onPressed: _isShrink
+                              ? () => showDialog(
+                                  context: context,
+                                  builder: (context) => Settings())
+                              : null,
                           icon: Icon(Icons.settings),
                         ),
                       ),
