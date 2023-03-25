@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 
-class FadingAppBar extends StatefulWidget {
+class FadingOnScroll extends StatefulWidget {
   final ScrollController scrollController;
   final Widget child;
-  const FadingAppBar({
+  const FadingOnScroll({
     required this.scrollController,
     required this.child,
     super.key,
   });
 
   @override
-  State<FadingAppBar> createState() => _FadingAppBarState();
+  State<FadingOnScroll> createState() => _FadingOnScrollState();
 }
 
-class _FadingAppBarState extends State<FadingAppBar> {
+class _FadingOnScrollState extends State<FadingOnScroll> {
   bool lastStatus = true;
   double height = 200;
   final double zeroOpacityOffset = 0;
