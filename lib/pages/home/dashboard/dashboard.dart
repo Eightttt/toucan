@@ -13,7 +13,8 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   final ScrollController _scrollController = ScrollController();
   bool lastStatus = true;
-  double height = 200;
+  double height = 220;
+  bool _isAnimating = false;
 
   @override
   void initState() {
@@ -29,14 +30,56 @@ class _DashboardState extends State<Dashboard> {
     }
   }
 
+  // TODO: check link: https://stackoverflow.com/questions/56071731/scrollcontroller-how-can-i-detect-scroll-start-stop-and-scrolling
+  _scrollDown() async {
+    print("start animation down");
+    setState(() {
+      _isAnimating = true;
+    });
+    await _scrollController
+        .animateTo(
+      height - kToolbarHeight + 10,
+      duration: Duration(milliseconds: 500),
+      curve: Curves.fastOutSlowIn,
+    )
+        .then((_) {
+      setState(() {
+        _isAnimating = false;
+      });
+    });
+    print("end animation down");
+  }
+
+  _scrollUp() async {
+    print("start animation up");
+    setState(() {
+      _isAnimating = true;
+    });
+    await _scrollController
+        .animateTo(
+      _scrollController.position.minScrollExtent,
+      duration: Duration(milliseconds: 500),
+      curve: Curves.fastOutSlowIn,
+    )
+        .then((_) {
+      setState(() {
+        _isAnimating = false;
+      });
+    });
+
+    print("end animation up");
+  }
+
   bool get _isShrink {
     return _scrollController.hasClients &&
-        _scrollController.offset > (height - kToolbarHeight);
+        _scrollController.offset > (height - kToolbarHeight) / 2;
   }
 
   @override
   void dispose() {
     _scrollController.removeListener(_scrollListener);
+    _scrollController.position.isScrollingNotifier
+        .removeListener(_scrollListener);
     _scrollController.dispose();
     super.dispose();
   }
@@ -57,36 +100,63 @@ class _DashboardState extends State<Dashboard> {
   Widget build(BuildContext context) {
     DateTime today = new DateTime.now();
 
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      _scrollController.position.isScrollingNotifier.addListener(() {
+        if (_scrollController.position.isScrollingNotifier.value) {
+          print('scroll is started');
+        } else if (!_isAnimating) {
+          if (_isShrink &&
+              _scrollController.offset < (height - kToolbarHeight + 10)) {
+            _scrollDown();
+          } else if (!_isShrink) {
+            _scrollUp();
+          }
+        }
+      });
+    });
     return Scaffold(
-      body: NestedScrollView(
-        controller: _scrollController,
-        headerSliverBuilder: (context, innerBoxIsScrolled) {
-          return [
-            SliverAppBar(
-              backgroundColor: Colors.white,
-              elevation: 5,
-              pinned: true,
-              expandedHeight: MediaQuery.of(context).size.height * 0.25,
-              title: FadingAppBar(
-                scrollController: _scrollController,
-                child: Row(
-                  children: [
-                    Image.asset(
-                      "assets/toucan-title-logo.png",
-                      fit: BoxFit.fitHeight,
-                      height: AppBar().preferredSize.height,
-                    ),
-                  ],
+      body: AbsorbPointer(
+        absorbing: _isAnimating,
+        child: NestedScrollView(
+          controller: _scrollController,
+          headerSliverBuilder: (context, innerBoxIsScrolled) {
+            return [
+              SliverAppBar(
+                backgroundColor: Colors.white,
+                elevation: 5,
+                pinned: true,
+                expandedHeight: height,
+                title: FadingOnScroll(
+                  scrollController: _scrollController,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Image.asset(
+                        "assets/toucan-title-logo.png",
+                        fit: BoxFit.fitHeight,
+                        height: kToolbarHeight,
+                      ),
+                      FadingOnScroll(
+                        scrollController: _scrollController,
+                        child: IconButton(
+                          disabledColor: Colors.black,
+                          enableFeedback: !_isShrink ? false : true,
+                          onPressed: _isShrink ? () => print("Clicked") : null,
+                          icon: Icon(Icons.settings),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                flexibleSpace: FlexibleSpaceBar(
+                  collapseMode: CollapseMode.parallax,
+                  background: PageHeader(today: today),
                 ),
               ),
-              flexibleSpace: FlexibleSpaceBar(
-                collapseMode: CollapseMode.parallax,
-                background: PageHeader(today: today),
-              ),
-            ),
-          ];
-        },
-        body: GoalsListView(),
+            ];
+          },
+          body: GoalsListView(),
+        ),
       ),
       floatingActionButton: FloatingActionButton(
           onPressed: () {
