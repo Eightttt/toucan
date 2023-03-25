@@ -60,7 +60,6 @@ class _FadingOnScrollState extends State<FadingOnScroll> {
   @override
   void dispose() {
     widget.scrollController.removeListener(_setOffset);
-    widget.scrollController.dispose();
     super.dispose();
   }
 

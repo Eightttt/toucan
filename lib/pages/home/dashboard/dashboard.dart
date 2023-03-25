@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import "package:intl/intl.dart";
 import 'package:toucan/pages/home/dashboard/creategoal.dart';
 import "package:toucan/pages/home/dashboard/fadeappbar.dart";
+import 'package:toucan/services/auth.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
@@ -30,45 +31,45 @@ class _DashboardState extends State<Dashboard> {
     }
   }
 
-  // TODO: check link: https://stackoverflow.com/questions/56071731/scrollcontroller-how-can-i-detect-scroll-start-stop-and-scrolling
-  _scrollDown() async {
-    print("start animation down");
-    setState(() {
-      _isAnimating = true;
-    });
-    await _scrollController
-        .animateTo(
-      height - kToolbarHeight + 10,
-      duration: Duration(milliseconds: 500),
-      curve: Curves.fastOutSlowIn,
-    )
-        .then((_) {
-      setState(() {
-        _isAnimating = false;
-      });
-    });
-    print("end animation down");
-  }
+  // // TODO: check link: https://stackoverflow.com/questions/56071731/scrollcontroller-how-can-i-detect-scroll-start-stop-and-scrolling
+  // _scrollDown() async {
+  //   // print("start animation down");
+  //   setState(() {
+  //     _isAnimating = true;
+  //   });
+  //   await _scrollController
+  //       .animateTo(
+  //     height - kToolbarHeight + 10,
+  //     duration: Duration(milliseconds: 500),
+  //     curve: Curves.fastOutSlowIn,
+  //   )
+  //       .then((_) {
+  //     setState(() {
+  //       _isAnimating = false;
+  //     });
+  //   });
+  //   // print("end animation down");
+  // }
 
-  _scrollUp() async {
-    print("start animation up");
-    setState(() {
-      _isAnimating = true;
-    });
-    await _scrollController
-        .animateTo(
-      _scrollController.position.minScrollExtent,
-      duration: Duration(milliseconds: 500),
-      curve: Curves.fastOutSlowIn,
-    )
-        .then((_) {
-      setState(() {
-        _isAnimating = false;
-      });
-    });
+  // _scrollUp() async {
+  //   // print("start animation up");
+  //   setState(() {
+  //     _isAnimating = true;
+  //   });
+  //   await _scrollController
+  //       .animateTo(
+  //     _scrollController.position.minScrollExtent,
+  //     duration: Duration(milliseconds: 500),
+  //     curve: Curves.fastOutSlowIn,
+  //   )
+  //       .then((_) {
+  //     setState(() {
+  //       _isAnimating = false;
+  //     });
+  //   });
 
-    print("end animation up");
-  }
+  //   // print("end animation up");
+  // }
 
   bool get _isShrink {
     return _scrollController.hasClients &&
@@ -78,8 +79,8 @@ class _DashboardState extends State<Dashboard> {
   @override
   void dispose() {
     _scrollController.removeListener(_scrollListener);
-    _scrollController.position.isScrollingNotifier
-        .removeListener(_scrollListener);
+    // _scrollController.position.isScrollingNotifier
+    //     .removeListener(_scrollListener);
     _scrollController.dispose();
     super.dispose();
   }
@@ -100,20 +101,20 @@ class _DashboardState extends State<Dashboard> {
   Widget build(BuildContext context) {
     DateTime today = new DateTime.now();
 
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      _scrollController.position.isScrollingNotifier.addListener(() {
-        if (_scrollController.position.isScrollingNotifier.value) {
-          print('scroll is started');
-        } else if (!_isAnimating) {
-          if (_isShrink &&
-              _scrollController.offset < (height - kToolbarHeight + 10)) {
-            _scrollDown();
-          } else if (!_isShrink) {
-            _scrollUp();
-          }
-        }
-      });
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+    //   _scrollController.position.isScrollingNotifier.addListener(() {
+    //     if (_scrollController.position.isScrollingNotifier.value) {
+    //       // print('scroll is started');
+    //     } else if (!_isAnimating) {
+    //       if (_isShrink &&
+    //           _scrollController.offset < (height - kToolbarHeight + 10)) {
+    //         _scrollDown();
+    //       } else if (!_isShrink) {
+    //         _scrollUp();
+    //       }
+    //     }
+    //   });
+    // });
     return Scaffold(
       body: AbsorbPointer(
         absorbing: _isAnimating,
@@ -297,17 +298,89 @@ class PageHeader extends StatelessWidget {
                 ),
               ],
             ),
-            Text(
-              'USER EDITABLE TEXT',
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontStyle: FontStyle.italic,
-                fontSize: 20,
-              ),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis p',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontStyle: FontStyle.italic,
+                      fontSize: 15,
+                    ),
+                    maxLines: 4,
+                    softWrap: true,
+                  ),
+                ),
+                IconButton(
+                  color: Colors.black,
+                  onPressed: () => showDialog(
+                      context: context, builder: (context) => Settings()),
+                  icon: Icon(Icons.settings),
+                ),
+              ],
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class Settings extends StatelessWidget {
+  final AuthService _authService = AuthService();
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      iconPadding: EdgeInsets.only(top: 10, left: 5),
+      icon: Align(
+        alignment: Alignment.topLeft,
+        child: IconButton(
+          color: Colors.orange,
+          iconSize: 30,
+          onPressed: () => Navigator.of(context).pop(),
+          icon: Icon(Icons.chevron_left),
+        ),
+      ),
+      actionsPadding: EdgeInsets.only(bottom: 37),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(45, 0, 45, 10),
+          child: ElevatedButton(
+            onPressed: () => {},
+            child: Text(
+              "Edit Profile",
+              style: TextStyle(fontSize: 14),
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(45, 10, 45, 10),
+          child: ElevatedButton(
+            onPressed: () => {},
+            child: Text(
+              "Feedback",
+              style: TextStyle(fontSize: 14),
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(45, 10, 45, 10),
+          child: ElevatedButton(
+            onPressed: () {
+              _authService.logout();
+              Navigator.of(context).pop();
+            },
+            child: Text(
+              "Log Out",
+              style: TextStyle(fontSize: 14),
+            ),
+          ),
+        ),
+      ],
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(15))),
     );
   }
 }
