@@ -14,6 +14,8 @@ class _CreateGoalState extends State<CreateGoal> {
 
   final _goalTags = ["Academic", "Work", "Personal"];
   final _interval = ["day/s", "week/s", "month/s", "year/s"];
+  late DateTime _startDate;
+  late DateTime _endDate;
 
   String _goalTitle = "";
   String _chosenGoalTag = "Academic";
@@ -37,7 +39,8 @@ class _CreateGoalState extends State<CreateGoal> {
       formKeyGoal.currentState!.save();
       print("Title: ${_goalTitle}");
       print("Goal Tag: ${_chosenGoalTag}");
-      print("Start Date - End Date: ${_startEndDate.text}");
+      print("Start Date: ${_startDate}");
+      print("End Date: ${_endDate}");
       print("Period: ${period}");
       print("Chosen Interval: ${_chosenInterval}");
     } else {
@@ -48,9 +51,6 @@ class _CreateGoalState extends State<CreateGoal> {
 
   @override
   Widget build(BuildContext context) {
-    final _startDate = dateRange.start;
-    final _endDate = dateRange.end;
-
     return Container(
       decoration: BoxDecoration(
           color: Colors.white,
@@ -137,6 +137,10 @@ class _CreateGoalState extends State<CreateGoal> {
                               firstDate: DateTime(2023),
                               lastDate: DateTime(2200));
                       if (pickedDateRange != null) {
+                        setState(() {});
+                        dateRange = pickedDateRange;
+                        _startDate = dateRange.start;
+                        _endDate = dateRange.end;
                         _startEndDate.text =
                             DateFormat('MMMM dd, yyyy').format(_startDate) +
                                 " - " +
