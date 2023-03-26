@@ -1,11 +1,18 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import "package:intl/intl.dart";
+import 'package:provider/provider.dart';
+import 'package:toucan/models/userDataModel.dart';
 import 'package:toucan/pages/home/dashboard/creategoal.dart';
 import "package:toucan/pages/home/dashboard/fadeappbar.dart";
 import 'package:toucan/services/auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:toucan/services/database.dart';
+import '../../../shared/loading.dart';
 
 class Dashboard extends StatefulWidget {
-  const Dashboard({Key? key}) : super(key: key);
+  const Dashboard({Key? key, required this.uid}) : super(key: key);
+  final String uid;
 
   @override
   State<Dashboard> createState() => _DashboardState();
@@ -17,12 +24,40 @@ class _DashboardState extends State<Dashboard> {
   double height = 220;
   bool _isAnimating = false;
   double _offset = 0;
+  bool isLoading = true;
+  bool isLoadingUserData = true;
+  String description = "";
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_scrollListener);
     _scrollController.addListener(_setOffset);
+    loadUserData(widget.uid);
+  }
+
+  Future loadUserData(String uid) async {
+    UserDataModel userData = await DatabaseService().getUserData(uid);
+    toggleIsLoadingUserData();
+    showLoading();
+    setState(() {
+      description = userData.getDescription;
+    });
+  }
+
+  void showLoading() {
+    setState(() {
+      // TODO: Add loading boolean for goal
+      if (!isLoadingUserData) {
+        isLoading = false;
+      } else {
+        isLoading = true;
+      }
+    });
+  }
+
+  void toggleIsLoadingUserData() {
+    isLoadingUserData = !isLoadingUserData;
   }
 
   void _scrollListener() {
@@ -122,65 +157,84 @@ class _DashboardState extends State<Dashboard> {
         }
       });
     });
-    return Scaffold(
-      body: AbsorbPointer(
-        absorbing: _isAnimating,
-        child: NestedScrollView(
-          controller: _scrollController,
-          headerSliverBuilder: (context, innerBoxIsScrolled) {
-            return [
-              SliverAppBar(
-                backgroundColor: Colors.white,
-                elevation: 5,
-                pinned: true,
-                expandedHeight: height,
-                title: FadingOnScroll(
-                  scrollController: _scrollController,
-                  offset: _offset,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Image.asset(
-                        "assets/toucan-title-logo.png",
-                        fit: BoxFit.fitHeight,
-                        height: kToolbarHeight,
-                      ),
-                      FadingOnScroll(
+
+    return StreamProvider<QuerySnapshot?>.value(
+      value: DatabaseService().userData,
+      initialData: null,
+      child: Stack(
+        children: [
+          Scaffold(
+            body: AbsorbPointer(
+              absorbing: _isAnimating,
+              child: NestedScrollView(
+                controller: _scrollController,
+                headerSliverBuilder: (context, innerBoxIsScrolled) {
+                  return [
+                    SliverAppBar(
+                      backgroundColor: Colors.white,
+                      elevation: 5,
+                      pinned: true,
+                      expandedHeight: height,
+                      title: FadingOnScroll(
                         scrollController: _scrollController,
                         offset: _offset,
-                        child: IconButton(
-                          disabledColor: Colors.black,
-                          enableFeedback: !_isShrink ? false : true,
-                          onPressed: _isShrink
-                              ? () => showDialog(
-                                  context: context,
-                                  builder: (context) => Settings())
-                              : null,
-                          icon: Icon(Icons.settings),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Image.asset(
+                              "assets/toucan-title-logo.png",
+                              fit: BoxFit.fitHeight,
+                              height: kToolbarHeight,
+                            ),
+                            FadingOnScroll(
+                              scrollController: _scrollController,
+                              offset: _offset,
+                              child: IconButton(
+                                disabledColor: Colors.black,
+                                enableFeedback: !_isShrink ? false : true,
+                                onPressed: _isShrink
+                                    ? () => showDialog(
+                                        context: context,
+                                        builder: (context) => Settings())
+                                    : null,
+                                icon: Icon(Icons.settings),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-                flexibleSpace: FlexibleSpaceBar(
-                  collapseMode: CollapseMode.parallax,
-                  background: PageHeader(today: today),
-                ),
+                      flexibleSpace: FlexibleSpaceBar(
+                        collapseMode: CollapseMode.parallax,
+                        background: PageHeader(
+                          today: today,
+                          description: description,
+                        ),
+                      ),
+                    ),
+                  ];
+                },
+                body: GoalsListView(),
               ),
-            ];
-          },
-          body: GoalsListView(),
-        ),
+            ),
+            floatingActionButton: FloatingActionButton(
+                onPressed: () {
+                  showCreateGoalSheet();
+                },
+                child: Icon(
+                  Icons.add,
+                )),
+            bottomNavigationBar: BottomNavBar(),
+            floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+          ),
+          Visibility(
+            visible: isLoading,
+            child: Container(
+              color: Color(0xFFFDFDF5),
+              child: Loading(),
+            ),
+          ),
+        ],
       ),
-      floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            showCreateGoalSheet();
-          },
-          child: Icon(
-            Icons.add,
-          )),
-      bottomNavigationBar: BottomNavBar(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }
@@ -270,56 +324,59 @@ class GoalsListView extends StatelessWidget {
 }
 
 class PageHeader extends StatelessWidget {
-  const PageHeader({
+  PageHeader({
     super.key,
     required this.today,
+    required this.description,
   });
 
   final DateTime today;
+  final String description;
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Container(
-        color: Colors.orange,
-        padding: EdgeInsets.only(left: 10, right: 10),
+        color: Color(0xfff28705),
+        padding: EdgeInsets.only(left: 15, right: 15),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  '${DateFormat('MMMM dd').format(today)}',
-                  style: TextStyle(
-                    fontStyle: FontStyle.italic,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 48,
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: Text(
+                    '${DateFormat('MMMM dd').format(today)}',
+                    style: TextStyle(
+                      fontStyle: FontStyle.italic,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 48,
+                    ),
                   ),
                 ),
-                Align(
-                  alignment: Alignment.topRight,
-                  child: CircleAvatar(
-                    backgroundImage: Image.asset(
-                      "assets/temp-img1.png",
-                      fit: BoxFit.cover,
-                    ).image,
-                    radius: MediaQuery.of(context).size.width * .125,
-                  ),
+                CircleAvatar(
+                  backgroundImage: Image.asset(
+                    "assets/temp-img1.png",
+                    fit: BoxFit.cover,
+                  ).image,
+                  radius: MediaQuery.of(context).size.width * .125,
                 ),
               ],
             ),
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
                   child: Text(
-                    'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis p',
+                    description,
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                       fontStyle: FontStyle.italic,
-                      fontSize: 15,
+                      fontSize: 20,
                     ),
                     maxLines: 4,
                     softWrap: true,
@@ -350,7 +407,7 @@ class Settings extends StatelessWidget {
       icon: Align(
         alignment: Alignment.topLeft,
         child: IconButton(
-          color: Colors.orange,
+          color: Color(0xfff28705),
           iconSize: 30,
           onPressed: () => Navigator.of(context).pop(),
           icon: Icon(Icons.chevron_left),

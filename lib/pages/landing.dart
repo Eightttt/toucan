@@ -23,12 +23,15 @@ class _LandingState extends State<Landing> {
 
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<UserModel?>(context);
+    final UserModel? user = Provider.of<UserModel?>(context);
+    final String? uid = user?.uid;
 
     return user == null
         ? Welcome(toggleIsFirstTimeLogin: toggleIsFirstTimeLogin)
         : _isFirstTimeLogin
             ? Confirmation(toggleIsFirstTimeLogin: toggleIsFirstTimeLogin)
-            : Dashboard();
+            : Dashboard(
+                uid: uid!,
+              );
   }
 }

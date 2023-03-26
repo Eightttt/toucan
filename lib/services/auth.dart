@@ -13,8 +13,8 @@ class AuthService {
       User? user = result.user;
 
       // create new document for user
-      await DatabaseService(uid: user?.uid).updateUserData(
-          username, "Hey everyone!\nI'm ${username} and I'm new to Toucan!");
+      await DatabaseService(uid: user?.uid)
+          .updateUserData(username, "Have a great day!");
 
       return _userFromFirebase(user);
     } catch (e) {
