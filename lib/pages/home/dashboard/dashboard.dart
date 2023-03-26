@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import "package:intl/intl.dart";
 import 'package:provider/provider.dart';
 import 'package:toucan/models/userDataModel.dart';
-import 'package:toucan/pages/home/dashboard/creategoal.dart';
+import 'package:toucan/pages/home/dashboard/createGoal.dart';
 import "package:toucan/pages/home/dashboard/fadeappbar.dart";
 import 'package:toucan/services/auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -135,7 +135,7 @@ class _DashboardState extends State<Dashboard> {
         enableDrag: false,
         context: context,
         builder: (BuildContext context) {
-          return CreateGoal();
+          return CreateGoal(uid: widget.uid);
         });
   }
 

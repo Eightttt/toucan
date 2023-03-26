@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
+import 'package:toucan/services/database.dart';
 
 class CreateGoal extends StatefulWidget {
-  const CreateGoal({Key? key}) : super(key: key);
+  final String uid;
+  const CreateGoal({Key? key, required this.uid}) : super(key: key);
 
   @override
   State<CreateGoal> createState() => _CreateGoalState();
@@ -13,15 +15,15 @@ class _CreateGoalState extends State<CreateGoal> {
   final formKeyGoal = GlobalKey<FormState>();
 
   final _goalTags = ["Academic", "Work", "Personal"];
-  final _interval = ["day/s", "week/s", "month/s", "year/s"];
+  final _frequency = ["day/s", "week/s", "month/s", "year/s"];
   late DateTime _startDate;
   late DateTime _endDate;
 
   String _goalTitle = "";
   String _chosenGoalTag = "Academic";
   TextEditingController _startEndDate = TextEditingController();
-  int period = 1;
-  String _chosenInterval = "day/s";
+  int _period = 1;
+  String _chosenFrequency = "day/s";
 
   DateTimeRange dateRange = DateTimeRange(
     start: DateTime.now(),
@@ -37,12 +39,18 @@ class _CreateGoalState extends State<CreateGoal> {
     final isValid = formKeyGoal.currentState?.validate();
     if (isValid != null && isValid) {
       formKeyGoal.currentState!.save();
-      print("Title: ${_goalTitle}");
-      print("Goal Tag: ${_chosenGoalTag}");
-      print("Start Date: ${_startDate}");
-      print("End Date: ${_endDate}");
-      print("Period: ${period}");
-      print("Chosen Interval: ${_chosenInterval}");
+      DatabaseService(uid: widget.uid).updateGoalData(
+        _goalTitle,
+        _chosenGoalTag,
+        _startDate,
+        _endDate,
+        _period,
+        _chosenFrequency,
+        "Page description",
+        "not started",
+        false,
+      );
+      Navigator.of(context).pop();
     } else {
       print("error");
     }
@@ -168,12 +176,12 @@ class _CreateGoalState extends State<CreateGoal> {
                         flex: 2,
                         // Notification interval
                         child: TextFormField(
-                            initialValue: "${period}",
+                            initialValue: "${_period}",
                             onChanged: (number) {
                               if (number.length > 0) {
-                                setState(() => period = int.parse(number));
+                                setState(() => _period = int.parse(number));
                               } else {
-                                setState(() => period = 1);
+                                setState(() => _period = 1);
                               }
                             },
                             decoration: InputDecoration(
@@ -200,8 +208,8 @@ class _CreateGoalState extends State<CreateGoal> {
                         flex: 3,
                         child: DropdownButtonFormField(
                           isExpanded: true,
-                          value: _chosenInterval,
-                          items: _interval
+                          value: _chosenFrequency,
+                          items: _frequency
                               .map((e) => DropdownMenuItem(
                                     child: Text(e),
                                     value: e,
@@ -209,7 +217,7 @@ class _CreateGoalState extends State<CreateGoal> {
                               .toList(),
                           onChanged: (val) {
                             setState(() {
-                              _chosenInterval = val as String;
+                              _chosenFrequency = val as String;
                             });
                           },
                           validator: (value) {
@@ -219,7 +227,7 @@ class _CreateGoalState extends State<CreateGoal> {
                               return null;
                             }
                           },
-                          onSaved: (value) => _chosenInterval = value!,
+                          onSaved: (value) => _chosenFrequency = value!,
                         ),
                       ),
                     ],
