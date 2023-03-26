@@ -17,10 +17,14 @@ class _CreateGoalState extends State<CreateGoal> {
 
   String _goalTitle = "";
   String _chosenGoalTag = "Academic";
-  TextEditingController _startDate = TextEditingController();
-  TextEditingController _endDate = TextEditingController();
+  TextEditingController _startEndDate = TextEditingController();
   int period = 1;
   String _chosenInterval = "day/s";
+
+  DateTimeRange dateRange = DateTimeRange(
+    start: DateTime.now(),
+    end: DateTime.now().add(Duration(days: 7)),
+  );
 
   @override
   void initState() {
@@ -33,8 +37,7 @@ class _CreateGoalState extends State<CreateGoal> {
       formKeyGoal.currentState!.save();
       print("Title: ${_goalTitle}");
       print("Goal Tag: ${_chosenGoalTag}");
-      print("Start Date: ${_startDate.text}");
-      print("End Date: ${_endDate.text}");
+      print("Start Date - End Date: ${_startEndDate.text}");
       print("Period: ${period}");
       print("Chosen Interval: ${_chosenInterval}");
     } else {
@@ -45,6 +48,9 @@ class _CreateGoalState extends State<CreateGoal> {
 
   @override
   Widget build(BuildContext context) {
+    final _startDate = dateRange.start;
+    final _endDate = dateRange.end;
+
     return Container(
       decoration: BoxDecoration(
           color: Colors.white,
@@ -116,70 +122,37 @@ class _CreateGoalState extends State<CreateGoal> {
                     alignment: Alignment.topLeft,
                     child: Text("Goal Duration"),
                   ),
-                  Row(
-                    children: [
-                      Expanded(
-                        // GOAL DURATION
-                        child: TextFormField(
-                          readOnly: true,
-                          decoration: InputDecoration(
-                            hintText: "Start Date:",
-                            errorMaxLines: 3,
-                          ),
-                          controller: _startDate,
-                          onTap: () async {
-                            DateTime? pickeddate = await showDatePicker(
-                                context: context,
-                                initialDate: DateTime.now(),
-                                firstDate: DateTime(2023),
-                                lastDate: DateTime(2200));
-                            if (pickeddate != null) {
-                              _startDate.text =
-                                  DateFormat('MMMM-dd-yyyy').format(pickeddate);
-                            }
-                          },
-                          validator: (value) {
-                            if (value!.length <= 0) {
-                              return 'Choose a date';
-                            } else {
-                              return null;
-                            }
-                          },
-                          onSaved: (value) => _startDate.text = value!,
-                        ),
-                      ),
-                      SizedBox(width: 20),
-                      Expanded(
-                        child: TextFormField(
-                          readOnly: true,
-                          decoration: InputDecoration(
-                            hintText: "End Date:",
-                            errorMaxLines: 3,
-                          ),
-                          controller: _endDate,
-                          onTap: () async {
-                            DateTime? pickeddate = await showDatePicker(
-                                context: context,
-                                initialDate: DateTime.now(),
-                                firstDate: DateTime(2023),
-                                lastDate: DateTime(2200));
-                            if (pickeddate != null) {
-                              _endDate.text =
-                                  DateFormat('MMMM-dd-yyyy').format(pickeddate);
-                            }
-                          },
-                          validator: (value) {
-                            if (value!.length <= 0) {
-                              return 'Choose a date';
-                            } else {
-                              return null;
-                            }
-                          },
-                          onSaved: (value) => _endDate.text = value!,
-                        ),
-                      ),
-                    ],
+                  TextFormField(
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      hintText: "Start Date - End Date",
+                      errorMaxLines: 3,
+                    ),
+                    controller: _startEndDate,
+                    onTap: () async {
+                      DateTimeRange? pickedDateRange =
+                          await showDateRangePicker(
+                              context: context,
+                              initialDateRange: dateRange,
+                              firstDate: DateTime(2023),
+                              lastDate: DateTime(2200));
+                      if (pickedDateRange != null) {
+                        _startEndDate.text =
+                            DateFormat('MMMM dd, yyyy').format(_startDate) +
+                                " - " +
+                                DateFormat('MMMM dd, yyyy').format(_endDate);
+                      }
+                    },
+                    validator: (value) {
+                      if (value!.length <= 0) {
+                        return 'Choose a date';
+                      } else {
+                        return null;
+                      }
+                    },
+                    onSaved: (value) => _startEndDate.text = value!,
                   ),
+                  SizedBox(width: 20),
                   Container(
                     padding: EdgeInsets.fromLTRB(10, 20, 0, 8),
                     alignment: Alignment.topLeft,
