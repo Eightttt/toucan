@@ -86,14 +86,10 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   void dispose() {
-    print("before _scrollListener in dashboard");
     _scrollController.removeListener(_scrollListener);
-    print("before _setOffset in dashboard");
     _scrollController.removeListener(_setOffset);
-    print("before _scrollListener in dashboard");
     _scrollController.dispose();
     super.dispose();
-    print("dispose in dashboard");
   }
 
   showCreateGoalSheet() {
