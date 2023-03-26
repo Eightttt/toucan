@@ -28,7 +28,7 @@ class DatabaseService {
   }
 
   // Get user data
-  Future<UserDataModel> getUserData(String uid) async {
+  Future<UserDataModel> getUserData() async {
     DocumentReference userDataDoc = userDataCollection.doc(uid);
     DocumentSnapshot userDataSnapshot = await userDataDoc.get();
     return _userDataFromSnapshot(userDataSnapshot);

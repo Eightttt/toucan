@@ -37,7 +37,7 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Future loadUserData(String uid) async {
-    UserDataModel userData = await DatabaseService().getUserData(uid);
+    UserDataModel userData = await DatabaseService(uid: uid).getUserData();
     toggleIsLoadingUserData();
     showLoading();
     setState(() {
