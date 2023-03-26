@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:toucan/models/goalModel.dart';
 import 'package:toucan/models/userDataModel.dart';
 
 class DatabaseService {
@@ -70,9 +71,28 @@ class DatabaseService {
     }
   }
 
+  // goals list from snapshot
+  List<GoalModel> _goalsListFromSnapshot(QuerySnapshot snapshot) {
+    return snapshot.docs.map((doc) {
+      return GoalModel(
+        doc.get('title'),
+        doc.get('tag'),
+        DateTime.fromMillisecondsSinceEpoch(
+            (doc.get('startDate') as Timestamp).millisecondsSinceEpoch),
+        DateTime.fromMillisecondsSinceEpoch(
+            (doc.get('endDate') as Timestamp).millisecondsSinceEpoch),
+        doc.get('period'),
+        doc.get('frequency'),
+        doc.get('description'),
+        doc.get('status'),
+        doc.get('isPrivate'),
+      );
+    }).toList();
+  }
+
   // Get goals stream
-  Stream<QuerySnapshot> get goals {
-    return userDataCollection.doc(uid).collection("goals").snapshots();
+  Stream<List<GoalModel>> get goals {
+    return userDataCollection.doc(uid).collection("goals").snapshots().map(_goalsListFromSnapshot);
   }
 
   // Add friends to friends list

@@ -1,12 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import "package:intl/intl.dart";
 import 'package:provider/provider.dart';
+import 'package:toucan/models/goalModel.dart';
 import 'package:toucan/models/userDataModel.dart';
 import 'package:toucan/pages/home/dashboard/createGoal.dart';
 import "package:toucan/pages/home/dashboard/fadeappbar.dart";
 import 'package:toucan/services/auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:toucan/services/database.dart';
 import '../../../shared/loading.dart';
 
@@ -158,14 +157,14 @@ class _DashboardState extends State<Dashboard> {
       });
     });
 
-    return StreamProvider<QuerySnapshot?>.value(
-      value: DatabaseService().userData,
-      initialData: null,
-      child: Stack(
-        children: [
-          Scaffold(
-            body: AbsorbPointer(
-              absorbing: _isAnimating,
+    return Stack(
+      children: [
+        Scaffold(
+          body: AbsorbPointer(
+            absorbing: _isAnimating,
+            child: StreamProvider<List<GoalModel>>.value(
+              value: DatabaseService(uid: widget.uid).goals,
+              initialData: [],
               child: NestedScrollView(
                 controller: _scrollController,
                 headerSliverBuilder: (context, innerBoxIsScrolled) {
@@ -216,25 +215,25 @@ class _DashboardState extends State<Dashboard> {
                 body: GoalsListView(),
               ),
             ),
-            floatingActionButton: FloatingActionButton(
-                onPressed: () {
-                  showCreateGoalSheet();
-                },
-                child: Icon(
-                  Icons.add,
-                )),
-            bottomNavigationBar: BottomNavBar(),
-            floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
           ),
-          Visibility(
-            visible: isLoading,
-            child: Container(
-              color: Color(0xFFFDFDF5),
-              child: Loading(),
-            ),
+          floatingActionButton: FloatingActionButton(
+              onPressed: () {
+                showCreateGoalSheet();
+              },
+              child: Icon(
+                Icons.add,
+              )),
+          bottomNavigationBar: BottomNavBar(),
+          floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        ),
+        Visibility(
+          visible: isLoading,
+          child: Container(
+            color: Color(0xFFFDFDF5),
+            child: Loading(),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -283,13 +282,20 @@ class _BottomNavBarState extends State<BottomNavBar> {
   }
 }
 
-class GoalsListView extends StatelessWidget {
+class GoalsListView extends StatefulWidget {
   const GoalsListView({
     super.key,
   });
 
   @override
+  State<GoalsListView> createState() => _GoalsListViewState();
+}
+
+class _GoalsListViewState extends State<GoalsListView> {
+  @override
   Widget build(BuildContext context) {
+    final List<GoalModel> goals = Provider.of<List<GoalModel>>(context);
+
     return CustomScrollView(
       slivers: [
         SliverPadding(
@@ -297,28 +303,95 @@ class GoalsListView extends StatelessWidget {
           sliver: SliverList(
             delegate: SliverChildBuilderDelegate(
               (BuildContext context, int index) {
-                return Card(
-                  margin: EdgeInsets.fromLTRB(0, 0, 0, 26),
-                  child: ListTile(
-                    contentPadding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-                    onTap: () {},
-                    title: Text(
-                      "Goal ${index + 1}",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontStyle: FontStyle.italic,
-                        fontSize: 20,
-                      ),
-                    ),
-                    visualDensity: VisualDensity(vertical: 4),
-                  ),
-                );
+                return goals.length == 0
+                    ? Text(
+                        "No goals added yet\nClick the \"+\" button to add a goal",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontStyle: FontStyle.italic,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                          height: 2,
+                        ),
+                      )
+                    : GoalCard(goal: goals[index]);
               },
-              childCount: 20,
+              childCount: goals.length == 0 ? 1 : goals.length,
             ),
           ),
         ),
       ],
+    );
+  }
+}
+
+class GoalCard extends StatelessWidget {
+  GoalCard({
+    super.key,
+    required this.goal,
+  });
+
+  final GoalModel goal;
+  final Color toucanWhite = Color(0xFFFDFDF5);
+  final Color toucanRed = Color.fromARGB(255, 224, 88, 39);
+  final Color toucanYellow = Color.fromARGB(255, 242, 203, 5);
+  final Color toucanGreen = Color.fromRGBO(132, 195, 93, 1);
+
+  Color statusColor(String status) {
+    if (status == "not started") return toucanRed;
+    if (status == "in-progress") return toucanYellow;
+    return toucanGreen;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: EdgeInsets.fromLTRB(0, 0, 0, 26),
+      child: Stack(
+        children: [
+          ListTile(
+            contentPadding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+            onTap: () {},
+            title: Text(
+              goal.title,
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontStyle: FontStyle.italic,
+                fontSize: 20,
+              ),
+            ),
+            subtitle: Text(
+              goal.tag,
+              style: TextStyle(
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+            visualDensity: VisualDensity(vertical: 4),
+          ),
+          Container(
+            padding: EdgeInsets.fromLTRB(20, 5, 20, 5),
+            alignment: Alignment.bottomRight,
+            width: double.infinity,
+            height: 100,
+            child: Container(
+              padding: EdgeInsets.fromLTRB(10, 2, 10, 2),
+              child: Text(
+                goal.status,
+                style: TextStyle(
+                  color: toucanWhite,
+                  fontStyle: FontStyle.italic,
+                  fontSize: 12,
+                ),
+              ),
+              decoration: BoxDecoration(
+                  color: statusColor(goal.status),
+                  borderRadius: BorderRadius.all(Radius.circular(10))
+                  //more than 50% of width makes circle
+                  ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
