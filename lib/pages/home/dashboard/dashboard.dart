@@ -16,11 +16,15 @@ class _DashboardState extends State<Dashboard> {
   bool lastStatus = true;
   double height = 220;
   bool _isAnimating = false;
+  double _offset = 0;
 
   @override
   void initState() {
     super.initState();
+    print("before init in dashboard");
     _scrollController.addListener(_scrollListener);
+    _scrollController.addListener(_setOffset);
+    print("after init in dashboard");
   }
 
   void _scrollListener() {
@@ -29,6 +33,12 @@ class _DashboardState extends State<Dashboard> {
         lastStatus = _isShrink;
       });
     }
+  }
+
+  void _setOffset() {
+    setState(() {
+      _offset = _scrollController.offset;
+    });
   }
 
   // TODO: check link: https://stackoverflow.com/questions/56071731/scrollcontroller-how-can-i-detect-scroll-start-stop-and-scrolling
@@ -78,11 +88,14 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   void dispose() {
+    print("before _scrollListener in dashboard");
     _scrollController.removeListener(_scrollListener);
-    _scrollController.position.isScrollingNotifier
-        .removeListener(_scrollListener);
+    print("before _setOffset in dashboard");
+    _scrollController.removeListener(_setOffset);
+    print("before _scrollListener in dashboard");
     _scrollController.dispose();
     super.dispose();
+    print("dispose in dashboard");
   }
 
   showCreateGoalSheet() {
@@ -129,6 +142,7 @@ class _DashboardState extends State<Dashboard> {
                 expandedHeight: height,
                 title: FadingOnScroll(
                   scrollController: _scrollController,
+                  offset: _offset,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -139,6 +153,7 @@ class _DashboardState extends State<Dashboard> {
                       ),
                       FadingOnScroll(
                         scrollController: _scrollController,
+                        offset: _offset,
                         child: IconButton(
                           disabledColor: Colors.black,
                           enableFeedback: !_isShrink ? false : true,
