@@ -3,8 +3,8 @@ import 'package:toucan/pages/authenticate/signup.dart';
 import 'package:toucan/pages/authenticate/login.dart';
 
 class Welcome extends StatelessWidget {
-  const Welcome({super.key});
-  
+  final VoidCallback toggleIsFirstTimeLogin;
+  const Welcome({super.key, required this.toggleIsFirstTimeLogin});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +20,7 @@ class Welcome extends StatelessWidget {
               children: <Widget>[
                 Image.asset('assets/toucan-title-logo.png', height: 102),
                 const Preview(),
-                const Buttons(),
+                Buttons(toggleIsFirstTimeLogin: toggleIsFirstTimeLogin),
               ],
             ),
           ],
@@ -58,7 +58,8 @@ class Preview extends StatelessWidget {
 }
 
 class Buttons extends StatelessWidget {
-  const Buttons({super.key});
+  final VoidCallback toggleIsFirstTimeLogin;
+  const Buttons({super.key, required this.toggleIsFirstTimeLogin});
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +69,7 @@ class Buttons extends StatelessWidget {
           enableDrag: false,
           context: context,
           builder: (BuildContext context) {
-            return const LogIn();
+            return LogIn();
           });
     }
 
@@ -79,7 +80,7 @@ class Buttons extends StatelessWidget {
           enableDrag: false,
           context: context,
           builder: (BuildContext context) {
-            return SignUp(showLogInSheet);
+            return SignUp(showLogInSheet: showLogInSheet, toggleIsFirstTimeLogin: toggleIsFirstTimeLogin);
           });
     }
 

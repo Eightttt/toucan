@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:toucan/pages/authenticate/confirmation.dart';
 import 'package:toucan/services/auth.dart';
 import 'package:toucan/shared/loading.dart';
 
 class SignUp extends StatefulWidget {
   final VoidCallback showLogInSheet;
-  const SignUp(this.showLogInSheet, {super.key});
+  final VoidCallback toggleIsFirstTimeLogin;
+  const SignUp(
+      {required this.showLogInSheet,
+      required this.toggleIsFirstTimeLogin,
+      super.key});
 
   @override
   State<SignUp> createState() => _SignUpState();
@@ -48,7 +51,9 @@ class _SignUpState extends State<SignUp> {
                   )),
 
               // ======== FORM ========
-              SignUpForm(showLoading),
+              SignUpForm(
+                  showLoading: showLoading,
+                  toggleIsFirstTimeLogin: widget.toggleIsFirstTimeLogin),
 
               // ======== ALREADY HAVE AN ACCOUNT ========
               Container(
@@ -79,18 +84,17 @@ class _SignUpState extends State<SignUp> {
 
 class SignUpForm extends StatefulWidget {
   final VoidCallback showLoading;
-  const SignUpForm(this.showLoading);
+  final VoidCallback toggleIsFirstTimeLogin;
+  const SignUpForm(
+      {required this.showLoading, required this.toggleIsFirstTimeLogin});
 
   @override
-  State<SignUpForm> createState() =>
-      _SignUpFormState(showLoading);
+  State<SignUpForm> createState() => _SignUpFormState();
 }
 
 class _SignUpFormState extends State<SignUpForm> {
   final AuthService _authService = AuthService();
   final formKey = GlobalKey<FormState>();
-  final VoidCallback showLoading;
-  _SignUpFormState(this.showLoading);
 
   String username = "";
   String email = "";
@@ -101,9 +105,10 @@ class _SignUpFormState extends State<SignUpForm> {
 
     if (isValid!) {
       formKey.currentState!.save();
-      showLoading();
+      widget.toggleIsFirstTimeLogin(); // first time login is true
+      widget.showLoading();
       dynamic result = await _authService.register(email, password, username);
-      showLoading();
+      widget.showLoading();
       //TODO: Save username into user data
 
       if (result == null) {
@@ -120,10 +125,12 @@ class _SignUpFormState extends State<SignUpForm> {
               right: 50),
         );
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
+        // set first time login to false
+        widget.toggleIsFirstTimeLogin();
       } else {
-        Navigator.of(context).pushReplacement(MaterialPageRoute(
-            builder: (BuildContext context) =>
-                Confirmation()));
+        // close sign up modal bottom sheet
+        Navigator.of(context).pop(context);
       }
     }
   }

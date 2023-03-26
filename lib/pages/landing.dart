@@ -1,16 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:toucan/pages/authenticate/confirmation.dart';
 import 'package:toucan/pages/authenticate/welcome.dart';
-import 'package:toucan/pages/home/dashboard/dashboard.dart';
 import 'package:toucan/models/userModel.dart';
+import 'package:toucan/pages/home/dashboard/dashboard.dart';
 
-class Landing extends StatelessWidget {
-  const Landing({Key? key}) : super(key: key);
+class Landing extends StatefulWidget {
+  Landing({Key? key}) : super(key: key);
+
+  @override
+  State<Landing> createState() => _LandingState();
+}
+
+class _LandingState extends State<Landing> {
+  bool _isFirstTimeLogin = false;
+
+  void toggleIsFirstTimeLogin() {
+    setState(() {
+      _isFirstTimeLogin = !_isFirstTimeLogin;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<UserModel?>(context);
 
-    return user == null ? Welcome() : Dashboard();
+    return user == null
+        ? Welcome(toggleIsFirstTimeLogin: toggleIsFirstTimeLogin)
+        : _isFirstTimeLogin
+            ? Confirmation(toggleIsFirstTimeLogin: toggleIsFirstTimeLogin)
+            : Dashboard();
   }
 }
