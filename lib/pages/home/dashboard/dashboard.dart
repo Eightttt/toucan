@@ -21,10 +21,8 @@ class _DashboardState extends State<Dashboard> {
   @override
   void initState() {
     super.initState();
-    print("before init in dashboard");
     _scrollController.addListener(_scrollListener);
     _scrollController.addListener(_setOffset);
-    print("after init in dashboard");
   }
 
   void _scrollListener() {

@@ -102,7 +102,7 @@ class _SignUpFormState extends State<SignUpForm> {
     if (isValid!) {
       formKey.currentState!.save();
       showLoading();
-      dynamic result = await _authService.register(email, password);
+      dynamic result = await _authService.register(email, password, username);
       showLoading();
       //TODO: Save username into user data
 
