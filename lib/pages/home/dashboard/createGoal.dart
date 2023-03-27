@@ -47,7 +47,6 @@ class _CreateGoalState extends State<CreateGoal> {
         _period,
         _chosenFrequency,
         "Page description",
-        "not started",
         false,
       );
       Navigator.of(context).pop();

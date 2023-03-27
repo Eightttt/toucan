@@ -52,7 +52,6 @@ class DatabaseService {
       int period,
       String frequency,
       String description,
-      String status,
       bool isPrivate) async {
     // TODO: Add profile picture, friend code, friends list
 
@@ -65,7 +64,6 @@ class DatabaseService {
         "period": period,
         "frequency": frequency,
         "description": description,
-        "status": status,
         "isPrivate": isPrivate
       });
     }
@@ -84,7 +82,6 @@ class DatabaseService {
         doc.get('period'),
         doc.get('frequency'),
         doc.get('description'),
-        doc.get('status'),
         doc.get('isPrivate'),
       );
     }).toList();

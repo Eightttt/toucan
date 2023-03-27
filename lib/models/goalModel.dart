@@ -6,7 +6,7 @@ class GoalModel {
   final int _period;
   final String _frequency;
   final String _description;
-  final String _status;
+  late String _status;
   final bool _isPrivate;
 
   GoalModel(
@@ -17,9 +17,16 @@ class GoalModel {
     this._period,
     this._frequency,
     this._description,
-    this._status,
     this._isPrivate,
-  );
+  ) {
+    this._status = _setStatus(startDate, endDate);
+  }
+
+  String _setStatus(DateTime startDate, DateTime endDate) {
+    if (DateTime.now().isBefore(startDate)) return "not started";
+    if (DateTime.now().isAfter(endDate)) return "done";
+    return "in-progress";
+  }
 
   String get title => _title;
 
