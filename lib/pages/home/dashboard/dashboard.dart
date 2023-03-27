@@ -368,26 +368,29 @@ class GoalCard extends StatelessWidget {
             ),
             visualDensity: VisualDensity(vertical: 4),
           ),
-          Container(
-            padding: EdgeInsets.fromLTRB(20, 5, 20, 5),
-            alignment: Alignment.bottomRight,
-            width: double.infinity,
-            height: 100,
+          IgnorePointer(
+            ignoring: true,
             child: Container(
-              padding: EdgeInsets.fromLTRB(10, 2, 10, 2),
-              child: Text(
-                goal.status,
-                style: TextStyle(
-                  color: toucanWhite,
-                  fontStyle: FontStyle.italic,
-                  fontSize: 12,
-                ),
-              ),
-              decoration: BoxDecoration(
-                  color: statusColor(goal.status),
-                  borderRadius: BorderRadius.all(Radius.circular(10))
-                  //more than 50% of width makes circle
+              padding: EdgeInsets.fromLTRB(20, 5, 20, 5),
+              alignment: Alignment.bottomRight,
+              width: double.infinity,
+              height: 100,
+              child: Container(
+                padding: EdgeInsets.fromLTRB(10, 2, 10, 2),
+                child: Text(
+                  goal.status,
+                  style: TextStyle(
+                    color: toucanWhite,
+                    fontStyle: FontStyle.italic,
+                    fontSize: 12,
                   ),
+                ),
+                decoration: BoxDecoration(
+                    color: statusColor(goal.status),
+                    borderRadius: BorderRadius.all(Radius.circular(10))
+                    //more than 50% of width makes circle
+                    ),
+              ),
             ),
           ),
         ],
@@ -504,6 +507,16 @@ class Settings extends StatelessWidget {
             onPressed: () => {},
             child: Text(
               "Feedback",
+              style: TextStyle(fontSize: 14),
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(45, 10, 45, 10),
+          child: ElevatedButton(
+            onPressed: () => {},
+            child: Text(
+              "Archive",
               style: TextStyle(fontSize: 14),
             ),
           ),
