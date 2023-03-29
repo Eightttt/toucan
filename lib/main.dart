@@ -96,7 +96,7 @@ class ToucanApp extends StatelessWidget {
           ),
           cardTheme: CardTheme(
             color: toucanWhite,
-            elevation: 3,
+            elevation: 4,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             ),

@@ -22,25 +22,19 @@ class DatabaseService {
     }
   }
 
-  // Get userdata stream
-  Stream<QuerySnapshot> get userData {
-    return userDataCollection.snapshots();
-  }
-
-  // Get user data
-  Future<UserDataModel> getUserData() async {
-    DocumentReference userDataDoc = userDataCollection.doc(uid);
-    DocumentSnapshot userDataSnapshot = await userDataDoc.get();
-    return _userDataFromSnapshot(userDataSnapshot);
-  }
-
-  // Get user data
+  // User data from snapshot
   UserDataModel _userDataFromSnapshot(DocumentSnapshot userDataDoc) {
     //
     return UserDataModel(
         username: userDataDoc.get("username"),
         description: userDataDoc.get("description"));
   }
+
+  // Get userdata stream
+  Stream<UserDataModel> get userData {
+    return userDataCollection.doc(uid).snapshots().map(_userDataFromSnapshot);
+  }
+
 
   // ===== GOALS =====
   // Future updateUserData()
