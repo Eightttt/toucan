@@ -22,7 +22,7 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   final ScrollController _scrollController = ScrollController();
   bool lastStatus = true;
-  double height = 220;
+  double height = 200;
   bool _isAnimating = false;
   double _offset = 0;
 
@@ -120,9 +120,8 @@ class _DashboardState extends State<Dashboard> {
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       _scrollController.position.isScrollingNotifier.addListener(() {
-        if (_scrollController.position.isScrollingNotifier.value) {
-          // print('scroll is started');
-        } else if (!_isAnimating) {
+        if (!_scrollController.position.isScrollingNotifier.value &&
+            !_isAnimating) {
           if (_isShrink &&
               _scrollController.offset < (height - kToolbarHeight + 10)) {
             _scrollDown();
