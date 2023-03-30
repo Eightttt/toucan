@@ -53,7 +53,6 @@ class _CreateGoalState extends State<CreateGoal> {
     } else {
       print("error");
     }
-    // TODO: Save goal into databse
   }
 
   @override
@@ -75,9 +74,8 @@ class _CreateGoalState extends State<CreateGoal> {
               child: IconButton(
                 color: Colors.orange,
                 padding: EdgeInsets.only(left: 20, top: 20),
-                iconSize: 30,
                 onPressed: () => Navigator.of(context).pop(),
-                icon: Icon(Icons.chevron_left),
+                icon: Icon(Icons.arrow_back_ios_rounded),
               ),
             ),
             Padding(
