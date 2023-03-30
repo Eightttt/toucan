@@ -11,13 +11,13 @@ class DatabaseService {
       FirebaseFirestore.instance.collection('usersData');
 
   // Future updateUserData()
-  Future updateUserData(String username, String description) async {
+  Future updateUserData(String username, String greeter) async {
     // TODO: Add profile picture, friend code, friends list
 
     if (uid != null) {
       await userDataCollection.doc(uid).set({
         "username": username,
-        "description": description,
+        "description": greeter,
       });
     }
   }
@@ -26,8 +26,7 @@ class DatabaseService {
   UserDataModel _userDataFromSnapshot(DocumentSnapshot userDataDoc) {
     //
     return UserDataModel(
-        username: userDataDoc.get("username"),
-        description: userDataDoc.get("description"));
+        userDataDoc.get("username"), userDataDoc.get("description"));
   }
 
   // Get userdata stream
@@ -36,7 +35,7 @@ class DatabaseService {
   }
 
   // ===== GOALS =====
-  // Future updateUserData()
+  // Future updateGoalData()
   Future updateGoalData(
       String title,
       String tag,
