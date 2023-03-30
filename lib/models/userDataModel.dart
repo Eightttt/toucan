@@ -1,14 +1,14 @@
 class UserDataModel {
-  final String username;
-  final String description;
+  final String _username;
+  final String _greeter;
 
-  UserDataModel({required this.username, required this.description});
+  UserDataModel(this._username, this._greeter);
 
-  String get getUsername {
-    return username;
+  String get username {
+    return _username;
   }
 
-  String get getDescription {
-    return description;
+  String get greeter {
+    return _greeter;
   }
 }
