@@ -35,7 +35,6 @@ class DatabaseService {
     return userDataCollection.doc(uid).snapshots().map(_userDataFromSnapshot);
   }
 
-
   // ===== GOALS =====
   // Future updateUserData()
   Future updateGoalData(
@@ -47,8 +46,6 @@ class DatabaseService {
       String frequency,
       String description,
       bool isPrivate) async {
-    // TODO: Add profile picture, friend code, friends list
-
     if (uid != null) {
       await userDataCollection.doc(uid).collection("goals").doc().set({
         "title": title,
@@ -83,7 +80,11 @@ class DatabaseService {
 
   // Get goals stream
   Stream<List<GoalModel>> get goals {
-    return userDataCollection.doc(uid).collection("goals").snapshots().map(_goalsListFromSnapshot);
+    return userDataCollection
+        .doc(uid)
+        .collection("goals")
+        .snapshots()
+        .map(_goalsListFromSnapshot);
   }
 
   // Add friends to friends list
