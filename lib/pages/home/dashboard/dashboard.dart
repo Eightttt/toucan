@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:toucan/models/goalModel.dart';
 import 'package:toucan/models/userDataModel.dart';
 import 'package:toucan/pages/home/dashboard/createGoal.dart';
+import 'package:toucan/pages/home/dashboard/editProfile.dart';
 import 'package:toucan/shared/bottomNavBar.dart';
 import "package:toucan/shared/fadingOnScroll.dart";
 import 'package:toucan/pages/home/dashboard/viewGoal.dart';
@@ -177,7 +178,9 @@ class _DashboardState extends State<Dashboard> {
                                 onPressed: _isShrink
                                     ? () => showDialog(
                                         context: context,
-                                        builder: (context) => Settings())
+                                        builder: (context) => Settings(
+                                              uid: widget.uid,
+                                            ))
                                     : null,
                                 icon: Icon(Icons.settings),
                               ),
@@ -185,7 +188,10 @@ class _DashboardState extends State<Dashboard> {
                           ),
                         ),
                         flexibleSpace: FlexibleAppBar(
-                            today: today, description: userData.description),
+                          today: today,
+                          description: userData.greeter,
+                          uid: widget.uid,
+                        ),
                       ),
                     ];
                   },
@@ -215,10 +221,12 @@ class FlexibleAppBar extends StatelessWidget {
     super.key,
     required this.today,
     required this.description,
+    required this.uid,
   });
 
   final DateTime today;
   final String description;
+  final String uid;
 
   @override
   Widget build(BuildContext context) {
@@ -251,7 +259,7 @@ class FlexibleAppBar extends StatelessWidget {
                     "assets/temp-img1.png",
                     fit: BoxFit.cover,
                   ).image,
-                  radius: MediaQuery.of(context).size.width * .125,
+                  radius: 50,
                 ),
               ],
             ),
@@ -273,7 +281,8 @@ class FlexibleAppBar extends StatelessWidget {
                 IconButton(
                   color: Colors.black,
                   onPressed: () => showDialog(
-                      context: context, builder: (context) => Settings()),
+                      context: context,
+                      builder: (context) => Settings(uid: uid)),
                   icon: Icon(Icons.settings),
                 ),
               ],
@@ -431,18 +440,19 @@ class GoalCard extends StatelessWidget {
 
 class Settings extends StatelessWidget {
   final AuthService _authService = AuthService();
+  final String uid;
+  Settings({required this.uid});
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      iconPadding: EdgeInsets.only(top: 10, left: 5),
+      iconPadding: EdgeInsets.only(top: 10),
       icon: Align(
         alignment: Alignment.topLeft,
         child: IconButton(
           color: Color(0xfff28705),
-          iconSize: 30,
           onPressed: () => Navigator.of(context).pop(),
-          icon: Icon(Icons.chevron_left),
+          icon: Icon(Icons.arrow_back_ios_rounded),
         ),
       ),
       actionsPadding: EdgeInsets.only(bottom: 37),
@@ -450,7 +460,17 @@ class Settings extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.fromLTRB(45, 0, 45, 10),
           child: ElevatedButton(
-            onPressed: () => {},
+            onPressed: () => {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => StreamProvider<UserDataModel?>.value(
+                    value: DatabaseService(uid: uid).userData,
+                    initialData: null,
+                    child: EditProfile(uid),
+                  ),
+                ),
+              )
+            },
             child: Text(
               "Edit Profile",
               style: TextStyle(fontSize: 14),
