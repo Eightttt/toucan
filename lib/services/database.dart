@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:toucan/models/goalModel.dart';
 import 'package:toucan/models/userDataModel.dart';
 
@@ -11,13 +12,15 @@ class DatabaseService {
       FirebaseFirestore.instance.collection('usersData');
 
   // Future updateUserData()
-  Future updateUserData(String username, String greeter) async {
+  Future updateUserData(
+      String username, String greeter, TimeOfDay notificationTime) async {
     // TODO: Add profile picture, friend code, friends list
 
     if (uid != null) {
       await userDataCollection.doc(uid).set({
         "username": username,
-        "description": greeter,
+        "greeter": greeter,
+        "notificationTime": _timeOfDayToFirebase(notificationTime),
       });
     }
   }
@@ -26,12 +29,24 @@ class DatabaseService {
   UserDataModel _userDataFromSnapshot(DocumentSnapshot userDataDoc) {
     //
     return UserDataModel(
-        userDataDoc.get("username"), userDataDoc.get("description"));
+        userDataDoc.get("username"),
+        userDataDoc.get("greeter"),
+        _timeOfDayFromFirebase(userDataDoc.get("notificationTime")));
   }
 
   // Get userdata stream
   Stream<UserDataModel> get userData {
     return userDataCollection.doc(uid).snapshots().map(_userDataFromSnapshot);
+  }
+
+  // Format timeOfDay to Map to save in Firebase
+  Map _timeOfDayToFirebase(TimeOfDay timeOfDay) {
+    return {'hour': timeOfDay.hour, 'minute': timeOfDay.minute};
+  }
+
+  // Format Map from firebase to timeOfDay
+  TimeOfDay _timeOfDayFromFirebase(Map data) {
+    return TimeOfDay(hour: data['hour'], minute: data['minute']);
   }
 
   // ===== GOALS =====

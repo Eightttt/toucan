@@ -1,4 +1,5 @@
 import "package:firebase_auth/firebase_auth.dart";
+import 'package:flutter/material.dart';
 import 'package:toucan/models/userModel.dart';
 import 'package:toucan/services/database.dart';
 
@@ -13,8 +14,11 @@ class AuthService {
       User? user = result.user;
 
       // create new document for user
-      await DatabaseService(uid: user?.uid)
-          .updateUserData(username, "Have a great day!");
+      await DatabaseService(uid: user?.uid).updateUserData(
+        username,
+        "Have a great day, Toucan!",
+        TimeOfDay(hour: 8, minute: 0),
+      );
 
       return _userFromFirebase(user);
     } catch (e) {
