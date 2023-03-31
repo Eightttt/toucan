@@ -139,22 +139,22 @@ class _SignUpFormState extends State<SignUpForm> {
   Widget build(BuildContext context) {
     return Form(
       key: formKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ======== USERNAME ========
-          Container(
-              margin: const EdgeInsets.fromLTRB(57, 0, 0, 3),
-              child: const Text(
-                'Username',
-                style: TextStyle(
-                  color: Color(0xfff28705),
-                  fontWeight: FontWeight.w600,
-                ),
-              )),
-          Container(
-            margin: const EdgeInsets.fromLTRB(47, 3, 47, 0),
-            child: TextFormField(
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(47, 3, 47, 0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ======== USERNAME ========
+            Container(
+                margin: const EdgeInsets.fromLTRB(10, 0, 0, 6),
+                child: const Text(
+                  'Username',
+                  style: TextStyle(
+                    color: Color(0xfff28705),
+                    fontWeight: FontWeight.w600,
+                  ),
+                )),
+            TextFormField(
               maxLength: 16,
               decoration: const InputDecoration(
                 errorMaxLines: 3,
@@ -182,21 +182,18 @@ class _SignUpFormState extends State<SignUpForm> {
               },
               onSaved: (value) => username = value!,
             ),
-          ),
 
-          // ======== EMAIL ========
-          Container(
-              margin: const EdgeInsets.fromLTRB(57, 10, 0, 3),
-              child: const Text(
-                'E-mail',
-                style: TextStyle(
-                  color: Color(0xfff28705),
-                  fontWeight: FontWeight.w600,
-                ),
-              )),
-          Container(
-            margin: const EdgeInsets.fromLTRB(47, 3, 47, 0),
-            child: TextFormField(
+            // ======== EMAIL ========
+            Container(
+                margin: const EdgeInsets.fromLTRB(10, 10, 0, 6),
+                child: const Text(
+                  'E-mail',
+                  style: TextStyle(
+                    color: Color(0xfff28705),
+                    fontWeight: FontWeight.w600,
+                  ),
+                )),
+            TextFormField(
               decoration: const InputDecoration(
                 errorMaxLines: 3,
                 prefixIcon: Padding(
@@ -219,21 +216,18 @@ class _SignUpFormState extends State<SignUpForm> {
               },
               onSaved: (value) => email = value!,
             ),
-          ),
 
-          // ======== PASSWORD ========
-          Container(
-              margin: const EdgeInsets.fromLTRB(57, 10, 0, 3),
-              child: const Text(
-                'Password',
-                style: TextStyle(
-                  color: Color(0xfff28705),
-                  fontWeight: FontWeight.w600,
-                ),
-              )),
-          Container(
-            margin: const EdgeInsets.fromLTRB(47, 3, 47, 0),
-            child: TextFormField(
+            // ======== PASSWORD ========
+            Container(
+                margin: const EdgeInsets.fromLTRB(10, 10, 0, 6),
+                child: const Text(
+                  'Password',
+                  style: TextStyle(
+                    color: Color(0xfff28705),
+                    fontWeight: FontWeight.w600,
+                  ),
+                )),
+            TextFormField(
                 obscureText: true,
                 decoration: const InputDecoration(
                   errorMaxLines: 3,
@@ -259,21 +253,18 @@ class _SignUpFormState extends State<SignUpForm> {
                   }
                 },
                 onChanged: (value) => password = value),
-          ),
 
-          // ======== CONFIRM PASSWORD ========
-          Container(
-              margin: const EdgeInsets.fromLTRB(57, 10, 0, 3),
-              child: const Text(
-                'Confirm Password',
-                style: TextStyle(
-                  color: Color(0xfff28705),
-                  fontWeight: FontWeight.w600,
-                ),
-              )),
-          Container(
-            margin: const EdgeInsets.fromLTRB(47, 3, 47, 30),
-            child: TextFormField(
+            // ======== CONFIRM PASSWORD ========
+            Container(
+                margin: const EdgeInsets.fromLTRB(10, 10, 0, 6),
+                child: const Text(
+                  'Confirm Password',
+                  style: TextStyle(
+                    color: Color(0xfff28705),
+                    fontWeight: FontWeight.w600,
+                  ),
+                )),
+            TextFormField(
                 obscureText: true,
                 decoration: const InputDecoration(
                   errorMaxLines: 3,
@@ -293,15 +284,12 @@ class _SignUpFormState extends State<SignUpForm> {
                   }
                 },
                 onSaved: (value) => password = value!),
-          ),
 
-          // ======== ENTER BUTTON ========
-          Container(
-            margin: const EdgeInsets.fromLTRB(47, 3, 47, 0),
-            child: ElevatedButton(
-                onPressed: signUpUser, child: const Text('Enter')),
-          ),
-        ],
+            SizedBox(height: 30),
+            // ======== ENTER BUTTON ========
+            ElevatedButton(onPressed: signUpUser, child: const Text('Enter')),
+          ],
+        ),
       ),
     );
   }
