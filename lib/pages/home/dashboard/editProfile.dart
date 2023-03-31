@@ -30,6 +30,10 @@ class _EditProfileState extends State<EditProfile> {
 
   String _greeter = "";
 
+  TextEditingController _notificationTimeText = TextEditingController();
+  late TimeOfDay _pickedNotificationTime;
+  late TimeOfDay _notificationTime;
+
   imagePicker() {
     print("Image picker");
   }
@@ -41,6 +45,7 @@ class _EditProfileState extends State<EditProfile> {
       DatabaseService(uid: widget.uid).updateUserData(
         _username,
         _greeter,
+        _notificationTime,
       );
       Navigator.of(context).pop();
     } else {
@@ -51,6 +56,12 @@ class _EditProfileState extends State<EditProfile> {
   @override
   Widget build(BuildContext context) {
     final UserDataModel? userData = Provider.of<UserDataModel?>(context);
+
+    if (userData != null) {
+      _pickedNotificationTime = userData.notificationTime;
+      _notificationTimeText.text =
+          _pickedNotificationTime.format(context).toString();
+    }
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -64,15 +75,20 @@ class _EditProfileState extends State<EditProfile> {
                     Form(
                       key: formKeyUser,
                       child: Container(
+                        padding: const EdgeInsets.fromLTRB(47, 0, 47, 0),
                         height: double.infinity,
                         color: toucanWhite,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            SizedBox(
+                              height: appBarheight +
+                                  MediaQuery.of(context).size.height * 0.1,
+                            ),
+
                             // === USERNAME ===
                             Container(
-                              margin: EdgeInsets.fromLTRB(
-                                  57, appBarheight * 2, 0, 3),
+                              margin: EdgeInsets.fromLTRB(10, 0, 0, 3),
                               child: Text(
                                 'Username',
                                 style: TextStyle(
@@ -81,35 +97,32 @@ class _EditProfileState extends State<EditProfile> {
                                 ),
                               ),
                             ),
-                            Container(
-                              margin: const EdgeInsets.fromLTRB(47, 3, 47, 0),
-                              child: TextFormField(
-                                initialValue: userData.username,
-                                maxLength: 16,
-                                decoration: const InputDecoration(
-                                  errorMaxLines: 3,
-                                  counterText: "",
-                                ),
-                                validator: (value) {
-                                  const pattern =
-                                      r"^(?=[a-zA-Z0-9._]{4,20}$)(?!.*[_.]{2})[^_.].*[^_.]$";
-                                  final regEx = RegExp(pattern);
-
-                                  if (value!.length < 4 || value.length > 20) {
-                                    return 'Must be within 4 to 20 alphanumeric characters, underscores, or periods';
-                                  } else if (!regEx.hasMatch(value)) {
-                                    return 'Must not have leading, trailing, and repeating underscores and periods';
-                                  } else {
-                                    return null;
-                                  }
-                                },
-                                onSaved: (value) => _username = value!,
+                            TextFormField(
+                              initialValue: userData.username,
+                              maxLength: 16,
+                              decoration: const InputDecoration(
+                                errorMaxLines: 3,
+                                counterText: "",
                               ),
+                              validator: (value) {
+                                const pattern =
+                                    r"^(?=[a-zA-Z0-9._]{4,20}$)(?!.*[_.]{2})[^_.].*[^_.]$";
+                                final regEx = RegExp(pattern);
+
+                                if (value!.length < 4 || value.length > 20) {
+                                  return 'Must be within 4 to 20 alphanumeric characters, underscores, or periods';
+                                } else if (!regEx.hasMatch(value)) {
+                                  return 'Must not have leading, trailing, and repeating underscores and periods';
+                                } else {
+                                  return null;
+                                }
+                              },
+                              onSaved: (value) => _username = value!,
                             ),
 
                             // === GREETER ===
                             Container(
-                              margin: EdgeInsets.fromLTRB(57, 20, 0, 3),
+                              margin: EdgeInsets.fromLTRB(10, 20, 0, 3),
                               child: Text(
                                 'Greeter',
                                 style: TextStyle(
@@ -118,45 +131,85 @@ class _EditProfileState extends State<EditProfile> {
                                 ),
                               ),
                             ),
-                            Container(
-                              margin: const EdgeInsets.fromLTRB(47, 3, 47, 0),
-                              child: TextFormField(
-                                textAlignVertical: TextAlignVertical.top,
-                                keyboardType: TextInputType.multiline,
-                                maxLines: 3,
-                                initialValue: userData.greeter,
-                                maxLength: 56,
-                                inputFormatters: [
-                                  TextInputFormatter.withFunction(
-                                      (oldValue, newValue) {
-                                    int newLines =
-                                        newValue.text.split('\n').length;
-                                    if (newLines > 3) {
-                                      return oldValue;
-                                    } else {
-                                      return newValue;
-                                    }
-                                  }),
-                                ],
-                                decoration: const InputDecoration(
-                                  contentPadding: EdgeInsets.all(15),
-                                  errorMaxLines: 3,
-                                ),
-                                validator: (value) {
-                                  if (value!.length == 0) {
-                                    return 'Must not be empty';
+                            TextFormField(
+                              textAlignVertical: TextAlignVertical.top,
+                              keyboardType: TextInputType.multiline,
+                              maxLines: 3,
+                              initialValue: userData.greeter,
+                              maxLength: 56,
+                              inputFormatters: [
+                                TextInputFormatter.withFunction(
+                                    (oldValue, newValue) {
+                                  int newLines =
+                                      newValue.text.split('\n').length;
+                                  if (newLines > 3) {
+                                    return oldValue;
                                   } else {
-                                    return null;
+                                    return newValue;
                                   }
-                                },
-                                onSaved: (value) => _greeter = value!,
+                                }),
+                              ],
+                              decoration: const InputDecoration(
+                                contentPadding: EdgeInsets.all(15),
+                                errorMaxLines: 3,
                               ),
+                              validator: (value) {
+                                if (value!.length == 0) {
+                                  return 'Must not be empty';
+                                } else {
+                                  return null;
+                                }
+                              },
+                              onSaved: (value) => _greeter = value!,
+                            ),
+
+                            // Notification Time
+                            Container(
+                              margin: EdgeInsets.fromLTRB(10, 5, 0, 3),
+                              child: Text(
+                                'Notification Time',
+                                style: TextStyle(
+                                  color: toucanOrange,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            TextFormField(
+                              readOnly: true,
+                              decoration: InputDecoration(
+                                hintText: "Start Date - End Date",
+                                errorMaxLines: 3,
+                              ),
+                              controller: _notificationTimeText,
+                              onTap: () async {
+                                TimeOfDay? pickedTime = await showTimePicker(
+                                    context: context,
+                                    initialTime: _pickedNotificationTime);
+
+                                if (pickedTime != null) {
+                                  _pickedNotificationTime = pickedTime;
+                                  _notificationTimeText.text =
+                                      _pickedNotificationTime
+                                          .format(context)
+                                          .toString();
+                                }
+                              },
+                              validator: (value) {
+                                if (value!.length <= 0) {
+                                  return 'Choose a time';
+                                } else {
+                                  return null;
+                                }
+                              },
+                              onSaved: (value) {
+                                _notificationTime = _pickedNotificationTime;
+                              },
                             ),
                             SizedBox(height: 20),
                             Row(
                               children: [
-                                SizedBox(width: 47),
                                 Expanded(
+                                  flex: 3,
                                   child: ElevatedButton(
                                       style: ElevatedButton.styleFrom(
                                         elevation: 2,
@@ -175,8 +228,9 @@ class _EditProfileState extends State<EditProfile> {
                                           Navigator.of(context).pop(),
                                       child: const Text("Cancel")),
                                 ),
-                                SizedBox(width: 40),
+                                Expanded(flex: 1, child: SizedBox()),
                                 Expanded(
+                                  flex: 3,
                                   child: ElevatedButton(
                                       onPressed: saveUserData,
                                       style: ElevatedButton.styleFrom(
@@ -192,7 +246,6 @@ class _EditProfileState extends State<EditProfile> {
                                       ),
                                       child: const Text("Save")),
                                 ),
-                                SizedBox(width: 47),
                               ],
                             ),
                           ],
