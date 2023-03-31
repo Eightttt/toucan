@@ -25,7 +25,7 @@ class _CreateGoalState extends State<CreateGoal> {
   int _period = 1;
   String _chosenFrequency = "day/s";
 
-  DateTimeRange dateRange = DateTimeRange(
+  DateTimeRange _dateRange = DateTimeRange(
     start: DateTime.now(),
     end: DateTime.now().add(Duration(days: 7)),
   );
@@ -138,18 +138,15 @@ class _CreateGoalState extends State<CreateGoal> {
                       DateTimeRange? pickedDateRange =
                           await showDateRangePicker(
                               context: context,
-                              initialDateRange: dateRange,
+                              initialDateRange: _dateRange,
                               firstDate: DateTime(2023),
                               lastDate: DateTime(2200));
                       if (pickedDateRange != null) {
-                        setState(() {});
-                        dateRange = pickedDateRange;
-                        _startDate = dateRange.start;
-                        _endDate = dateRange.end;
-                        _startEndDate.text =
-                            DateFormat('MMMM dd, yyyy').format(_startDate) +
-                                " - " +
-                                DateFormat('MMMM dd, yyyy').format(_endDate);
+                        _dateRange = pickedDateRange;
+                        _startEndDate.text = DateFormat('MMMM dd, yyyy')
+                                .format(_dateRange.start) +
+                            " - " +
+                            DateFormat('MMMM dd, yyyy').format(_dateRange.end);
                       }
                     },
                     validator: (value) {
@@ -159,7 +156,10 @@ class _CreateGoalState extends State<CreateGoal> {
                         return null;
                       }
                     },
-                    onSaved: (value) => _startEndDate.text = value!,
+                    onSaved: (value) {
+                      _startDate = _dateRange.start;
+                      _endDate = _dateRange.end;
+                    },
                   ),
                   SizedBox(width: 20),
                   Container(
@@ -177,6 +177,7 @@ class _CreateGoalState extends State<CreateGoal> {
                             onChanged: (number) {
                               if (number.length > 0) {
                                 setState(() => _period = int.parse(number));
+                                // TODO: test this without onchanged but onsaved
                               } else {
                                 setState(() => _period = 1);
                               }
