@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -22,21 +24,29 @@ class _EditProfileState extends State<EditProfile> {
   final toucanWhite = Color(0xFFFDFDF5);
 
   final double iconSize = 36;
-
   final double appBarheight = 98;
-
   final double imageSize = 110;
 
   String _username = "";
-
   String _greeter = "";
+  File? image;
 
   TextEditingController _notificationTimeText = TextEditingController();
   late TimeOfDay _pickedNotificationTime;
   late TimeOfDay _notificationTime;
 
   showImageOptions() {
-    showDialog(context: context, builder: (context) => ImagePickerPage());
+    showDialog(
+        context: context,
+        builder: (context) => ImagePickerPage(updateImage: updateImage));
+  }
+
+  updateImage(File? imageFile) {
+    if (imageFile != null) {
+      setState(() {
+        image = imageFile;
+      });
+    }
   }
 
   saveUserData() {
@@ -277,10 +287,16 @@ class _EditProfileState extends State<EditProfile> {
                           elevation: 3,
                           onPressed: showImageOptions,
                           child: CircleAvatar(
-                            backgroundImage: Image.asset(
-                              "assets/temp-img1.png",
-                              fit: BoxFit.cover,
-                            ).image,
+                            backgroundImage: image != null
+                                ? Image.file(
+                                    image!,
+                                    width: imageSize,
+                                    height: imageSize,
+                                  ).image
+                                : Image.asset(
+                                    "assets/temp-img1.png",
+                                    fit: BoxFit.cover,
+                                  ).image,
                             radius: imageSize / 2,
                           ),
                         ),
