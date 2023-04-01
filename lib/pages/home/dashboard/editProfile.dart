@@ -5,6 +5,7 @@ import 'package:toucan/shared/loading.dart';
 
 import '../../../models/userDataModel.dart';
 import '../../../services/database.dart';
+import '../../../shared/imagepickerpage.dart';
 
 class EditProfile extends StatefulWidget {
   EditProfile(this.uid);
@@ -34,8 +35,8 @@ class _EditProfileState extends State<EditProfile> {
   late TimeOfDay _pickedNotificationTime;
   late TimeOfDay _notificationTime;
 
-  imagePicker() {
-    print("Image picker");
+  showImageOptions() {
+    showDialog(context: context, builder: (context) => ImagePickerPage());
   }
 
   saveUserData() {
@@ -252,6 +253,8 @@ class _EditProfileState extends State<EditProfile> {
                         ),
                       ),
                     ),
+
+                    // ===== App Bar =====
                     Container(
                       height: appBarheight,
                       child: AppBar(
@@ -272,7 +275,7 @@ class _EditProfileState extends State<EditProfile> {
                         child: FloatingActionButton(
                           shape: CircleBorder(side: BorderSide.none),
                           elevation: 3,
-                          onPressed: imagePicker,
+                          onPressed: showImageOptions,
                           child: CircleAvatar(
                             backgroundImage: Image.asset(
                               "assets/temp-img1.png",
@@ -292,7 +295,7 @@ class _EditProfileState extends State<EditProfile> {
                       top: appBarheight + imageSize / 2 - iconSize,
                       child: FloatingActionButton(
                         elevation: 4,
-                        onPressed: imagePicker,
+                        onPressed: showImageOptions,
                         child: Icon(Icons.camera_alt_rounded),
                       ),
                     ),
