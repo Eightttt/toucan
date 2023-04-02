@@ -35,7 +35,7 @@ class _ImagePickerPageState extends State<ImagePickerPage> {
     final croppedFile = await ImageCropper().cropImage(
       sourcePath: imageFile.path,
       compressFormat: ImageCompressFormat.jpg,
-      compressQuality: 80,
+      compressQuality: 25,
       aspectRatio: CropAspectRatio(ratioX: 1, ratioY: 1),
       aspectRatioPresets: [CropAspectRatioPreset.square],
       uiSettings: [
