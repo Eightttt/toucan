@@ -58,13 +58,16 @@ class DatabaseService {
   }
 
   // Upload User's Profile Photo
-  Future<String?> uploadProfilePhoto(File? image) async {
+  Future<String?> uploadProfilePhoto(
+      File? image, Function(UploadTask?) setUploadTask) async {
     final ref = FirebaseStorage.instance.ref().child(path!);
     if (image == null) return null;
     try {
       UploadTask uploadTask = ref.putFile(image);
+      setUploadTask(uploadTask);
       final snapshot = await uploadTask.whenComplete(() {});
       final urlDownload = await snapshot.ref.getDownloadURL();
+      setUploadTask(null);
       return urlDownload;
     } catch (e) {
       print("Error uploading: $e");
