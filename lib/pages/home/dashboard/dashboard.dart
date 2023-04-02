@@ -217,8 +217,9 @@ class _DashboardState extends State<Dashboard> {
   }
 }
 
+// ignore: must_be_immutable
 class FlexibleAppBar extends StatelessWidget {
-  const FlexibleAppBar({
+  FlexibleAppBar({
     super.key,
     required this.today,
     required this.description,
@@ -231,6 +232,7 @@ class FlexibleAppBar extends StatelessWidget {
   final String uid;
   final String urlProfilePhoto;
   final double imageSize = 100;
+  bool hasInitialized = false;
 
   @override
   Widget build(BuildContext context) {
@@ -258,26 +260,47 @@ class FlexibleAppBar extends StatelessWidget {
                     ),
                   ),
                 ),
-                Stack(
-                  children: [
-                    Container(
-                      width: imageSize,
-                      height: imageSize,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Color(0xFFFDFDF5),
-                      ),
-                      child: Center(child: Loading(size: 30)),
+                ClipOval(
+                  child: Container(
+                    color: Color(0xFFFDFDF5),
+                    height: imageSize,
+                    width: imageSize,
+                    child: Image.network(
+                      urlProfilePhoto,
+                      fit: BoxFit.cover,
+                      // When image is loading from the server it takes some time
+                      // So we will show progress indicator while loading
+                      loadingBuilder: (BuildContext context, Widget child,
+                          ImageChunkEvent? loadingProgress) {
+                        if (loadingProgress == null) {
+                          if (!hasInitialized) {
+                            hasInitialized = !hasInitialized;
+                          } else {
+                            hasInitialized = !hasInitialized;
+                          }
+                          return child;
+                        }
+                        return Container(
+                          margin: EdgeInsets.all(imageSize *.35),
+                          width: imageSize * .3,
+                          height: imageSize * .3,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                          ),
+                          child: CircularProgressIndicator(
+                            color: Color(0xfff28705),
+                            backgroundColor: Color.fromARGB(69, 242, 135, 5),
+                            strokeWidth: 4,
+                            value: loadingProgress.expectedTotalBytes !=
+                                    null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                    loadingProgress.expectedTotalBytes!
+                                : null,
+                          ),
+                        );
+                      },
                     ),
-                    CircleAvatar(
-                      backgroundColor: Colors.transparent,
-                      backgroundImage: Image.network(
-                        urlProfilePhoto,
-                        fit: BoxFit.cover,
-                      ).image,
-                      radius: imageSize / 2,
-                    ),
-                  ],
+                  ),
                 ),
               ],
             ),
