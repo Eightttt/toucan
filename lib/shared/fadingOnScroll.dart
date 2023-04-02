@@ -17,9 +17,8 @@ class FadingOnScroll extends StatefulWidget {
 
 class _FadingOnScrollState extends State<FadingOnScroll> {
   bool lastStatus = true;
-  double height = 200;
   final double zeroOpacityOffset = 0;
-  final double fullOpacityOffset = 180;
+  final double fullOpacityOffset = 200 - AppBar().preferredSize.height;
 
   double _calculateOpacity() {
     if (fullOpacityOffset == zeroOpacityOffset)
