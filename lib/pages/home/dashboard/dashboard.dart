@@ -7,7 +7,7 @@ import 'package:toucan/pages/home/dashboard/createGoal.dart';
 import 'package:toucan/pages/home/dashboard/editProfile.dart';
 import 'package:toucan/shared/bottomNavBar.dart';
 import "package:toucan/shared/fadingOnScroll.dart";
-import 'package:toucan/pages/home/dashboard/viewGoal.dart';
+// import 'package:toucan/pages/home/dashboard/viewGoal.dart';
 import 'package:toucan/services/auth.dart';
 import 'package:toucan/services/database.dart';
 import '../../../shared/loading.dart';
