@@ -230,6 +230,7 @@ class FlexibleAppBar extends StatelessWidget {
   final String description;
   final String uid;
   final String urlProfilePhoto;
+  final double imageSize = 100;
 
   @override
   Widget build(BuildContext context) {
@@ -257,12 +258,26 @@ class FlexibleAppBar extends StatelessWidget {
                     ),
                   ),
                 ),
-                CircleAvatar(
-                  backgroundImage: Image.network(
-                    urlProfilePhoto,
-                    fit: BoxFit.cover,
-                  ).image,
-                  radius: 50,
+                Stack(
+                  children: [
+                    Container(
+                      width: imageSize,
+                      height: imageSize,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Color(0xFFFDFDF5),
+                      ),
+                      child: Center(child: Loading(size: 30)),
+                    ),
+                    CircleAvatar(
+                      backgroundColor: Colors.transparent,
+                      backgroundImage: Image.network(
+                        urlProfilePhoto,
+                        fit: BoxFit.cover,
+                      ).image,
+                      radius: imageSize / 2,
+                    ),
+                  ],
                 ),
               ],
             ),
