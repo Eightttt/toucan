@@ -4,8 +4,9 @@ class UserDataModel {
   final String _username;
   final String _greeter;
   final TimeOfDay _notificationTime;
+  final String _urlProfilePhoto;
 
-  UserDataModel(this._username, this._greeter, this._notificationTime);
+  UserDataModel(this._username, this._greeter, this._notificationTime, this._urlProfilePhoto);
 
   String get username {
     return _username;
@@ -17,5 +18,9 @@ class UserDataModel {
 
   TimeOfDay get notificationTime {
     return _notificationTime;
+  }
+
+  String get urlProfilePhoto {
+    return _urlProfilePhoto;
   }
 }
