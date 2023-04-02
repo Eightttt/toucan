@@ -1,19 +1,24 @@
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:toucan/models/goalModel.dart';
 import 'package:toucan/models/userDataModel.dart';
 
 class DatabaseService {
   final String? uid;
-  DatabaseService({this.uid});
+  String? path;
+  DatabaseService({required this.uid}) {
+    path = "photos/users/${uid}_profilePhoto.jpg";
+  }
 
   // collection reference
   final CollectionReference userDataCollection =
       FirebaseFirestore.instance.collection('usersData');
 
   // Future updateUserData()
-  Future updateUserData(
-      String username, String greeter, TimeOfDay notificationTime) async {
+  Future updateUserData(String username, String greeter,
+      TimeOfDay notificationTime, String urlProfilePhoto) async {
     // TODO: Add profile picture, friend code, friends list
 
     if (uid != null) {
@@ -21,6 +26,7 @@ class DatabaseService {
         "username": username,
         "greeter": greeter,
         "notificationTime": _timeOfDayToFirebase(notificationTime),
+        "urlProfilePhoto": urlProfilePhoto,
       });
     }
   }
@@ -29,9 +35,11 @@ class DatabaseService {
   UserDataModel _userDataFromSnapshot(DocumentSnapshot userDataDoc) {
     //
     return UserDataModel(
-        userDataDoc.get("username"),
-        userDataDoc.get("greeter"),
-        _timeOfDayFromFirebase(userDataDoc.get("notificationTime")));
+      userDataDoc.get("username"),
+      userDataDoc.get("greeter"),
+      _timeOfDayFromFirebase(userDataDoc.get("notificationTime")),
+      userDataDoc.get("urlProfilePhoto"),
+    );
   }
 
   // Get userdata stream
@@ -47,6 +55,21 @@ class DatabaseService {
   // Format Map from firebase to timeOfDay
   TimeOfDay _timeOfDayFromFirebase(Map data) {
     return TimeOfDay(hour: data['hour'], minute: data['minute']);
+  }
+
+  // Upload User's Profile Photo
+  Future<String?> uploadProfilePhoto(File? image) async {
+    final ref = FirebaseStorage.instance.ref().child(path!);
+    if (image == null) return null;
+    try {
+      UploadTask uploadTask = ref.putFile(image);
+      final snapshot = await uploadTask.whenComplete(() {});
+      final urlDownload = await snapshot.ref.getDownloadURL();
+      return urlDownload;
+    } catch (e) {
+      print("Error uploading: $e");
+      return null;
+    }
   }
 
   // ===== GOALS =====

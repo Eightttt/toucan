@@ -156,7 +156,7 @@ class _LogInState extends State<LogIn> {
           ),
           Positioned(
               bottom: MediaQuery.of(context).size.height * .5 - 20,
-              child: Visibility(visible: isLoading, child: Loading())),
+              child: Visibility(visible: isLoading, child: Loading(size: 40))),
         ]);
   }
 }

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class Loading extends StatelessWidget {
-  const Loading({super.key});
+  final double size;
+  Loading({super.key, required this.size});
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +13,7 @@ class Loading extends StatelessWidget {
         child: SpinKitFoldingCube(
           duration: Duration(milliseconds: 1250),
           color: Color(0xfff28705),
-          size: 40,
+          size: size,
         ),
       ),
     );

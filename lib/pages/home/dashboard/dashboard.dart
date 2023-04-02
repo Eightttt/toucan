@@ -132,7 +132,7 @@ class _DashboardState extends State<Dashboard> {
         }
       });
     });
-
+    // TODO: add loading to image network
     return Scaffold(
       body: goals == null || userData == null
           ? Stack(
@@ -143,7 +143,7 @@ class _DashboardState extends State<Dashboard> {
                 ),
                 Container(
                   color: Color(0xFFFDFDF5),
-                  child: Loading(),
+                  child: Loading(size: 40),
                 ),
               ],
             )
@@ -191,6 +191,7 @@ class _DashboardState extends State<Dashboard> {
                           today: today,
                           description: userData.greeter,
                           uid: widget.uid,
+                          urlProfilePhoto: userData.urlProfilePhoto,
                         ),
                       ),
                     ];
@@ -222,11 +223,13 @@ class FlexibleAppBar extends StatelessWidget {
     required this.today,
     required this.description,
     required this.uid,
+    required this.urlProfilePhoto,
   });
 
   final DateTime today;
   final String description;
   final String uid;
+  final String urlProfilePhoto;
 
   @override
   Widget build(BuildContext context) {
@@ -255,8 +258,8 @@ class FlexibleAppBar extends StatelessWidget {
                   ),
                 ),
                 CircleAvatar(
-                  backgroundImage: Image.asset(
-                    "assets/temp-img1.png",
+                  backgroundImage: Image.network(
+                    urlProfilePhoto,
                     fit: BoxFit.cover,
                   ).image,
                   radius: 50,

@@ -18,6 +18,7 @@ class AuthService {
         username,
         "Have a great day, Toucan!",
         TimeOfDay(hour: 8, minute: 0),
+        "https://firebasestorage.googleapis.com/v0/b/toucan-8676b.appspot.com/o/photos%2Fusers%2Fdefault_profilePhoto.jpg?alt=media&token=277b1cf0-af1c-44d6-b1da-8838d4f7b189",
       );
 
       return _userFromFirebase(user);

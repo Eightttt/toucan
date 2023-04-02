@@ -29,11 +29,12 @@ class _EditProfileState extends State<EditProfile> {
 
   String _username = "";
   String _greeter = "";
-  File? image;
+  String? _urlProfilePhoto;
+  File? _profilePhoto;
 
   TextEditingController _notificationTimeText = TextEditingController();
-  late TimeOfDay _pickedNotificationTime;
-  late TimeOfDay _notificationTime;
+  TimeOfDay? _pickedNotificationTime;
+  TimeOfDay? _notificationTime;
 
   showImageOptions() {
     showDialog(
@@ -44,19 +45,25 @@ class _EditProfileState extends State<EditProfile> {
   updateImage(File? imageFile) {
     if (imageFile != null) {
       setState(() {
-        image = imageFile;
+        _profilePhoto = imageFile;
       });
     }
   }
 
-  saveUserData() {
+  saveUserData(UserDataModel userData) async {
     final isValid = formKeyUser.currentState?.validate();
     if (isValid != null && isValid) {
       formKeyUser.currentState!.save();
+      DatabaseService databaseService = DatabaseService(uid: widget.uid);
+      // TODO: add loading
+      _urlProfilePhoto =
+          await databaseService.uploadProfilePhoto(_profilePhoto);
+      // TODO: end loading
       DatabaseService(uid: widget.uid).updateUserData(
         _username,
         _greeter,
-        _notificationTime,
+        _notificationTime ?? userData.notificationTime,
+        _urlProfilePhoto ?? userData.urlProfilePhoto,
       );
       Navigator.of(context).pop();
     } else {
@@ -69,15 +76,14 @@ class _EditProfileState extends State<EditProfile> {
     final UserDataModel? userData = Provider.of<UserDataModel?>(context);
 
     if (userData != null) {
-      _pickedNotificationTime = userData.notificationTime;
       _notificationTimeText.text =
-          _pickedNotificationTime.format(context).toString();
+          userData.notificationTime.format(context).toString();
     }
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: userData == null
-          ? Loading()
+          ? Loading(size: 40)
           : Container(
               color: toucanOrange,
               child: SafeArea(
@@ -188,19 +194,18 @@ class _EditProfileState extends State<EditProfile> {
                             TextFormField(
                               readOnly: true,
                               decoration: InputDecoration(
-                                hintText: "Start Date - End Date",
                                 errorMaxLines: 3,
                               ),
                               controller: _notificationTimeText,
                               onTap: () async {
                                 TimeOfDay? pickedTime = await showTimePicker(
                                     context: context,
-                                    initialTime: _pickedNotificationTime);
+                                    initialTime: userData.notificationTime);
 
                                 if (pickedTime != null) {
                                   _pickedNotificationTime = pickedTime;
                                   _notificationTimeText.text =
-                                      _pickedNotificationTime
+                                      _pickedNotificationTime!
                                           .format(context)
                                           .toString();
                                 }
@@ -243,7 +248,7 @@ class _EditProfileState extends State<EditProfile> {
                                 Expanded(
                                   flex: 3,
                                   child: ElevatedButton(
-                                      onPressed: saveUserData,
+                                      onPressed: () => saveUserData(userData),
                                       style: ElevatedButton.styleFrom(
                                         elevation: 2,
                                         side: BorderSide(
@@ -283,21 +288,27 @@ class _EditProfileState extends State<EditProfile> {
                         height: imageSize,
                         width: imageSize,
                         child: FloatingActionButton(
+                          backgroundColor: toucanWhite,
                           shape: CircleBorder(side: BorderSide.none),
                           elevation: 3,
                           onPressed: showImageOptions,
-                          child: CircleAvatar(
-                            backgroundImage: image != null
-                                ? Image.file(
-                                    image!,
-                                    width: imageSize,
-                                    height: imageSize,
-                                  ).image
-                                : Image.asset(
-                                    "assets/temp-img1.png",
-                                    fit: BoxFit.cover,
-                                  ).image,
-                            radius: imageSize / 2,
+                          child: Stack(
+                            children: [
+                              Loading(size: 30),
+                              CircleAvatar(
+                                backgroundColor: Colors.transparent,
+                                backgroundImage: _profilePhoto != null
+                                    ? Image.file(
+                                        _profilePhoto!,
+                                        fit: BoxFit.cover,
+                                      ).image
+                                    : Image.network(
+                                        userData.urlProfilePhoto,
+                                        fit: BoxFit.cover,
+                                      ).image,
+                                radius: imageSize / 2,
+                              ),
+                            ],
                           ),
                         ),
                       ),
