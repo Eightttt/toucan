@@ -1,11 +1,15 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:toucan/models/goalModel.dart';
+import 'package:toucan/models/userModel.dart';
 import 'package:toucan/shared/fadingOnScroll.dart';
+import 'package:toucan/shared/loading.dart';
+
+import 'editGoal.dart';
 
 class ViewGoal extends StatefulWidget {
-  final GoalModel goal;
-  const ViewGoal({super.key, required this.goal});
+  const ViewGoal({super.key});
 
   @override
   State<ViewGoal> createState() => _ViewGoalState();
@@ -84,6 +88,21 @@ class _ViewGoalState extends State<ViewGoal> {
         _scrollController.offset > (height - kToolbarHeight) / 2;
   }
 
+  showEditGoalSheet(String uid, GoalModel goal) {
+    return showModalBottomSheet<void>(
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        barrierColor: Color.fromARGB(85, 0, 0, 0),
+        enableDrag: false,
+        context: context,
+        builder: (BuildContext context) {
+          return EditGoal(
+            uid: uid,
+            goal: goal,
+          );
+        });
+  }
+
   @override
   void dispose() {
     _scrollController.removeListener(_scrollListener);
@@ -96,6 +115,8 @@ class _ViewGoalState extends State<ViewGoal> {
   Widget build(BuildContext context) {
     // TODO: List of Post Models instead of Goal Models
     // final List<GoalModel>? goals = Provider.of<List<GoalModel>?>(context);
+    final GoalModel? goal = Provider.of<GoalModel?>(context);
+    final UserModel user = Provider.of<UserModel>(context);
 
     // TODO: remove posts list below:
     List<String> posts = ["1", "1", "1", "1", "1", "1", "1", "1", "1", "1"];
@@ -115,88 +136,84 @@ class _ViewGoalState extends State<ViewGoal> {
     });
 
     return Scaffold(
-      body: // posts == null
-          //     ? Stack(
-          //         children: [
-          //           ListView(
-          //             controller: _scrollController,
-          //             children: [],
-          //           ),
-          //           Container(
-          //             color: Color(0xFFFDFDF5),
-          //             child: Loading(size: 40),
-          //           ),
-          //         ],
-          //       )
-          // :
-          AbsorbPointer(
-        absorbing: _isAnimating,
-        child: // StreamProvider<List<GoalModel>?>.value(
-            // value: DatabaseService(uid: widget.uid).goals,
-            // initialData: null,
-            // child:
-            NestedScrollView(
-          controller: _scrollController,
-          headerSliverBuilder: (context, innerBoxIsScrolled) {
-            return [
-              SliverAppBar(
-                leading: IconButton(
-                  color: Colors.black,
-                  icon: Icon(Icons.arrow_back_ios_new_sharp),
-                  onPressed: () => Navigator.of(context).pop(),
+      body: /*posts == null*/ goal == null
+          ? Stack(
+              children: [
+                ListView(
+                  controller: _scrollController,
+                  children: [],
                 ),
-                backgroundColor: Color(0xFFFDFDF5),
-                elevation: 5,
-                pinned: true,
-                expandedHeight: height,
-                titleSpacing: 0,
-                title: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    FadingOnScroll(
-                      scrollController: _scrollController,
-                      offset: _offset,
-                      child: Image.asset(
-                        "assets/toucan-title-logo.png",
-                        fit: BoxFit.fitHeight,
-                        height: kToolbarHeight,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 16),
-                      child: IconButton(
+                Container(
+                  color: Color(0xFFFDFDF5),
+                  child: Loading(size: 40),
+                ),
+              ],
+            )
+          : AbsorbPointer(
+              absorbing: _isAnimating,
+              child: // StreamProvider<List<GoalModel>?>.value(
+                  // value: DatabaseService(uid: widget.uid).goals,
+                  // initialData: null,
+                  // child:
+                  NestedScrollView(
+                controller: _scrollController,
+                headerSliverBuilder: (context, innerBoxIsScrolled) {
+                  return [
+                    SliverAppBar(
+                      leading: IconButton(
                         color: Colors.black,
-                        icon: Icon(Icons.more_horiz),
-                        onPressed: () => // showDialog(
-                            // context: context,
-                            // builder: (context) => Settings(uid: uid)),
-                            print("Show goal settings"),
+                        icon: Icon(Icons.arrow_back_ios_new_sharp),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                      backgroundColor: Color(0xFFFDFDF5),
+                      elevation: 5,
+                      pinned: true,
+                      expandedHeight: height,
+                      titleSpacing: 0,
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          FadingOnScroll(
+                            scrollController: _scrollController,
+                            offset: _offset,
+                            child: Image.asset(
+                              "assets/toucan-title-logo.png",
+                              fit: BoxFit.fitHeight,
+                              height: kToolbarHeight,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 16),
+                            child: IconButton(
+                                color: Colors.black,
+                                icon: Icon(Icons.more_horiz),
+                                onPressed: () =>
+                                    showEditGoalSheet(user.uid, goal)),
+                          ),
+                        ],
+                      ),
+                      flexibleSpace: FlexibleAppBar(
+                        goal: goal,
                       ),
                     ),
-                  ],
-                ),
-                flexibleSpace: FlexibleAppBar(
-                  goal: widget.goal,
+                  ];
+                },
+                body: PostsListView(
+                  posts: posts,
                 ),
               ),
-            ];
-          },
-          body: PostsListView(
-            posts: posts,
-          ),
-        ),
-      ),
-      floatingActionButton: // posts == null
-          //     ? null
-          // :
-          FloatingActionButton(
-        onPressed: () {
-          print("Open Image Picker");
-        },
-        child: Icon(
-          Icons.add,
-        ),
-      ),
+            ),
+      floatingActionButton: /* posts == null */
+          goal == null
+              ? null
+              : FloatingActionButton(
+                  onPressed: () {
+                    print("Open Image Picker");
+                  },
+                  child: Icon(
+                    Icons.add,
+                  ),
+                ),
       floatingActionButtonLocation:
           FloatingActionButtonLocation.miniCenterFloat,
     );
@@ -214,6 +231,26 @@ class FlexibleAppBar extends StatelessWidget {
   final double imageSize = 100;
   bool hasInitialized = false;
 
+  final Color toucanWhite = Color(0xFFFDFDF5);
+  final Color toucanRed = Color.fromARGB(255, 224, 88, 39);
+  final Color toucanYellow = Color.fromARGB(255, 242, 203, 5);
+  final Color toucanGreen = Color.fromARGB(255, 132, 195, 93);
+  final Color toucanBlue = Color.fromARGB(255, 127, 192, 251);
+  final Color toucanPurple = Color.fromARGB(255, 167, 127, 251);
+  final Color toucanPeach = Color.fromARGB(255, 251, 179, 127);
+
+  Color statusColor(String status) {
+    if (status == "not started") return toucanRed;
+    if (status == "in-progress") return toucanYellow;
+    return toucanGreen;
+  }
+
+  Color tagColor(String status) {
+    if (status == "Academic") return toucanBlue;
+    if (status == "Work") return toucanPurple;
+    return toucanPeach;
+  }
+
   @override
   Widget build(BuildContext context) {
     return FlexibleSpaceBar(
@@ -221,31 +258,79 @@ class FlexibleAppBar extends StatelessWidget {
       background: Container(
         color: Color(0xfff28705),
         padding: EdgeInsets.only(
-            top: AppBar().preferredSize.height / 2, left: 45, right: 32),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
+            top: AppBar().preferredSize.height / 2, left: 45, right: 36),
+        child: Stack(
           children: [
-            Padding(
-              padding: const EdgeInsets.only(bottom: 7),
-              child: Text(
-                goal.title,
-                style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 32,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 7),
+                  child: Text(
+                    goal.title,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 32,
+                    ),
+                  ),
                 ),
-              ),
+                Text(
+                  goal.description,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontStyle: FontStyle.italic,
+                    fontSize: 16,
+                  ),
+                  maxLines: 4,
+                  softWrap: true,
+                ),
+                SizedBox(height: 10),
+              ],
             ),
-            Text(
-              goal.description,
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontStyle: FontStyle.italic,
-                fontSize: 16,
+            ConstrainedBox(
+              constraints: BoxConstraints.expand(),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Container(
+                    margin: EdgeInsets.only(right: 10, bottom: 20),
+                    padding: EdgeInsets.fromLTRB(10, 2, 10, 2),
+                    child: Text(
+                      goal.tag,
+                      style: TextStyle(
+                        color: toucanWhite,
+                        fontStyle: FontStyle.italic,
+                        fontSize: 12,
+                      ),
+                    ),
+                    decoration: BoxDecoration(
+                        color: tagColor(goal.tag),
+                        borderRadius: BorderRadius.all(Radius.circular(10))
+                        //more than 50% of width makes circle
+                        ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(bottom: 20),
+                    padding: EdgeInsets.fromLTRB(10, 2, 10, 2),
+                    child: Text(
+                      goal.status,
+                      style: TextStyle(
+                        color: toucanWhite,
+                        fontStyle: FontStyle.italic,
+                        fontSize: 12,
+                      ),
+                    ),
+                    decoration: BoxDecoration(
+                        color: statusColor(goal.status),
+                        borderRadius: BorderRadius.all(Radius.circular(10))
+                        //more than 50% of width makes circle
+                        ),
+                  ),
+                ],
               ),
-              maxLines: 4,
-              softWrap: true,
-            ),
+            )
           ],
         ),
       ),
