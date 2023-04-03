@@ -158,7 +158,7 @@ class _DashboardState extends State<Dashboard> {
                   headerSliverBuilder: (context, innerBoxIsScrolled) {
                     return [
                       SliverAppBar(
-                        backgroundColor: Colors.white,
+                        backgroundColor: Color(0xFFFDFDF5),
                         elevation: 5,
                         pinned: true,
                         expandedHeight: height,

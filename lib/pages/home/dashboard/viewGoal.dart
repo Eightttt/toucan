@@ -145,7 +145,7 @@ class _ViewGoalState extends State<ViewGoal> {
                   icon: Icon(Icons.arrow_back_ios_new_sharp),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
-                backgroundColor: Colors.white,
+                backgroundColor: Color(0xFFFDFDF5),
                 elevation: 5,
                 pinned: true,
                 expandedHeight: height,
@@ -190,13 +190,15 @@ class _ViewGoalState extends State<ViewGoal> {
           //     ? null
           // :
           FloatingActionButton(
-              onPressed: () {
-                print("Open Image Picker");
-              },
-              child: Icon(
-                Icons.add,
-              )),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        onPressed: () {
+          print("Open Image Picker");
+        },
+        child: Icon(
+          Icons.add,
+        ),
+      ),
+      floatingActionButtonLocation:
+          FloatingActionButtonLocation.miniCenterFloat,
     );
   }
 }
