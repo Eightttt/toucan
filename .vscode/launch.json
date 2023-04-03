@@ -1,0 +1,11 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "toucan web renderer: html",
+            "request": "launch",
+            "type": "dart",
+            "args": ["--web-renderer", "html"],
+        }
+    ]
+}
