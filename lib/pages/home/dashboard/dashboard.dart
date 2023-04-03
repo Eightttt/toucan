@@ -3,7 +3,7 @@ import "package:intl/intl.dart";
 import 'package:provider/provider.dart';
 import 'package:toucan/models/goalModel.dart';
 import 'package:toucan/models/userDataModel.dart';
-import 'package:toucan/pages/home/dashboard/createGoal.dart';
+import 'package:toucan/pages/home/dashboard/editGoal.dart';
 import 'package:toucan/pages/home/dashboard/editProfile.dart';
 import 'package:toucan/pages/home/dashboard/viewGoal.dart';
 import 'package:toucan/shared/bottomNavBar.dart';
@@ -110,7 +110,8 @@ class _DashboardState extends State<Dashboard> {
         enableDrag: false,
         context: context,
         builder: (BuildContext context) {
-          return CreateGoal(uid: widget.uid);
+          // Pass null to goalUid to create a new goal with a unique UID
+          return EditGoal(uid: widget.uid, goal: null);
         });
   }
 
@@ -198,6 +199,7 @@ class _DashboardState extends State<Dashboard> {
                     ];
                   },
                   body: GoalsListView(
+                    uid: widget.uid,
                     goals: goals,
                   ),
                 ),
@@ -337,10 +339,12 @@ class FlexibleAppBar extends StatelessWidget {
 
 class GoalsListView extends StatefulWidget {
   final List<GoalModel> goals;
+  final String uid;
 
   GoalsListView({
     super.key,
     required this.goals,
+    required this.uid,
   });
 
   @override
@@ -368,7 +372,7 @@ class _GoalsListViewState extends State<GoalsListView> {
                           height: 2,
                         ),
                       )
-                    : GoalCard(goal: widget.goals[index]);
+                    : GoalCard(uid: widget.uid, goal: widget.goals[index]);
               },
               childCount: widget.goals.length == 0 ? 1 : widget.goals.length,
             ),
@@ -383,9 +387,11 @@ class GoalCard extends StatelessWidget {
   GoalCard({
     super.key,
     required this.goal,
+    required this.uid,
   });
 
   final GoalModel goal;
+  final String uid;
   final Color toucanWhite = Color(0xFFFDFDF5);
   final Color toucanRed = Color.fromARGB(255, 224, 88, 39);
   final Color toucanYellow = Color.fromARGB(255, 242, 203, 5);
@@ -416,7 +422,11 @@ class GoalCard extends StatelessWidget {
             minVerticalPadding: 0,
             contentPadding: EdgeInsets.fromLTRB(20, 0, 0, 0),
             onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => ViewGoal(goal: goal)),
+              MaterialPageRoute(
+                  builder: (context) => StreamProvider<GoalModel?>.value(
+                      value: DatabaseService(uid: uid).getGoal(goal.id),
+                      initialData: null,
+                      child: ViewGoal())),
             ),
             title: SizedBox(
               height: 89,
