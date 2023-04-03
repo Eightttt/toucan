@@ -5,6 +5,7 @@ import 'package:toucan/models/goalModel.dart';
 import 'package:toucan/models/userDataModel.dart';
 import 'package:toucan/pages/home/dashboard/createGoal.dart';
 import 'package:toucan/pages/home/dashboard/editProfile.dart';
+import 'package:toucan/pages/home/dashboard/viewGoal.dart';
 import 'package:toucan/shared/bottomNavBar.dart';
 import "package:toucan/shared/fadingOnScroll.dart";
 // import 'package:toucan/pages/home/dashboard/viewGoal.dart';
@@ -132,7 +133,7 @@ class _DashboardState extends State<Dashboard> {
         }
       });
     });
-    // TODO: add loading to image network
+
     return Scaffold(
       body: goals == null || userData == null
           ? Stack(
@@ -281,7 +282,7 @@ class FlexibleAppBar extends StatelessWidget {
                           return child;
                         }
                         return Container(
-                          margin: EdgeInsets.all(imageSize *.35),
+                          margin: EdgeInsets.all(imageSize * .35),
                           width: imageSize * .3,
                           height: imageSize * .3,
                           decoration: BoxDecoration(
@@ -291,8 +292,7 @@ class FlexibleAppBar extends StatelessWidget {
                             color: Color(0xfff28705),
                             backgroundColor: Color.fromARGB(69, 242, 135, 5),
                             strokeWidth: 4,
-                            value: loadingProgress.expectedTotalBytes !=
-                                    null
+                            value: loadingProgress.expectedTotalBytes != null
                                 ? loadingProgress.cumulativeBytesLoaded /
                                     loadingProgress.expectedTotalBytes!
                                 : null,
@@ -336,7 +336,7 @@ class FlexibleAppBar extends StatelessWidget {
 }
 
 class GoalsListView extends StatefulWidget {
-  final List<GoalModel>? goals;
+  final List<GoalModel> goals;
 
   GoalsListView({
     super.key,
@@ -357,7 +357,7 @@ class _GoalsListViewState extends State<GoalsListView> {
           sliver: SliverList(
             delegate: SliverChildBuilderDelegate(
               (BuildContext context, int index) {
-                return widget.goals!.length == 0
+                return widget.goals.length == 0
                     ? Text(
                         "No goals added yet\nClick the \"+\" button to add a goal",
                         textAlign: TextAlign.center,
@@ -368,9 +368,9 @@ class _GoalsListViewState extends State<GoalsListView> {
                           height: 2,
                         ),
                       )
-                    : GoalCard(goal: widget.goals![index]);
+                    : GoalCard(goal: widget.goals[index]);
               },
-              childCount: widget.goals!.length == 0 ? 1 : widget.goals!.length,
+              childCount: widget.goals.length == 0 ? 1 : widget.goals.length,
             ),
           ),
         ),
@@ -415,7 +415,9 @@ class GoalCard extends StatelessWidget {
           ListTile(
             minVerticalPadding: 0,
             contentPadding: EdgeInsets.fromLTRB(20, 0, 0, 0),
-            onTap: () {},
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => ViewGoal(goal: goal)),
+            ),
             title: SizedBox(
               height: 89,
               child: Align(
