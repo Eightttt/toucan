@@ -78,6 +78,7 @@ class DatabaseService {
   // ===== GOALS =====
   // Future updateGoalData()
   Future updateGoalData(
+      String? goalUid,
       String title,
       String tag,
       DateTime startDate,
@@ -87,7 +88,7 @@ class DatabaseService {
       String description,
       bool isPrivate) async {
     if (uid != null) {
-      await userDataCollection.doc(uid).collection("goals").doc().set({
+      await userDataCollection.doc(uid).collection("goals").doc(goalUid).set({
         "title": title,
         "tag": tag,
         "startDate": Timestamp.fromDate(startDate),
@@ -104,6 +105,7 @@ class DatabaseService {
   List<GoalModel> _goalsListFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.docs.map((doc) {
       return GoalModel(
+        doc.id,
         doc.get('title'),
         doc.get('tag'),
         DateTime.fromMillisecondsSinceEpoch(
@@ -118,13 +120,41 @@ class DatabaseService {
     }).toList();
   }
 
-  // Get goals stream
+  // Get goals list stream
   Stream<List<GoalModel>> get goals {
     return userDataCollection
         .doc(uid)
         .collection("goals")
         .snapshots()
         .map(_goalsListFromSnapshot);
+  }
+
+  // Get individual goal stream
+  Stream<GoalModel> getGoal(String goalId) {
+    print("inside getGoal");
+    return userDataCollection
+        .doc(uid)
+        .collection("goals")
+        .doc(goalId)
+        .snapshots()
+        .map(_goalFromSnapshot);
+  }
+
+  // goals list from snapshot
+  GoalModel _goalFromSnapshot(DocumentSnapshot goalSnapshot) {
+    return GoalModel(
+      goalSnapshot.id,
+      goalSnapshot.get('title'),
+      goalSnapshot.get('tag'),
+      DateTime.fromMillisecondsSinceEpoch(
+          (goalSnapshot.get('startDate') as Timestamp).millisecondsSinceEpoch),
+      DateTime.fromMillisecondsSinceEpoch(
+          (goalSnapshot.get('endDate') as Timestamp).millisecondsSinceEpoch),
+      goalSnapshot.get('period'),
+      goalSnapshot.get('frequency'),
+      goalSnapshot.get('description'),
+      goalSnapshot.get('isPrivate'),
+    );
   }
 
   // Add friends to friends list

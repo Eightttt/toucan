@@ -8,8 +8,10 @@ class GoalModel {
   final String _description;
   late String _status;
   final bool _isPrivate;
+  final String _id;
 
   GoalModel(
+    this._id,
     this._title,
     this._tag,
     this._startDate,
@@ -45,4 +47,6 @@ class GoalModel {
   String get status => _status;
 
   bool get isPrivate => _isPrivate;
+
+  String get id => _id;
 }
