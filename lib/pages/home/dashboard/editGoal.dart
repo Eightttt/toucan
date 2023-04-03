@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
+import 'package:toucan/models/goalModel.dart';
 import 'package:toucan/services/database.dart';
 
-class CreateGoal extends StatefulWidget {
+class EditGoal extends StatefulWidget {
   final String uid;
-  const CreateGoal({Key? key, required this.uid}) : super(key: key);
+  final GoalModel? goal;
+  const EditGoal({Key? key, required this.uid, required this.goal})
+      : super(key: key);
 
   @override
-  State<CreateGoal> createState() => _CreateGoalState();
+  State<EditGoal> createState() => _EditGoalState();
 }
 
-class _CreateGoalState extends State<CreateGoal> {
+class _EditGoalState extends State<EditGoal> {
   final formKeyGoal = GlobalKey<FormState>();
 
   final _goalTags = ["Academic", "Work", "Personal"];
@@ -24,6 +27,7 @@ class _CreateGoalState extends State<CreateGoal> {
   TextEditingController _startEndDate = TextEditingController();
   int _period = 1;
   String _chosenFrequency = "day/s";
+  String? _description;
 
   DateTimeRange _dateRange = DateTimeRange(
     start: DateTime.now(),
@@ -33,6 +37,19 @@ class _CreateGoalState extends State<CreateGoal> {
   @override
   void initState() {
     super.initState();
+    if (widget.goal != null) {
+      _chosenGoalTag = widget.goal!.tag;
+      _period = widget.goal!.period;
+      _chosenFrequency = widget.goal!.frequency;
+      _dateRange = DateTimeRange(
+          start: widget.goal!.startDate, end: widget.goal!.endDate);
+      _startEndDate.text =
+          DateFormat('MMMM dd, yyyy').format(_dateRange.start) +
+              " - " +
+              DateFormat('MMMM dd, yyyy').format(_dateRange.end);
+      _description = widget.goal!.description;
+    }
+    ;
   }
 
   saveGoal() {
@@ -40,13 +57,14 @@ class _CreateGoalState extends State<CreateGoal> {
     if (isValid != null && isValid) {
       formKeyGoal.currentState!.save();
       DatabaseService(uid: widget.uid).updateGoalData(
+        widget.goal?.id,
         _goalTitle,
         _chosenGoalTag,
         _startDate,
         _endDate,
         _period,
         _chosenFrequency,
-        "Page description",
+        _description ?? "Page description",
         false,
       );
       Navigator.of(context).pop();
@@ -64,7 +82,9 @@ class _CreateGoalState extends State<CreateGoal> {
           //more than 50% of width makes circle
           ),
       margin: EdgeInsets.only(left: 15, right: 15),
-      height: MediaQuery.of(context).size.height * 0.65,
+      height: widget.goal != null
+          ? MediaQuery.of(context).size.height * 0.8
+          : MediaQuery.of(context).size.height * 0.65,
       child: Form(
         key: formKeyGoal,
         child: ListView(
@@ -85,8 +105,9 @@ class _CreateGoalState extends State<CreateGoal> {
                 children: [
                   // GOAL TITLE
                   TextFormField(
+                    initialValue: widget.goal?.title,
                     maxLength: 20,
-                    decoration: InputDecoration(hintText: "Title:"),
+                    decoration: InputDecoration(hintText: "Goal Title:"),
                     validator: (value) {
                       if (value!.length <= 0) {
                         return 'Title cannot be empty';
@@ -96,9 +117,13 @@ class _CreateGoalState extends State<CreateGoal> {
                     },
                     onSaved: (value) => _goalTitle = value!,
                   ),
-                  SizedBox(height: 15),
 
-                  // GOAL TAG
+                  // ==== GOAL TAG ====
+                  Container(
+                    padding: EdgeInsets.fromLTRB(10, 0, 0, 8),
+                    alignment: Alignment.topLeft,
+                    child: Text("Goal Tag"),
+                  ),
                   DropdownButtonFormField(
                     isExpanded: true,
                     value: _chosenGoalTag,
@@ -122,6 +147,8 @@ class _CreateGoalState extends State<CreateGoal> {
                       }
                     },
                   ),
+
+                  // ==== GOAL DURATION ====
                   Container(
                     padding: EdgeInsets.fromLTRB(10, 20, 0, 8),
                     alignment: Alignment.topLeft,
@@ -167,11 +194,12 @@ class _CreateGoalState extends State<CreateGoal> {
                     alignment: Alignment.topLeft,
                     child: Text("Notify every"),
                   ),
+
+                  // ==== Notification interval ====
                   Row(
                     children: [
                       Expanded(
                         flex: 2,
-                        // Notification interval
                         child: TextFormField(
                             initialValue: "${_period}",
                             onChanged: (number) {
@@ -230,6 +258,47 @@ class _CreateGoalState extends State<CreateGoal> {
                       ),
                     ],
                   ),
+
+                  // ==== DESCRIPTION ====
+                  if (widget.goal != null) SizedBox(width: 20),
+                  if (widget.goal != null)
+                    Container(
+                      padding: EdgeInsets.fromLTRB(10, 20, 0, 8),
+                      alignment: Alignment.topLeft,
+                      child: Text("Description"),
+                    ),
+                  if (widget.goal != null)
+                    TextFormField(
+                      textAlignVertical: TextAlignVertical.top,
+                      keyboardType: TextInputType.multiline,
+                      maxLines: 3,
+                      initialValue: _description,
+                      maxLength: 56,
+                      inputFormatters: [
+                        TextInputFormatter.withFunction((oldValue, newValue) {
+                          int newLines = newValue.text.split('\n').length;
+                          if (newLines > 3) {
+                            return oldValue;
+                          } else {
+                            return newValue;
+                          }
+                        }),
+                      ],
+                      decoration: const InputDecoration(
+                        contentPadding: EdgeInsets.all(15),
+                        errorMaxLines: 3,
+                      ),
+                      validator: (value) {
+                        if (value!.length == 0) {
+                          return 'Must not be empty';
+                        } else {
+                          return null;
+                        }
+                      },
+                      onSaved: (value) => _description = value!,
+                    ),
+
+                  // ==== Confirm Button ====
                   SizedBox(height: 45),
                   Row(
                     children: [
@@ -237,7 +306,9 @@ class _CreateGoalState extends State<CreateGoal> {
                       Expanded(
                         flex: 4,
                         child: ElevatedButton(
-                            onPressed: saveGoal, child: const Text("Confirm")),
+                            onPressed: () => saveGoal(),
+                            child:
+                                Text(widget.goal != null ? "Save" : "Confirm")),
                       ),
                     ],
                   ),
