@@ -182,7 +182,7 @@ class _EditGoalState extends State<EditGoal> {
           ),
       margin: EdgeInsets.only(left: 15, right: 15),
       height: widget.goal != null
-          ? MediaQuery.of(context).size.height * 0.8
+          ? MediaQuery.of(context).size.height * 0.81
           : MediaQuery.of(context).size.height * 0.65,
       child: Form(
         key: formKeyGoal,
@@ -398,25 +398,29 @@ class _EditGoalState extends State<EditGoal> {
                     ),
 
                   // ==== BUTTONS ====
-                  SizedBox(height: 45),
+                  SizedBox(height: widget.goal != null ? 30 : 45),
                   Row(
                     children: [
                       if (widget.goal != null)
                         Expanded(
-                          flex: 3,
+                          flex: 4,
                           child: ElevatedButton(
                             onPressed: () => showConfirmDelete(),
                             child: Text("Delete"),
                             style: ElevatedButton.styleFrom(
+                              elevation: 4,
                               backgroundColor: toucanOrange,
                             ),
                           ),
                         ),
-                      Spacer(flex: widget.goal != null ? 1 : 4),
+                      Spacer(flex: widget.goal != null ? 1 : 6),
                       Expanded(
-                        flex: 3,
+                        flex: 4,
                         child: ElevatedButton(
                             onPressed: () => saveGoal(),
+                            style: ElevatedButton.styleFrom(
+                              elevation: 4,
+                            ),
                             child:
                                 Text(widget.goal != null ? "Save" : "Confirm")),
                       ),
