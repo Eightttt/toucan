@@ -263,49 +263,44 @@ class FlexibleAppBar extends StatelessWidget {
                     ),
                   ),
                 ),
-                Material(
-                  elevation: 3,
-                  shape: CircleBorder(),
-                  clipBehavior: Clip.antiAlias,
-                  child: ClipOval(
-                    child: Container(
-                      color: Color(0xFFFDFDF5),
-                      height: imageSize,
-                      width: imageSize,
-                      child: Image.network(
-                        urlProfilePhoto,
-                        fit: BoxFit.cover,
-                        // When image is loading from the server it takes some time
-                        // So we will show progress indicator while loading
-                        loadingBuilder: (BuildContext context, Widget child,
-                            ImageChunkEvent? loadingProgress) {
-                          if (loadingProgress == null) {
-                            if (!hasInitialized) {
-                              hasInitialized = !hasInitialized;
-                            } else {
-                              hasInitialized = !hasInitialized;
-                            }
-                            return child;
+                ClipOval(
+                  child: Container(
+                    color: Color(0xFFFDFDF5),
+                    height: imageSize,
+                    width: imageSize,
+                    child: Image.network(
+                      urlProfilePhoto,
+                      fit: BoxFit.cover,
+                      // When image is loading from the server it takes some time
+                      // So we will show progress indicator while loading
+                      loadingBuilder: (BuildContext context, Widget child,
+                          ImageChunkEvent? loadingProgress) {
+                        if (loadingProgress == null) {
+                          if (!hasInitialized) {
+                            hasInitialized = !hasInitialized;
+                          } else {
+                            hasInitialized = !hasInitialized;
                           }
-                          return Container(
-                            margin: EdgeInsets.all(imageSize * .35),
-                            width: imageSize * .3,
-                            height: imageSize * .3,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                            ),
-                            child: CircularProgressIndicator(
-                              color: Color(0xfff28705),
-                              backgroundColor: Color.fromARGB(69, 242, 135, 5),
-                              strokeWidth: 4,
-                              value: loadingProgress.expectedTotalBytes != null
-                                  ? loadingProgress.cumulativeBytesLoaded /
-                                      loadingProgress.expectedTotalBytes!
-                                  : null,
-                            ),
-                          );
-                        },
-                      ),
+                          return child;
+                        }
+                        return Container(
+                          margin: EdgeInsets.all(imageSize * .35),
+                          width: imageSize * .3,
+                          height: imageSize * .3,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                          ),
+                          child: CircularProgressIndicator(
+                            color: Color(0xfff28705),
+                            backgroundColor: Color.fromARGB(69, 242, 135, 5),
+                            strokeWidth: 4,
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                    loadingProgress.expectedTotalBytes!
+                                : null,
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ),
