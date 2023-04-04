@@ -486,7 +486,7 @@ class _PostCardState extends State<PostCard> {
                         TextSpan(
                           text: isExpand ? ' ... show less' : ' ... show more',
                           style: TextStyle(
-                            color: Color.fromARGB(255, 105, 105, 105),
+                            color: Color.fromARGB(183, 91, 91, 91),
                             fontWeight: FontWeight.w700,
                             fontStyle: FontStyle.italic,
                           ),
