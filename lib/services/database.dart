@@ -130,14 +130,14 @@ class DatabaseService {
   }
 
   // Get individual goal stream
-  Stream<GoalModel> getGoal(String goalId) {
-    print("inside getGoal");
+  Stream<GoalModel?> getGoal(String goalId) {
     return userDataCollection
         .doc(uid)
         .collection("goals")
         .doc(goalId)
         .snapshots()
-        .map(_goalFromSnapshot);
+        .map((goalSnapshot) =>
+            !goalSnapshot.exists ? null : _goalFromSnapshot(goalSnapshot));
   }
 
   // goals list from snapshot
@@ -155,6 +155,10 @@ class DatabaseService {
       goalSnapshot.get('description'),
       goalSnapshot.get('isPrivate'),
     );
+  }
+
+  Future deleteGoal(String goalId) async {
+    await userDataCollection.doc(uid).collection("goals").doc(goalId).delete();
   }
 
   // Add friends to friends list

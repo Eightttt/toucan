@@ -16,6 +16,8 @@ class EditGoal extends StatefulWidget {
 
 class _EditGoalState extends State<EditGoal> {
   final formKeyGoal = GlobalKey<FormState>();
+  final toucanOrange = Color(0xfff28705);
+  final toucanWhite = Color(0xFFFDFDF5);
 
   final _goalTags = ["Academic", "Work", "Personal"];
   final _frequency = ["day/s", "week/s", "month/s", "year/s"];
@@ -71,6 +73,103 @@ class _EditGoalState extends State<EditGoal> {
     } else {
       print("error");
     }
+  }
+
+  showConfirmDelete() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            iconPadding: EdgeInsets.only(top: 30, bottom: 10),
+            icon: Icon(
+              Icons.error_outline_rounded,
+              size: 70,
+            ),
+            title: RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                text: "Are you sure?\n",
+                style: TextStyle(
+                  fontSize: 24,
+                  color: Colors.black,
+                  fontWeight: FontWeight.w600,
+                ),
+                children: [
+                  WidgetSpan(child: SizedBox(height: 30)),
+                  TextSpan(
+                    text:
+                        "Do you really want to delete this goal and its contents? This process cannot be undone.",
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Color.fromARGB(183, 91, 91, 91),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            actionsPadding: EdgeInsets.only(bottom: 40),
+            actions: [
+              SizedBox(height: 10),
+              Row(
+                children: [
+                  Spacer(flex: 1),
+                  Expanded(
+                    flex: 4,
+                    child: ElevatedButton(
+                      onPressed: () => {Navigator.of(context).pop()},
+                      child: Text(
+                        "Cancel",
+                        style: TextStyle(fontSize: 14),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        elevation: 2,
+                        side: BorderSide(width: 1, color: toucanOrange),
+                        backgroundColor: toucanWhite,
+                        foregroundColor: toucanOrange,
+                        minimumSize: const Size(120, 33),
+                        textStyle: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Spacer(flex: 1),
+                  Expanded(
+                    flex: 4,
+                    child: ElevatedButton(
+                      onPressed: () => {deleteGoal()},
+                      child: Text(
+                        "Delete",
+                        style: TextStyle(fontSize: 14),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        elevation: 2,
+                        side: BorderSide(width: 1, color: toucanOrange),
+                        backgroundColor: toucanOrange,
+                        minimumSize: const Size(120, 33),
+                        textStyle: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Spacer(flex: 1),
+                ],
+              )
+            ],
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(15))),
+          );
+        });
+  }
+
+  deleteGoal() async {
+    await DatabaseService(uid: widget.uid).deleteGoal(widget.goal!.id);
+    Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
   @override
@@ -298,13 +397,24 @@ class _EditGoalState extends State<EditGoal> {
                       onSaved: (value) => _description = value!,
                     ),
 
-                  // ==== Confirm Button ====
+                  // ==== BUTTONS ====
                   SizedBox(height: 45),
                   Row(
                     children: [
-                      Expanded(flex: 5, child: SizedBox()),
+                      if (widget.goal != null)
+                        Expanded(
+                          flex: 3,
+                          child: ElevatedButton(
+                            onPressed: () => showConfirmDelete(),
+                            child: Text("Delete"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: toucanOrange,
+                            ),
+                          ),
+                        ),
+                      Spacer(flex: widget.goal != null ? 1 : 4),
                       Expanded(
-                        flex: 4,
+                        flex: 3,
                         child: ElevatedButton(
                             onPressed: () => saveGoal(),
                             child:
