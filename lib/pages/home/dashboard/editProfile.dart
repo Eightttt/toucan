@@ -288,7 +288,7 @@ class _EditProfileState extends State<EditProfile> {
                                               Navigator.of(context).pop(),
                                           child: const Text("Cancel")),
                                     ),
-                                    Expanded(flex: 1, child: SizedBox()),
+                                    Spacer(flex: 1),
                                     Expanded(
                                       flex: 3,
                                       child: ElevatedButton(
