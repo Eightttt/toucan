@@ -42,11 +42,30 @@ class _EditProfileState extends State<EditProfile> {
 
   showImageOptions() {
     showDialog(
-        context: context,
-        builder: (context) => ImagePickerPage(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          iconPadding: EdgeInsets.only(top: 10),
+          icon: Align(
+            alignment: Alignment.topLeft,
+            child: IconButton(
+              color: Color(0xfff28705),
+              onPressed: () => Navigator.of(context).pop(),
+              icon: Icon(Icons.arrow_back_ios_rounded),
+            ),
+          ),
+          actionsPadding: EdgeInsets.only(bottom: 37),
+          actions: [
+            ImagePickerPage(
               updateImage: updateImage,
               updateImageWeb: updateImageWeb,
-            ));
+            ),
+          ],
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(15))),
+        );
+      },
+    );
   }
 
   updateImage(File? imageFile) {
