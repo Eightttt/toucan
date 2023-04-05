@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:toucan/models/goalModel.dart';
 import 'package:toucan/models/userDataModel.dart';
 
@@ -59,11 +61,27 @@ class DatabaseService {
 
   // Upload User's Profile Photo
   Future<String?> uploadProfilePhoto(
-      File? image, Function(UploadTask?) setUploadTask) async {
-    final ref = FirebaseStorage.instance.ref().child(path!);
+      XFile? image, Function(UploadTask?) setUploadTask) async {
+    final Reference ref;
+    if (kIsWeb) {
+      print("It is Web");
+      ref = FirebaseStorage.instance
+          .refFromURL("gs://toucan-8676b.appspot.com/")
+          .child(path!);
+    } else {
+      ref = FirebaseStorage.instance.ref().child(path!);
+    }
+
+    print("image: $image");
     if (image == null) return null;
     try {
-      UploadTask uploadTask = ref.putFile(image);
+      UploadTask uploadTask;
+      if (kIsWeb) {
+        uploadTask = ref.putData(
+            await image.readAsBytes(), SettableMetadata(contentType: 'jpg'));
+      } else {
+        uploadTask = ref.putFile(File(image.path));
+      }
       setUploadTask(uploadTask);
       final snapshot = await uploadTask.whenComplete(() {});
       final urlDownload = await snapshot.ref.getDownloadURL();
