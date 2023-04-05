@@ -339,6 +339,7 @@ class _EditProfileState extends State<EditProfile> {
                               onPressed: showImageOptions,
                               child: ClipOval(
                                   child: Stack(
+                                fit: StackFit.expand,
                                 children: [
                                   Image.network(
                                     userData.urlProfilePhoto,
