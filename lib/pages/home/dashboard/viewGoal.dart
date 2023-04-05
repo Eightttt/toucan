@@ -1,8 +1,8 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:toucan/models/goalModel.dart';
 import 'package:toucan/models/userModel.dart';
+import 'package:toucan/pages/home/dashboard/editPost.dart';
 import 'package:toucan/shared/fadingOnScroll.dart';
 import 'package:toucan/shared/loading.dart';
 
@@ -208,7 +208,8 @@ class _ViewGoalState extends State<ViewGoal> {
               ? null
               : FloatingActionButton(
                   onPressed: () {
-                    print("Open Image Picker");
+                    Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => EditPost()));
                   },
                   child: Icon(
                     Icons.add,
