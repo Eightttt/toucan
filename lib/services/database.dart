@@ -61,7 +61,7 @@ class DatabaseService {
 
   // Upload User's Profile Photo
   Future<String?> uploadProfilePhoto(
-      XFile? image, Function(UploadTask?) setUploadTask) async {
+      File? image, XFile? imageWeb, Function(UploadTask?) setUploadTask) async {
     final Reference ref;
     if (kIsWeb) {
       print("It is Web");
@@ -72,14 +72,15 @@ class DatabaseService {
       ref = FirebaseStorage.instance.ref().child(path!);
     }
 
-    print("image: $image");
-    if (image == null) return null;
     try {
       UploadTask uploadTask;
       if (kIsWeb) {
+        if (imageWeb == null) return null;
         uploadTask = ref.putData(
-            await image.readAsBytes(), SettableMetadata(contentType: 'jpg'));
+            await imageWeb.readAsBytes(), SettableMetadata(contentType: 'jpg'));
       } else {
+        if (image == null) return null;
+        print("image path ============================ ${image.path}");
         uploadTask = ref.putFile(File(image.path));
       }
       setUploadTask(uploadTask);

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:flutter/material.dart';
@@ -5,8 +7,10 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ImagePickerPage extends StatefulWidget {
-  final Function(XFile?) updateImage;
-  const ImagePickerPage({required this.updateImage, super.key});
+  final Function(File?) updateImage;
+  final Function(XFile?) updateImageWeb;
+  const ImagePickerPage(
+      {required this.updateImage, required this.updateImageWeb, super.key});
 
   @override
   State<ImagePickerPage> createState() => _ImagePickerPageState();
@@ -20,17 +24,22 @@ class _ImagePickerPageState extends State<ImagePickerPage> {
     try {
       final pickedImage = await ImagePicker().pickImage(source: imageSource);
       if (pickedImage == null) return;
-      XFile? image = pickedImage;
-      if (!kIsWeb) image = await cropSquareImage(pickedImage);
-      widget.updateImage(image);
-      if (image != null) Navigator.of(context).pop();
+
+      if (kIsWeb) {
+        widget.updateImageWeb(pickedImage);
+        Navigator.of(context).pop();
+      } else {
+        File? image = File(pickedImage.path);
+        image = await cropSquareImage(pickedImage);
+        widget.updateImage(image);
+        if (image != null) Navigator.of(context).pop();
+      }
     } on PlatformException catch (e) {
       print('Failed to pick image: $e');
     }
   }
 
-  Future<XFile?> cropSquareImage(XFile imageFile) async {
-
+  Future<File?> cropSquareImage(XFile imageFile) async {
     final croppedFile = await ImageCropper().cropImage(
       sourcePath: imageFile.path,
       compressFormat: ImageCompressFormat.jpg,
@@ -64,8 +73,7 @@ class _ImagePickerPageState extends State<ImagePickerPage> {
     );
 
     if (croppedFile != null) {
-      Uint8List fileData = await croppedFile.readAsBytes();
-      return XFile.fromData(fileData);
+      return File(croppedFile.path);
     }
     return null;
   }

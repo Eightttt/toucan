@@ -33,7 +33,8 @@ class _EditProfileState extends State<EditProfile> {
   String _username = "";
   String _greeter = "";
   String? _urlProfilePhoto;
-  XFile? _profilePhoto;
+  File? _profilePhoto;
+  XFile? _profilePhotoWeb;
 
   TextEditingController _notificationTimeText = TextEditingController();
   TimeOfDay? _pickedNotificationTime;
@@ -42,13 +43,24 @@ class _EditProfileState extends State<EditProfile> {
   showImageOptions() {
     showDialog(
         context: context,
-        builder: (context) => ImagePickerPage(updateImage: updateImage));
+        builder: (context) => ImagePickerPage(
+              updateImage: updateImage,
+              updateImageWeb: updateImageWeb,
+            ));
   }
 
-  updateImage(XFile? imageFile) {
+  updateImage(File? imageFile) {
     if (imageFile != null) {
       setState(() {
         _profilePhoto = imageFile;
+      });
+    }
+  }
+
+  updateImageWeb(XFile? imageFileWeb) {
+    if (imageFileWeb != null) {
+      setState(() {
+        _profilePhotoWeb = imageFileWeb;
       });
     }
   }
@@ -62,7 +74,7 @@ class _EditProfileState extends State<EditProfile> {
         _isSavingUserData = true;
       });
       _urlProfilePhoto = await databaseService.uploadProfilePhoto(
-          _profilePhoto, setUploadTask);
+          _profilePhoto, _profilePhotoWeb, setUploadTask);
       DatabaseService(uid: widget.uid).updateUserData(
         _username,
         _greeter,
@@ -345,17 +357,19 @@ class _EditProfileState extends State<EditProfile> {
                                     userData.urlProfilePhoto,
                                     fit: BoxFit.cover,
                                   ),
-                                  _profilePhoto != null
-                                      ? kIsWeb
+                                  kIsWeb
+                                      ? _profilePhotoWeb != null
                                           ? Image.network(
-                                              _profilePhoto!.path,
+                                              _profilePhotoWeb!.path,
                                               fit: BoxFit.cover,
                                             )
-                                          : Image.file(
+                                          : SizedBox()
+                                      : _profilePhoto != null
+                                          ? Image.file(
                                               File(_profilePhoto!.path),
                                               fit: BoxFit.cover,
                                             )
-                                      : SizedBox()
+                                          : SizedBox()
                                 ],
                               )),
                             ),
