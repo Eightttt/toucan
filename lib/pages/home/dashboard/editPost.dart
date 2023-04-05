@@ -27,7 +27,6 @@ class _EditPostState extends State<EditPost> {
 
   showImageOptions() {
     showDialog(
-      barrierDismissible: false,
       context: context,
       builder: (context) {
         int count = 0;
