@@ -1,11 +1,11 @@
 import 'dart:io';
-
+import 'package:flutter/foundation.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:toucan/shared/loading.dart';
-
 import '../../../models/userDataModel.dart';
 import '../../../services/database.dart';
 import '../../../shared/imagepickerpage.dart';
@@ -33,7 +33,7 @@ class _EditProfileState extends State<EditProfile> {
   String _username = "";
   String _greeter = "";
   String? _urlProfilePhoto;
-  File? _profilePhoto;
+  XFile? _profilePhoto;
 
   TextEditingController _notificationTimeText = TextEditingController();
   TimeOfDay? _pickedNotificationTime;
@@ -45,7 +45,7 @@ class _EditProfileState extends State<EditProfile> {
         builder: (context) => ImagePickerPage(updateImage: updateImage));
   }
 
-  updateImage(File? imageFile) {
+  updateImage(XFile? imageFile) {
     if (imageFile != null) {
       setState(() {
         _profilePhoto = imageFile;
@@ -345,10 +345,15 @@ class _EditProfileState extends State<EditProfile> {
                                     fit: BoxFit.cover,
                                   ),
                                   _profilePhoto != null
-                                      ? Image.file(
-                                          _profilePhoto!,
-                                          fit: BoxFit.cover,
-                                        )
+                                      ? kIsWeb
+                                          ? Image.network(
+                                              _profilePhoto!.path,
+                                              fit: BoxFit.cover,
+                                            )
+                                          : Image.file(
+                                              File(_profilePhoto!.path),
+                                              fit: BoxFit.cover,
+                                            )
                                       : SizedBox()
                                 ],
                               )),
