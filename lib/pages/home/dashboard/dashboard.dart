@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import "package:intl/intl.dart";
 import 'package:provider/provider.dart';
 import 'package:toucan/models/goalModel.dart';
+import 'package:toucan/models/postModel.dart';
 import 'package:toucan/models/userDataModel.dart';
 import 'package:toucan/pages/home/dashboard/editGoal.dart';
 import 'package:toucan/pages/home/dashboard/editProfile.dart';
 import 'package:toucan/pages/home/dashboard/viewGoal.dart';
 import 'package:toucan/shared/bottomNavBar.dart';
 import "package:toucan/shared/fadingOnScroll.dart";
-// import 'package:toucan/pages/home/dashboard/viewGoal.dart';
 import 'package:toucan/services/auth.dart';
 import 'package:toucan/services/database.dart';
 import '../../../shared/loading.dart';
@@ -423,10 +423,19 @@ class GoalCard extends StatelessWidget {
             contentPadding: EdgeInsets.fromLTRB(20, 0, 0, 0),
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(
-                  builder: (context) => StreamProvider<GoalModel?>.value(
-                      value: DatabaseService(uid: uid).getGoal(goal.id),
-                      initialData: null,
-                      child: ViewGoal())),
+                  builder: (context) => MultiProvider(
+                    providers: [
+                      StreamProvider<GoalModel?>.value(
+                        value: DatabaseService(uid: uid).getGoal(goal.id),
+                        initialData: null,
+                      ),
+                       StreamProvider<List<PostModel>?>.value(
+                        value: DatabaseService(uid: uid).getPosts(goal.id),
+                        initialData: null,
+                      ),
+                    ],
+                    child: ViewGoal(),
+                  )),
             ),
             title: SizedBox(
               height: 89,

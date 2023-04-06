@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:toucan/models/goalModel.dart';
+import 'package:toucan/models/postModel.dart';
 import 'package:toucan/models/userDataModel.dart';
 import 'package:toucan/models/userModel.dart';
 import 'package:toucan/pages/home/dashboard/editPost.dart';
 import 'package:toucan/services/database.dart';
 import 'package:toucan/shared/fadingOnScroll.dart';
 import 'package:toucan/shared/loading.dart';
-
+import "package:intl/intl.dart";
 import 'editGoal.dart';
 
 class ViewGoal extends StatefulWidget {
@@ -115,13 +116,9 @@ class _ViewGoalState extends State<ViewGoal> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: List of Post Models instead of Goal Models
-    // final List<GoalModel>? goals = Provider.of<List<GoalModel>?>(context);
+    final List<PostModel>? posts = Provider.of<List<PostModel>?>(context);
     final GoalModel? goal = Provider.of<GoalModel?>(context);
     final UserModel user = Provider.of<UserModel>(context);
-
-    // TODO: remove posts list below:
-    List<String> posts = ["1", "1", "1", "1", "1", "1", "1", "1", "1", "1"];
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       _scrollController.position.isScrollingNotifier.addListener(() {
@@ -138,7 +135,7 @@ class _ViewGoalState extends State<ViewGoal> {
     });
 
     return Scaffold(
-      body: /*posts == null*/ goal == null
+      body: posts == null || goal == null
           ? Stack(
               children: [
                 ListView(
@@ -153,11 +150,7 @@ class _ViewGoalState extends State<ViewGoal> {
             )
           : AbsorbPointer(
               absorbing: _isAnimating,
-              child: // StreamProvider<List<GoalModel>?>.value(
-                  // value: DatabaseService(uid: widget.uid).goals,
-                  // initialData: null,
-                  // child:
-                  NestedScrollView(
+              child: NestedScrollView(
                 controller: _scrollController,
                 headerSliverBuilder: (context, innerBoxIsScrolled) {
                   return [
@@ -205,26 +198,28 @@ class _ViewGoalState extends State<ViewGoal> {
                 ),
               ),
             ),
-      floatingActionButton: /* posts == null */
-          goal == null
-              ? null
-              : FloatingActionButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            StreamProvider<UserDataModel?>.value(
-                          value: DatabaseService(uid: user.uid).userData,
-                          initialData: null,
-                          child: EditPost(uid: user.uid, goalId: goal.id, post: null,),
-                        ),
+      floatingActionButton: posts == null || goal == null
+          ? null
+          : FloatingActionButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => StreamProvider<UserDataModel?>.value(
+                      value: DatabaseService(uid: user.uid).userData,
+                      initialData: null,
+                      child: EditPost(
+                        uid: user.uid,
+                        goalId: goal.id,
+                        post: null,
                       ),
-                    );
-                  },
-                  child: Icon(
-                    Icons.add,
+                    ),
                   ),
-                ),
+                );
+              },
+              child: Icon(
+                Icons.add,
+              ),
+            ),
       floatingActionButtonLocation:
           FloatingActionButtonLocation.miniCenterFloat,
     );
@@ -350,8 +345,7 @@ class FlexibleAppBar extends StatelessWidget {
 }
 
 class PostsListView extends StatefulWidget {
-  // final List<PostModel> posts;
-  final List<String> posts;
+  final List<PostModel> posts;
 
   PostsListView({
     super.key,
@@ -383,8 +377,7 @@ class _PostsListViewState extends State<PostsListView> {
                           height: 2,
                         ),
                       )
-                    : PostCard(
-                        index: index); //PostCard(post: widget.posts![index]);
+                    : PostCard(post: widget.posts[index]);
               },
               childCount: widget.posts.length == 0 ? 1 : widget.posts.length,
             ),
@@ -398,12 +391,10 @@ class _PostsListViewState extends State<PostsListView> {
 class PostCard extends StatefulWidget {
   PostCard({
     super.key,
-    // required this.post,
-    required this.index,
+    required this.post,
   });
 
-  // final PostModel post;
-  final int index;
+  final PostModel post;
 
   @override
   State<PostCard> createState() => _PostCardState();
@@ -413,13 +404,13 @@ class _PostCardState extends State<PostCard> {
   final Color toucanWhite = Color(0xFFFDFDF5);
 
   bool hasInitialized = false;
-  String text =
-      "liquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. N\n\nDonec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo.\n\nNullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim.\n\nAliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. N";
+  String caption = "";
   bool isExpand = false;
 
   @override
   Widget build(BuildContext context) {
-    bool canExpand = text.length >= 100 || text.contains('\n');
+    caption = widget.post.caption;
+    bool canExpand = caption.length >= 100 || caption.contains('\n');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -427,7 +418,7 @@ class _PostCardState extends State<PostCard> {
         Padding(
           padding: const EdgeInsets.only(left: 10.0, bottom: 3),
           child: Text(
-            "02/09/23",
+            '${DateFormat('MMMM dd').format(widget.post.date)}',
             style: TextStyle(
                 fontStyle: FontStyle.italic,
                 fontWeight: FontWeight.w300,
@@ -440,7 +431,7 @@ class _PostCardState extends State<PostCard> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: Image.network(
-                "https://scontent.fmnl17-1.fna.fbcdn.net/v/t39.30808-6/302109379_5810488302302879_5886263127810107366_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=09cbfe&_nc_eui2=AeG4wsctB1wMW_B-AnpZLH8iLAC9j2oaEc4sAL2PahoRzmRbqEhRnd5pk7KRpW-lb_uJUl4H4uqgZW7bKwktqQHk&_nc_ohc=rp1pkusDjToAX_sZkjZ&_nc_ht=scontent.fmnl17-1.fna&oh=00_AfDLJX64BBrcpR2PAsLxW3UzLpDHS3Io_cqa-BuFIGLm4w&oe=642FCCE6",
+                widget.post.imageURL,
                 loadingBuilder: (BuildContext context, Widget child,
                     ImageChunkEvent? loadingProgress) {
                   if (loadingProgress == null) {
@@ -485,10 +476,10 @@ class _PostCardState extends State<PostCard> {
                       children: [
                         TextSpan(
                           text: isExpand
-                              ? text
-                              : text.contains('\n') && text.indexOf('\n') < 100
-                                  ? text.substring(0, text.indexOf('\n'))
-                                  : text.substring(0, 100),
+                              ? caption
+                              : caption.contains('\n') && caption.indexOf('\n') < 100
+                                  ? caption.substring(0, caption.indexOf('\n'))
+                                  : caption.substring(0, 100),
                           style: TextStyle(
                             fontSize: 15,
                             fontStyle: FontStyle.italic,
@@ -509,7 +500,7 @@ class _PostCardState extends State<PostCard> {
                   ),
                 )
               : Text(
-                  text,
+                  caption,
                   style: TextStyle(
                     fontSize: 15,
                     fontStyle: FontStyle.italic,

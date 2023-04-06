@@ -26,6 +26,7 @@ class _EditPostState extends State<EditPost> {
   final formKeyUser = GlobalKey<FormState>();
   bool _isSavingUserData = false;
   UploadTask? uploadTask;
+  final _textFocusNode = FocusNode();
 
   final Color toucanOrange = Color(0xfff28705);
   final Color toucanWhite = Color(0xFFFDFDF5);
@@ -113,6 +114,7 @@ class _EditPostState extends State<EditPost> {
 
   savePostData() async {
     String? postId = widget.post?.id;
+    _textFocusNode.unfocus();
     final isValid = formKeyUser.currentState?.validate();
 
     if (isValid != null && isValid) {
@@ -155,7 +157,6 @@ class _EditPostState extends State<EditPost> {
         _isSavingUserData = false;
       });
       Navigator.of(context).pop();
-      
     } else {
       print("error");
     }
@@ -166,6 +167,39 @@ class _EditPostState extends State<EditPost> {
       uploadTask = newUploadTask;
     });
   }
+
+  @override
+  void dispose() {
+    _textFocusNode.dispose();
+    super.dispose();
+  }
+
+  Widget buildProgress() => StreamBuilder<TaskSnapshot>(
+        stream: uploadTask?.snapshotEvents,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            final data = snapshot.data!;
+            double progress = data.bytesTransferred / data.totalBytes;
+
+            return Container(
+              padding: EdgeInsets.only(top: 15, bottom: 35),
+              child: Text(
+                "Saving changes...\n${100 * progress.roundToDouble()}%",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontStyle: FontStyle.italic,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                ),
+              ),
+            );
+          } else {
+            return Container(
+              height: 50,
+            );
+          }
+        },
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -216,142 +250,163 @@ class _EditPostState extends State<EditPost> {
       ),
       body: userData == null
           ? Loading(size: 40)
-          : SingleChildScrollView(
-              child: Form(
-                key: formKeyUser,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(40, 20, 40, 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // === User Photo & Username ===
-                      Container(
-                        height: imageSize,
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ClipOval(
-                              child: Container(
-                                color: toucanWhite,
-                                width: imageSize,
-                                child: Image.network(
-                                  userData.urlProfilePhoto,
-                                  fit: BoxFit.cover,
+          : Stack(
+              children: [
+                SingleChildScrollView(
+                  child: Form(
+                    key: formKeyUser,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(40, 20, 40, 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // === User Photo & Username ===
+                          Container(
+                            height: imageSize,
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ClipOval(
+                                  child: Container(
+                                    color: toucanWhite,
+                                    width: imageSize,
+                                    child: Image.network(
+                                      userData.urlProfilePhoto,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
                                 ),
-                              ),
+                                Container(
+                                  margin: EdgeInsets.only(
+                                      top: imageSize * .15, left: 13),
+                                  child: Text(
+                                    userData.username,
+                                    style: TextStyle(
+                                      color: toucanOrange,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                            Container(
-                              margin: EdgeInsets.only(
-                                  top: imageSize * .15, left: 13),
-                              child: Text(
-                                userData.username,
-                                style: TextStyle(
+                          ),
+
+                          // === GREETER ===
+                          Padding(
+                            padding: const EdgeInsets.only(left: 20, top: 12),
+                            child: TextFormField(
+                              focusNode: _textFocusNode,
+                              textAlignVertical: TextAlignVertical.top,
+                              keyboardType: TextInputType.multiline,
+                              maxLines: 10,
+                              // TODO: initialValue: place caption,
+                              decoration: InputDecoration(
+                                hintText: "Add a caption...",
+                                hintStyle: TextStyle(
+                                  fontStyle: FontStyle.italic,
                                   color: toucanOrange,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 15,
                                 ),
+                                contentPadding: EdgeInsets.all(15),
+                                errorMaxLines: 3,
+                              ),
+                              validator: (value) {
+                                if (value!.length == 0) {
+                                  return 'Must not be empty';
+                                } else {
+                                  return null;
+                                }
+                              },
+                              onSaved: (value) => _caption = value!,
+                            ),
+                          ),
+
+                          Padding(
+                            padding: const EdgeInsets.only(left: 20, top: 12),
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                padding: EdgeInsets.zero,
+                                backgroundColor: toucanWhite,
+                              ),
+                              onPressed: () {
+                                showImageOptions();
+                              },
+                              child: Stack(
+                                children: [
+                                  Container(
+                                    width: double.infinity,
+                                    height: (kIsWeb
+                                            ? _postPhotoWeb == null
+                                            : _postPhoto == null)
+                                        ? MediaQuery.of(context).size.height *
+                                            .45
+                                        : null,
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.add_a_photo_outlined,
+                                          color: toucanOrange,
+                                        ),
+                                        Text(
+                                          "/",
+                                          style: TextStyle(
+                                            color: toucanOrange,
+                                            fontSize: 30,
+                                          ),
+                                        ),
+                                        Icon(
+                                          Icons.add_photo_alternate_outlined,
+                                          color: toucanOrange,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    width: double.infinity,
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: kIsWeb
+                                          ? _postPhotoWeb != null
+                                              ? Image.network(
+                                                  _postPhotoWeb!.path,
+                                                  fit: BoxFit.cover,
+                                                )
+                                              : SizedBox()
+                                          : _postPhoto != null
+                                              ? Image.file(
+                                                  File(_postPhoto!.path),
+                                                  fit: BoxFit.cover,
+                                                )
+                                              : SizedBox(),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-
-                      // === GREETER ===
-                      Padding(
-                        padding: const EdgeInsets.only(left: 20, top: 12),
-                        child: TextFormField(
-                          textAlignVertical: TextAlignVertical.top,
-                          keyboardType: TextInputType.multiline,
-                          maxLines: 10,
-                          // TODO: initialValue: place caption,
-                          decoration: InputDecoration(
-                            hintText: "Add a caption...",
-                            hintStyle: TextStyle(
-                              fontStyle: FontStyle.italic,
-                              color: toucanOrange,
-                            ),
-                            contentPadding: EdgeInsets.all(15),
-                            errorMaxLines: 3,
                           ),
-                          validator: (value) {
-                            if (value!.length == 0) {
-                              return 'Must not be empty';
-                            } else {
-                              return null;
-                            }
-                          },
-                          onSaved: (value) => _caption = value!,
-                        ),
+                        ],
                       ),
-
-                      Padding(
-                        padding: const EdgeInsets.only(left: 20, top: 12),
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.zero,
-                            backgroundColor: toucanWhite,
-                          ),
-                          onPressed: () {
-                            showImageOptions();
-                          },
-                          child: Stack(
-                            children: [
-                              Container(
-                                width: double.infinity,
-                                height: (kIsWeb
-                                        ? _postPhotoWeb == null
-                                        : _postPhoto == null)
-                                    ? MediaQuery.of(context).size.height * .45
-                                    : null,
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.add_a_photo_outlined,
-                                      color: toucanOrange,
-                                    ),
-                                    Text(
-                                      "/",
-                                      style: TextStyle(
-                                        color: toucanOrange,
-                                        fontSize: 30,
-                                      ),
-                                    ),
-                                    Icon(
-                                      Icons.add_photo_alternate_outlined,
-                                      color: toucanOrange,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                width: double.infinity,
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(10),
-                                  child: kIsWeb
-                                      ? _postPhotoWeb != null
-                                          ? Image.network(
-                                              _postPhotoWeb!.path,
-                                              fit: BoxFit.cover,
-                                            )
-                                          : SizedBox()
-                                      : _postPhoto != null
-                                          ? Image.file(
-                                              File(_postPhoto!.path),
-                                              fit: BoxFit.cover,
-                                            )
-                                          : SizedBox(),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
+
+                // ==== Uploading Progress Indicator ====
+                Visibility(
+                  visible: _isSavingUserData,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Loading(size: 40),
+                      buildProgress(),
+                    ],
+                  ),
+                )
+              ],
             ),
     );
   }
