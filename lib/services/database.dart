@@ -10,9 +10,9 @@ import 'package:toucan/models/userDataModel.dart';
 
 class DatabaseService {
   final String? uid;
-  String? path;
+  String? pathProfilePhoto;
   DatabaseService({required this.uid}) {
-    path = "photos/users/${uid}_profilePhoto.jpg";
+    pathProfilePhoto = "photos/users/${uid}_profilePhoto.jpg";
   }
 
   // collection reference
@@ -65,12 +65,11 @@ class DatabaseService {
       File? image, XFile? imageWeb, Function(UploadTask?) setUploadTask) async {
     final Reference ref;
     if (kIsWeb) {
-      print("It is Web");
       ref = FirebaseStorage.instance
           .refFromURL("gs://toucan-8676b.appspot.com/")
-          .child(path!);
+          .child(pathProfilePhoto!);
     } else {
-      ref = FirebaseStorage.instance.ref().child(path!);
+      ref = FirebaseStorage.instance.ref().child(pathProfilePhoto!);
     }
 
     try {
@@ -208,6 +207,47 @@ class DatabaseService {
         "imageURL": imageURL,
         "date": date,
       });
+    }
+  }
+
+  // Upload Post Photo
+  Future<String?> uploadPostPhoto(
+    String goalId,
+    String postId,
+    File? image,
+    XFile? imageWeb,
+    Function(UploadTask?) setUploadTask,
+  ) async {
+    final Reference ref;
+    String pathPostImage = 'photos/posts/$uid/$goalId/$postId.jpg';
+
+    if (kIsWeb) {
+      ref = FirebaseStorage.instance
+          .refFromURL("gs://toucan-8676b.appspot.com/")
+          .child(pathPostImage);
+    } else {
+      ref = FirebaseStorage.instance.ref().child(pathPostImage);
+    }
+
+    try {
+      UploadTask uploadTask;
+      if (kIsWeb) {
+        if (imageWeb == null) return null;
+        uploadTask = ref.putData(
+            await imageWeb.readAsBytes(), SettableMetadata(contentType: 'jpg'));
+      } else {
+        if (image == null) return null;
+        print("image path ============================ ${image.path}");
+        uploadTask = ref.putFile(File(image.path));
+      }
+      setUploadTask(uploadTask);
+      final snapshot = await uploadTask.whenComplete(() {});
+      final urlDownload = await snapshot.ref.getDownloadURL();
+      setUploadTask(null);
+      return urlDownload;
+    } catch (e) {
+      print("Error uploading: $e");
+      return null;
     }
   }
 
