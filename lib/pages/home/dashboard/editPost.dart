@@ -1,29 +1,42 @@
 import 'dart:io';
-
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:toucan/models/postModel.dart';
 import 'package:toucan/models/userDataModel.dart';
+import 'package:toucan/services/database.dart';
 import 'package:toucan/shared/imagepickerpage.dart';
 import 'package:toucan/shared/loading.dart';
 
 class EditPost extends StatefulWidget {
-  const EditPost({Key? key}) : super(key: key);
+  final String uid;
+  final String goalId;
+  final PostModel? post;
+  const EditPost(
+      {Key? key, required this.uid, required this.goalId, required this.post})
+      : super(key: key);
 
   @override
   State<EditPost> createState() => _EditPostState();
 }
 
 class _EditPostState extends State<EditPost> {
+  final formKeyUser = GlobalKey<FormState>();
+  bool _isSavingUserData = false;
+  UploadTask? uploadTask;
+
   final Color toucanOrange = Color(0xfff28705);
   final Color toucanWhite = Color(0xFFFDFDF5);
   final double imageSize = 50;
 
   String _caption = '';
+  String _title = '';
 
   File? _postPhoto;
   XFile? _postPhotoWeb;
+  String? _urlPostPhoto;
 
   @override
   void initState() {
@@ -56,7 +69,6 @@ class _EditPostState extends State<EditPost> {
               child: IconButton(
                 color: Color(0xfff28705),
                 onPressed: () {
-                  print("Popped through icon button");
                   (kIsWeb ? _postPhotoWeb == null : _postPhoto == null)
                       ? Navigator.popUntil(context, (route) {
                           return count++ == 2;
@@ -99,6 +111,64 @@ class _EditPostState extends State<EditPost> {
     }
   }
 
+  savePostData() async {
+    String? postId = widget.post?.id;
+    final isValid = formKeyUser.currentState?.validate();
+
+    if (isValid != null && isValid) {
+      formKeyUser.currentState!.save();
+      DatabaseService databaseService = DatabaseService(uid: widget.uid);
+      setState(() {
+        _isSavingUserData = true;
+      });
+
+      // If post doesn't exist, create it first and get the postId
+      if (postId == null) {
+        postId = await DatabaseService(uid: widget.uid).updatePostData(
+          widget.goalId,
+          postId,
+          _title,
+          _caption,
+          _urlPostPhoto ?? '',
+          DateTime.now(),
+        );
+      }
+
+      // Upload post photo and get url
+      _urlPostPhoto = await databaseService.uploadPostPhoto(
+        widget.goalId,
+        postId!,
+        _postPhoto,
+        _postPhotoWeb,
+        setUploadTask,
+      );
+
+      // Save all changes OR If first time creation of post, only url is updated
+      await DatabaseService(uid: widget.uid).updatePostData(
+        widget.goalId,
+        postId,
+        _title,
+        _caption,
+        _urlPostPhoto ?? '',
+        DateTime.now(),
+      );
+
+      setState(() {
+        _isSavingUserData = false;
+      });
+      Navigator.of(context).pop();
+      
+    } else {
+      print("error");
+    }
+  }
+
+  setUploadTask(UploadTask? newUploadTask) {
+    setState(() {
+      uploadTask = newUploadTask;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final UserDataModel? userData = Provider.of<UserDataModel?>(context);
@@ -127,7 +197,7 @@ class _EditPostState extends State<EditPost> {
             Padding(
               padding: const EdgeInsets.only(right: 36),
               child: ElevatedButton(
-                onPressed: () => print("post it"),
+                onPressed: () => savePostData(),
                 child: Text(
                   "Post",
                   style: TextStyle(
@@ -150,6 +220,7 @@ class _EditPostState extends State<EditPost> {
           ? Loading(size: 40)
           : SingleChildScrollView(
               child: Form(
+                key: formKeyUser,
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(40, 20, 40, 20),
                   child: Column(

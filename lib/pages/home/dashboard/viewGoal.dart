@@ -216,7 +216,7 @@ class _ViewGoalState extends State<ViewGoal> {
                             StreamProvider<UserDataModel?>.value(
                           value: DatabaseService(uid: user.uid).userData,
                           initialData: null,
-                          child: EditPost(),
+                          child: EditPost(uid: user.uid, goalId: goal.id, post: null,),
                         ),
                       ),
                     );

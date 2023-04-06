@@ -185,7 +185,7 @@ class DatabaseService {
 
   // ===== POSTS =====
   // Future updatePostData()
-  Future updatePostData(
+  Future<String?> updatePostData(
     String goalId,
     String? postId,
     String title,
@@ -195,6 +195,20 @@ class DatabaseService {
   ) async {
     // Post Id is null if creating a new Post
     if (uid != null) {
+      if (postId == null) {
+        DocumentReference ref = await userDataCollection
+            .doc(uid)
+            .collection("goals")
+            .doc(goalId)
+            .collection("posts")
+            .add({
+          "title": title,
+          "caption": caption,
+          "imageURL": imageURL,
+          "date": Timestamp.fromDate(date),
+        });
+        return ref.id;
+      }
       await userDataCollection
           .doc(uid)
           .collection("goals")
@@ -205,9 +219,10 @@ class DatabaseService {
         "title": title,
         "caption": caption,
         "imageURL": imageURL,
-        "date": date,
+        "date": Timestamp.fromDate(date),
       });
     }
+    return null;
   }
 
   // Upload Post Photo
