@@ -31,22 +31,13 @@ class GoalModel {
   }
 
   String get title => _title;
-
   String get tag => _tag;
-
   DateTime get startDate => _startDate;
-
   DateTime get endDate => _endDate;
-
   int get period => _period;
-
   String get frequency => _frequency;
-
   String get description => _description;
-
   String get status => _status;
-
   bool get isPrivate => _isPrivate;
-
   String get id => _id;
 }
