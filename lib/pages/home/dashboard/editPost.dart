@@ -148,10 +148,10 @@ class _EditPostState extends State<EditPost> {
       ),
       body: userData == null
           ? Loading(size: 40)
-          : Form(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(40, 20, 40, 20),
-                child: SingleChildScrollView(
+          : SingleChildScrollView(
+              child: Form(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(40, 20, 40, 20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
