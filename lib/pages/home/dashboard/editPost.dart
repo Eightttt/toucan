@@ -127,7 +127,6 @@ class _EditPostState extends State<EditPost> {
         postId = await DatabaseService(uid: widget.uid).updatePostData(
           widget.goalId,
           postId,
-          _title,
           _caption,
           _urlPostPhoto ?? '',
           DateTime.now(),
@@ -147,7 +146,6 @@ class _EditPostState extends State<EditPost> {
       await DatabaseService(uid: widget.uid).updatePostData(
         widget.goalId,
         postId,
-        _title,
         _caption,
         _urlPostPhoto ?? '',
         DateTime.now(),

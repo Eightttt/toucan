@@ -188,7 +188,6 @@ class DatabaseService {
   Future<String?> updatePostData(
     String goalId,
     String? postId,
-    String title,
     String caption,
     String imageURL,
     DateTime date,
@@ -202,7 +201,6 @@ class DatabaseService {
             .doc(goalId)
             .collection("posts")
             .add({
-          "title": title,
           "caption": caption,
           "imageURL": imageURL,
           "date": Timestamp.fromDate(date),
@@ -216,7 +214,6 @@ class DatabaseService {
           .collection("posts")
           .doc(postId)
           .set({
-        "title": title,
         "caption": caption,
         "imageURL": imageURL,
         "date": Timestamp.fromDate(date),
@@ -271,7 +268,6 @@ class DatabaseService {
     return snapshot.docs.map((doc) {
       return PostModel(
         doc.id,
-        doc.get('title'),
         doc.get('caption'),
         doc.get('imageURL'),
         DateTime.fromMillisecondsSinceEpoch(
@@ -308,7 +304,6 @@ class DatabaseService {
   PostModel _postFromSnapshot(DocumentSnapshot postSnapshot) {
     return PostModel(
       postSnapshot.id,
-      postSnapshot.get('title'),
       postSnapshot.get('caption'),
       postSnapshot.get('imageURL'),
       DateTime.fromMillisecondsSinceEpoch(
