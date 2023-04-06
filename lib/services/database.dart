@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:toucan/models/goalModel.dart';
+import 'package:toucan/models/postModel.dart';
 import 'package:toucan/models/userDataModel.dart';
 
 class DatabaseService {
@@ -97,17 +98,19 @@ class DatabaseService {
   // ===== GOALS =====
   // Future updateGoalData()
   Future updateGoalData(
-      String? goalUid,
-      String title,
-      String tag,
-      DateTime startDate,
-      DateTime endDate,
-      int period,
-      String frequency,
-      String description,
-      bool isPrivate) async {
+    String? goalId,
+    String title,
+    String tag,
+    DateTime startDate,
+    DateTime endDate,
+    int period,
+    String frequency,
+    String description,
+    bool isPrivate,
+  ) async {
+    // Goal Id is null if creating a new Post
     if (uid != null) {
-      await userDataCollection.doc(uid).collection("goals").doc(goalUid).set({
+      await userDataCollection.doc(uid).collection("goals").doc(goalId).set({
         "title": title,
         "tag": tag,
         "startDate": Timestamp.fromDate(startDate),
@@ -159,7 +162,7 @@ class DatabaseService {
             !goalSnapshot.exists ? null : _goalFromSnapshot(goalSnapshot));
   }
 
-  // goals list from snapshot
+  // goal from snapshot
   GoalModel _goalFromSnapshot(DocumentSnapshot goalSnapshot) {
     return GoalModel(
       goalSnapshot.id,
@@ -176,8 +179,97 @@ class DatabaseService {
     );
   }
 
+  // delete goal in firebase
   Future deleteGoal(String goalId) async {
     await userDataCollection.doc(uid).collection("goals").doc(goalId).delete();
+  }
+
+  // ===== POSTS =====
+  // Future updatePostData()
+  Future updatePostData(
+    String goalId,
+    String? postId,
+    String title,
+    String caption,
+    String imageURL,
+    DateTime date,
+  ) async {
+    // Post Id is null if creating a new Post
+    if (uid != null) {
+      await userDataCollection
+          .doc(uid)
+          .collection("goals")
+          .doc(goalId)
+          .collection("posts")
+          .doc(postId)
+          .set({
+        "title": title,
+        "caption": caption,
+        "imageURL": imageURL,
+        "date": date,
+      });
+    }
+  }
+
+  // posts list from snapshot
+  List<PostModel> _postsListFromSnapshot(QuerySnapshot snapshot) {
+    return snapshot.docs.map((doc) {
+      return PostModel(
+        doc.id,
+        doc.get('title'),
+        doc.get('caption'),
+        doc.get('imageURL'),
+        DateTime.fromMillisecondsSinceEpoch(
+            (doc.get('date') as Timestamp).millisecondsSinceEpoch),
+      );
+    }).toList();
+  }
+
+  // Get posts list stream
+  Stream<List<PostModel>> getPosts(String goalId) {
+    return userDataCollection
+        .doc(uid)
+        .collection("goals")
+        .doc(goalId)
+        .collection("posts")
+        .snapshots()
+        .map(_postsListFromSnapshot);
+  }
+
+  // Get individual post stream
+  Stream<PostModel?> getPost(String goalId, String postId) {
+    return userDataCollection
+        .doc(uid)
+        .collection("goals")
+        .doc(goalId)
+        .collection("posts")
+        .doc(postId)
+        .snapshots()
+        .map((postSnapshot) =>
+            !postSnapshot.exists ? null : _postFromSnapshot(postSnapshot));
+  }
+
+  // post from snapshot
+  PostModel _postFromSnapshot(DocumentSnapshot postSnapshot) {
+    return PostModel(
+      postSnapshot.id,
+      postSnapshot.get('title'),
+      postSnapshot.get('caption'),
+      postSnapshot.get('imageURL'),
+      DateTime.fromMillisecondsSinceEpoch(
+          (postSnapshot.get('date') as Timestamp).millisecondsSinceEpoch),
+    );
+  }
+
+  // delete post in firebase
+  Future deletePost(String goalId, String postId) async {
+    await userDataCollection
+        .doc(uid)
+        .collection("goals")
+        .doc(goalId)
+        .collection("posts")
+        .doc(postId)
+        .delete();
   }
 
   // Add friends to friends list
