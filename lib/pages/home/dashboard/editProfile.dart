@@ -59,6 +59,7 @@ class _EditProfileState extends State<EditProfile> {
             ImagePickerPage(
               updateImage: updateImage,
               updateImageWeb: updateImageWeb,
+              isCrop: true,
             ),
           ],
           shape: RoundedRectangleBorder(
@@ -369,28 +370,29 @@ class _EditProfileState extends State<EditProfile> {
                               elevation: 3,
                               onPressed: showImageOptions,
                               child: ClipOval(
-                                  child: Stack(
-                                fit: StackFit.expand,
-                                children: [
-                                  Image.network(
-                                    userData.urlProfilePhoto,
-                                    fit: BoxFit.cover,
-                                  ),
-                                  kIsWeb
-                                      ? _profilePhotoWeb != null
-                                          ? Image.network(
-                                              _profilePhotoWeb!.path,
-                                              fit: BoxFit.cover,
-                                            )
-                                          : SizedBox()
-                                      : _profilePhoto != null
-                                          ? Image.file(
-                                              File(_profilePhoto!.path),
-                                              fit: BoxFit.cover,
-                                            )
-                                          : SizedBox()
-                                ],
-                              )),
+                                child: Stack(
+                                  fit: StackFit.expand,
+                                  children: [
+                                    Image.network(
+                                      userData.urlProfilePhoto,
+                                      fit: BoxFit.cover,
+                                    ),
+                                    kIsWeb
+                                        ? _profilePhotoWeb != null
+                                            ? Image.network(
+                                                _profilePhotoWeb!.path,
+                                                fit: BoxFit.cover,
+                                              )
+                                            : SizedBox()
+                                        : _profilePhoto != null
+                                            ? Image.file(
+                                                File(_profilePhoto!.path),
+                                                fit: BoxFit.cover,
+                                              )
+                                            : SizedBox()
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
                         ),

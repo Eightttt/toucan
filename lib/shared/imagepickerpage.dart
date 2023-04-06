@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:flutter/material.dart';
@@ -9,8 +8,12 @@ import 'package:image_picker/image_picker.dart';
 class ImagePickerPage extends StatefulWidget {
   final Function(File?) updateImage;
   final Function(XFile?) updateImageWeb;
+  final bool isCrop;
   const ImagePickerPage(
-      {required this.updateImage, required this.updateImageWeb, super.key});
+      {required this.updateImage,
+      required this.updateImageWeb,
+      required this.isCrop,
+      super.key});
 
   @override
   State<ImagePickerPage> createState() => _ImagePickerPageState();
@@ -22,15 +25,24 @@ class _ImagePickerPageState extends State<ImagePickerPage> {
 
   Future pickImage(ImageSource imageSource) async {
     try {
-      final pickedImage = await ImagePicker().pickImage(source: imageSource);
+      // Null because image crop will handle image compression
+      final pickedImage = await ImagePicker().pickImage(
+        source: imageSource,
+        imageQuality: widget.isCrop
+            ? kIsWeb
+                ? 25
+                : null
+            : 50,
+      );
       if (pickedImage == null) return;
 
       if (kIsWeb) {
+        // No support for cropping in web
         widget.updateImageWeb(pickedImage);
         Navigator.of(context).pop();
       } else {
         File? image = File(pickedImage.path);
-        image = await cropSquareImage(pickedImage);
+        if (widget.isCrop) image = await cropSquareImage(pickedImage);
         widget.updateImage(image);
         if (image != null) Navigator.of(context).pop();
       }
@@ -56,19 +68,6 @@ class _ImagePickerPageState extends State<ImagePickerPage> {
           activeControlsWidgetColor: toucanOrange,
         ),
         IOSUiSettings(title: "Crop Photo"),
-        WebUiSettings(
-          context: context,
-          presentStyle: CropperPresentStyle.dialog,
-          boundary: const CroppieBoundary(
-            width: 520,
-            height: 520,
-          ),
-          viewPort:
-              const CroppieViewPort(width: 480, height: 480, type: 'circle'),
-          enableExif: true,
-          enableZoom: true,
-          showZoomer: true,
-        ),
       ],
     );
 

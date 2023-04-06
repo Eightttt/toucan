@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:toucan/models/goalModel.dart';
+import 'package:toucan/models/userDataModel.dart';
 import 'package:toucan/models/userModel.dart';
 import 'package:toucan/pages/home/dashboard/editPost.dart';
+import 'package:toucan/services/database.dart';
 import 'package:toucan/shared/fadingOnScroll.dart';
 import 'package:toucan/shared/loading.dart';
 
@@ -209,7 +211,15 @@ class _ViewGoalState extends State<ViewGoal> {
               : FloatingActionButton(
                   onPressed: () {
                     Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => EditPost()));
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            StreamProvider<UserDataModel?>.value(
+                          value: DatabaseService(uid: user.uid).userData,
+                          initialData: null,
+                          child: EditPost(),
+                        ),
+                      ),
+                    );
                   },
                   child: Icon(
                     Icons.add,
