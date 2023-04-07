@@ -195,6 +195,8 @@ class _ViewGoalState extends State<ViewGoal> {
                 },
                 body: PostsListView(
                   posts: posts,
+                  uid: user.uid,
+                  goalId: goal.id,
                 ),
               ),
             ),
@@ -346,10 +348,14 @@ class FlexibleAppBar extends StatelessWidget {
 
 class PostsListView extends StatefulWidget {
   final List<PostModel> posts;
+  final String uid;
+  final String goalId;
 
   PostsListView({
     super.key,
     required this.posts,
+    required this.uid,
+    required this.goalId,
   });
 
   @override
@@ -377,7 +383,11 @@ class _PostsListViewState extends State<PostsListView> {
                           height: 2,
                         ),
                       )
-                    : PostCard(post: widget.posts[index]);
+                    : PostCard(
+                        post: widget.posts[index],
+                        uid: widget.uid,
+                        goalId: widget.goalId,
+                      );
               },
               childCount: widget.posts.length == 0 ? 1 : widget.posts.length,
             ),
@@ -392,9 +402,13 @@ class PostCard extends StatefulWidget {
   PostCard({
     super.key,
     required this.post,
+    required this.uid,
+    required this.goalId,
   });
 
   final PostModel post;
+  final String uid;
+  final String goalId;
 
   @override
   State<PostCard> createState() => _PostCardState();
@@ -407,6 +421,22 @@ class _PostCardState extends State<PostCard> {
   String caption = "";
   bool isExpand = false;
 
+  showEditPost() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => StreamProvider<UserDataModel?>.value(
+          value: DatabaseService(uid: widget.uid).userData,
+          initialData: null,
+          child: EditPost(
+            uid: widget.uid,
+            goalId: widget.goalId,
+            post: widget.post,
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     caption = widget.post.caption;
@@ -415,15 +445,30 @@ class _PostCardState extends State<PostCard> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 10.0, bottom: 3),
-          child: Text(
-            '${DateFormat('MMMM dd').format(widget.post.date)}',
-            style: TextStyle(
-                fontStyle: FontStyle.italic,
-                fontWeight: FontWeight.w300,
-                color: Color.fromARGB(255, 91, 91, 91)),
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 10.0, bottom: 3),
+              child: Text(
+                '${DateFormat('MMMM dd').format(widget.post.date)}',
+                style: TextStyle(
+                    fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.w300,
+                    color: Color.fromARGB(255, 91, 91, 91)),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 10.0, bottom: 3),
+              child: IconButton(
+                  padding: EdgeInsets.zero,
+                  alignment: Alignment.bottomRight,
+                  color: Color.fromARGB(255, 91, 91, 91),
+                  icon: Icon(Icons.more_horiz),
+                  onPressed: () => showEditPost()),
+            )
+          ],
         ),
         Card(
           child: SizedBox(
@@ -463,7 +508,7 @@ class _PostCardState extends State<PostCard> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(10, 3, 5, 23),
+          padding: const EdgeInsets.fromLTRB(10, 3, 5, 10),
           child: canExpand
               ? GestureDetector(
                   onTap: () {
@@ -477,7 +522,8 @@ class _PostCardState extends State<PostCard> {
                         TextSpan(
                           text: isExpand
                               ? caption
-                              : caption.contains('\n') && caption.indexOf('\n') < 100
+                              : caption.contains('\n') &&
+                                      caption.indexOf('\n') < 100
                                   ? caption.substring(0, caption.indexOf('\n'))
                                   : caption.substring(0, 100),
                           style: TextStyle(

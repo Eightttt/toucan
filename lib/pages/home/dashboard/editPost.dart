@@ -32,8 +32,7 @@ class _EditPostState extends State<EditPost> {
   final Color toucanWhite = Color(0xFFFDFDF5);
   final double imageSize = 50;
 
-  String _caption = '';
-  String _title = '';
+  String? _caption = '';
 
   File? _postPhoto;
   XFile? _postPhotoWeb;
@@ -42,11 +41,16 @@ class _EditPostState extends State<EditPost> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Pass true to pop the widget and its root
-      // Unallow user to proceed without picking at least one picture
-      showImageOptions();
-    });
+    if (widget.post == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        // Pass true to pop the widget and its root
+        // Unallow user to proceed without picking at least one picture
+        showImageOptions();
+      });
+    } else {
+      _caption = widget.post?.caption;
+      _urlPostPhoto = widget.post?.imageURL;
+    }
   }
 
   showImageOptions() {
@@ -56,7 +60,7 @@ class _EditPostState extends State<EditPost> {
         int count = 0;
         return WillPopScope(
           onWillPop: () async {
-            if (kIsWeb ? _postPhotoWeb != null : _postPhoto != null)
+            if (kIsWeb ? _postPhotoWeb != null : _postPhoto != null || widget.post != null)
               return true;
             Navigator.popUntil(context, (route) {
               return count++ == 2;
@@ -70,7 +74,7 @@ class _EditPostState extends State<EditPost> {
               child: IconButton(
                 color: Color(0xfff28705),
                 onPressed: () {
-                  (kIsWeb ? _postPhotoWeb == null : _postPhoto == null)
+                  (kIsWeb ? _postPhotoWeb == null : _postPhoto == null) && (widget.post == null)
                       ? Navigator.popUntil(context, (route) {
                           return count++ == 2;
                         })
@@ -129,7 +133,7 @@ class _EditPostState extends State<EditPost> {
         postId = await DatabaseService(uid: widget.uid).updatePostData(
           widget.goalId,
           postId,
-          _caption,
+          _caption!,
           _urlPostPhoto ?? '',
           DateTime.now(),
         );
@@ -148,8 +152,8 @@ class _EditPostState extends State<EditPost> {
       await DatabaseService(uid: widget.uid).updatePostData(
         widget.goalId,
         postId,
-        _caption,
-        _urlPostPhoto ?? '',
+        _caption!,
+        _urlPostPhoto ?? widget.post!.imageURL,
         DateTime.now(),
       );
 
@@ -300,7 +304,7 @@ class _EditPostState extends State<EditPost> {
                               textAlignVertical: TextAlignVertical.top,
                               keyboardType: TextInputType.multiline,
                               maxLines: 10,
-                              // TODO: initialValue: place caption,
+                              initialValue: _caption,
                               decoration: InputDecoration(
                                 hintText: "Add a caption...",
                                 hintStyle: TextStyle(
@@ -336,34 +340,45 @@ class _EditPostState extends State<EditPost> {
                                   Container(
                                     width: double.infinity,
                                     height: (kIsWeb
-                                            ? _postPhotoWeb == null
-                                            : _postPhoto == null)
+                                                ? _postPhotoWeb == null
+                                                : _postPhoto == null) &&
+                                            (_urlPostPhoto == null)
                                         ? MediaQuery.of(context).size.height *
                                             .45
                                         : null,
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Icon(
-                                          Icons.add_a_photo_outlined,
-                                          color: toucanOrange,
-                                        ),
-                                        Text(
-                                          "/",
-                                          style: TextStyle(
-                                            color: toucanOrange,
-                                            fontSize: 30,
+                                    child: (_urlPostPhoto == null)
+                                        ? Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Icon(
+                                                Icons.add_a_photo_outlined,
+                                                color: toucanOrange,
+                                              ),
+                                              Text(
+                                                "/",
+                                                style: TextStyle(
+                                                  color: toucanOrange,
+                                                  fontSize: 30,
+                                                ),
+                                              ),
+                                              Icon(
+                                                Icons
+                                                    .add_photo_alternate_outlined,
+                                                color: toucanOrange,
+                                              ),
+                                            ],
+                                          )
+                                        : ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            child: Image.network(
+                                              _urlPostPhoto!,
+                                              fit: BoxFit.cover,
+                                            ),
                                           ),
-                                        ),
-                                        Icon(
-                                          Icons.add_photo_alternate_outlined,
-                                          color: toucanOrange,
-                                        ),
-                                      ],
-                                    ),
                                   ),
                                   Container(
                                     width: double.infinity,
