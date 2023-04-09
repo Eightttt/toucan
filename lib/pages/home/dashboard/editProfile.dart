@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -373,14 +374,15 @@ class _EditProfileState extends State<EditProfile> {
                                 child: Stack(
                                   fit: StackFit.expand,
                                   children: [
-                                    Image.network(
-                                      userData.urlProfilePhoto,
+                                    CachedNetworkImage(
+                                      imageUrl: userData.urlProfilePhoto,
                                       fit: BoxFit.cover,
                                     ),
                                     kIsWeb
                                         ? _profilePhotoWeb != null
-                                            ? Image.network(
-                                                _profilePhotoWeb!.path,
+                                            ? CachedNetworkImage(
+                                                imageUrl:
+                                                    _profilePhotoWeb!.path,
                                                 fit: BoxFit.cover,
                                               )
                                             : SizedBox()

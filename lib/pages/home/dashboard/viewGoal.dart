@@ -10,6 +10,7 @@ import 'package:toucan/shared/fadingOnScroll.dart';
 import 'package:toucan/shared/loading.dart';
 import "package:intl/intl.dart";
 import 'editGoal.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ViewGoal extends StatefulWidget {
   const ViewGoal({super.key});
@@ -200,28 +201,26 @@ class _ViewGoalState extends State<ViewGoal> {
                 ),
               ),
             ),
-      floatingActionButton: posts == null || goal == null
-          ? null
-          : FloatingActionButton(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => StreamProvider<UserDataModel?>.value(
-                      value: DatabaseService(uid: user.uid).userData,
-                      initialData: null,
-                      child: EditPost(
-                        uid: user.uid,
-                        goalId: goal.id,
-                        post: null,
-                      ),
-                    ),
-                  ),
-                );
-              },
-              child: Icon(
-                Icons.add,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => StreamProvider<UserDataModel?>.value(
+                value: DatabaseService(uid: user.uid).userData,
+                initialData: null,
+                child: EditPost(
+                  uid: user.uid,
+                  goalId: goal?.id,
+                  post: null,
+                ),
               ),
             ),
+          );
+        },
+        child: Icon(
+          Icons.add,
+        ),
+      ),
       floatingActionButtonLocation:
           FloatingActionButtonLocation.miniCenterFloat,
     );
@@ -368,7 +367,7 @@ class _PostsListViewState extends State<PostsListView> {
     return CustomScrollView(
       slivers: [
         SliverPadding(
-          padding: EdgeInsets.fromLTRB(32, 36, 32, 70),
+          padding: EdgeInsets.fromLTRB(32, 6, 32, 90),
           sliver: SliverList(
             delegate: SliverChildBuilderDelegate(
               (BuildContext context, int index) {
@@ -417,7 +416,6 @@ class PostCard extends StatefulWidget {
 class _PostCardState extends State<PostCard> {
   final Color toucanWhite = Color(0xFFFDFDF5);
 
-  bool hasInitialized = false;
   String caption = "";
   bool isExpand = false;
 
@@ -475,34 +473,25 @@ class _PostCardState extends State<PostCard> {
             width: double.infinity,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: Image.network(
-                widget.post.imageURL,
-                loadingBuilder: (BuildContext context, Widget child,
-                    ImageChunkEvent? loadingProgress) {
-                  if (loadingProgress == null) {
-                    if (!hasInitialized) {
-                      hasInitialized = !hasInitialized;
-                    } else {
-                      hasInitialized = !hasInitialized;
-                    }
-                    return child;
-                  }
+              child: CachedNetworkImage(
+                fit: BoxFit.cover,
+                imageUrl: widget.post.imageURL,
+                errorWidget: (context, url, error) => Icon(Icons.error),
+                progressIndicatorBuilder: (context, url, progress) {
                   return SizedBox(
-                    height: 300,
+                    height: progress.progress != null ? 300 : 100,
                     child: Center(
                       child: CircularProgressIndicator(
                         color: Color(0xfff28705),
                         backgroundColor: Color.fromARGB(69, 242, 135, 5),
                         strokeWidth: 4,
-                        value: loadingProgress.expectedTotalBytes != null
-                            ? loadingProgress.cumulativeBytesLoaded /
-                                loadingProgress.expectedTotalBytes!
+                        value: progress.totalSize != null
+                            ? progress.downloaded / progress.totalSize!
                             : null,
                       ),
                     ),
                   );
                 },
-                fit: BoxFit.cover,
               ),
             ),
           ),
