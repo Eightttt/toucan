@@ -244,13 +244,10 @@ class DatabaseService {
     try {
       UploadTask uploadTask;
       if (kIsWeb) {
-        if (imageWeb == null) return null;
-        uploadTask = ref.putData(
-            await imageWeb.readAsBytes(), SettableMetadata(contentType: 'jpg'));
+        uploadTask = ref.putData(await imageWeb!.readAsBytes(),
+            SettableMetadata(contentType: 'jpg'));
       } else {
-        if (image == null) return null;
-        print("image path ============================ ${image.path}");
-        uploadTask = ref.putFile(File(image.path));
+        uploadTask = ref.putFile(File(image!.path));
       }
       setUploadTask(uploadTask);
       final snapshot = await uploadTask.whenComplete(() {});

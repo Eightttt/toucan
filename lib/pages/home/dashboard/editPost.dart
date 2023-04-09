@@ -144,13 +144,15 @@ class _EditPostState extends State<EditPost> {
       }
 
       // Upload post photo and get url
-      _urlPostPhoto = await databaseService.uploadPostPhoto(
-        widget.goalId!,
-        postId!,
-        _postPhoto,
-        _postPhotoWeb,
-        setUploadTask,
-      );
+      if (kIsWeb ? _postPhotoWeb != null : _postPhoto != null) {
+        _urlPostPhoto = await databaseService.uploadPostPhoto(
+          widget.goalId!,
+          postId!,
+          _postPhoto,
+          _postPhotoWeb,
+          setUploadTask,
+        );
+      }
 
       // Save all changes OR If first time creation of post, only url is updated
       await DatabaseService(uid: widget.uid).updatePostData(
@@ -162,6 +164,7 @@ class _EditPostState extends State<EditPost> {
       );
 
       setState(() {
+        print(_urlPostPhoto);
         _isSavingUserData = false;
       });
       Navigator.of(context).pop();
@@ -329,6 +332,7 @@ class _EditPostState extends State<EditPost> {
                             ),
                           ),
 
+                          // ==== Post Image ====
                           Padding(
                             padding: const EdgeInsets.only(left: 20, top: 12),
                             child: ElevatedButton(
