@@ -199,10 +199,7 @@ class DatabaseService {
             .collection("goals")
             .doc(goalId)
             .collection("posts")
-            .add({
-          "caption": caption,
-          "editDate": "",
-        });
+            .add({});
         return ref.id;
       }
 
@@ -216,7 +213,7 @@ class DatabaseService {
             .update({
           "caption": caption,
           "imageURL": imageURL,
-          "editDate": DateTime.now(),
+          "isEdited": isEdit,
         });
       } else {
         await userDataCollection
@@ -226,8 +223,10 @@ class DatabaseService {
             .collection("posts")
             .doc(postId)
             .update({
+          "caption": caption,
           "imageURL": imageURL,
-          "date": DateTime.now(),
+          "date": Timestamp.fromDate(DateTime.now()),
+          "isEdited": isEdit,
         });
       }
     }
@@ -275,19 +274,13 @@ class DatabaseService {
   // posts list from snapshot
   List<PostModel> _postsListFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.docs.map((doc) {
-      DateTime? editDate;
-      if (!(doc.get('editDate') is String)) {
-        editDate = DateTime.fromMillisecondsSinceEpoch(
-            (doc.get('editDate') as Timestamp).millisecondsSinceEpoch);
-      }
-
       return PostModel(
         doc.id,
         doc.get('caption'),
         doc.get('imageURL'),
         DateTime.fromMillisecondsSinceEpoch(
             (doc.get('date') as Timestamp).millisecondsSinceEpoch),
-        editDate,
+        doc.get('isEdited'),
       );
     }).toList();
   }
@@ -318,18 +311,13 @@ class DatabaseService {
 
   // post from snapshot
   PostModel _postFromSnapshot(DocumentSnapshot postSnapshot) {
-    DateTime? editDate;
-    if (postSnapshot.get('editDate') != null) {
-      editDate = DateTime.fromMillisecondsSinceEpoch(
-          (postSnapshot.get('editDate') as Timestamp).millisecondsSinceEpoch);
-    }
     return PostModel(
       postSnapshot.id,
       postSnapshot.get('caption'),
       postSnapshot.get('imageURL'),
       DateTime.fromMillisecondsSinceEpoch(
           (postSnapshot.get('date') as Timestamp).millisecondsSinceEpoch),
-      editDate,
+      postSnapshot.get('isEdited'),
     );
   }
 

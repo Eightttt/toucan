@@ -453,15 +453,13 @@ class _PostCardState extends State<PostCard> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
-                    '${DateFormat('d/MM/yy, hh:mm a').format(widget.post.date)}',
+                    '${DateFormat('MMM d, yy h:mm a').format(widget.post.date)}',
                     style: TextStyle(
                         fontWeight: FontWeight.w300,
                         color: Color.fromARGB(255, 91, 91, 91)),
                   ),
                   Text(
-                    widget.post.editDate == null
-                        ? ''
-                        : ' - edited ${DateFormat('d/MM/yy').format(widget.post.editDate!)}',
+                    widget.post.isEdited ? ' - edited' : '',
                     style: TextStyle(
                         fontStyle: FontStyle.italic,
                         fontWeight: FontWeight.w300,
@@ -530,7 +528,6 @@ class _PostCardState extends State<PostCard> {
                                   : caption.substring(0, 100),
                           style: TextStyle(
                             fontSize: 15,
-                            fontStyle: FontStyle.italic,
                           ),
                         ),
                         TextSpan(
@@ -551,7 +548,6 @@ class _PostCardState extends State<PostCard> {
                   caption,
                   style: TextStyle(
                     fontSize: 15,
-                    fontStyle: FontStyle.italic,
                   ),
                   maxLines: 4,
                   softWrap: true,
