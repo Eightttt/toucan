@@ -80,7 +80,6 @@ class DatabaseService {
             await imageWeb.readAsBytes(), SettableMetadata(contentType: 'jpg'));
       } else {
         if (image == null) return null;
-        print("image path ============================ ${image.path}");
         uploadTask = ref.putFile(File(image.path));
       }
       setUploadTask(uploadTask);
@@ -190,7 +189,7 @@ class DatabaseService {
     String? postId,
     String caption,
     String imageURL,
-    DateTime date,
+    bool isEdit,
   ) async {
     // Post Id is null if creating a new Post
     if (uid != null) {
@@ -202,22 +201,35 @@ class DatabaseService {
             .collection("posts")
             .add({
           "caption": caption,
-          "imageURL": imageURL,
-          "date": Timestamp.fromDate(date),
+          "editDate": "",
         });
         return ref.id;
       }
-      await userDataCollection
-          .doc(uid)
-          .collection("goals")
-          .doc(goalId)
-          .collection("posts")
-          .doc(postId)
-          .set({
-        "caption": caption,
-        "imageURL": imageURL,
-        "date": Timestamp.fromDate(date),
-      });
+
+      if (isEdit) {
+        await userDataCollection
+            .doc(uid)
+            .collection("goals")
+            .doc(goalId)
+            .collection("posts")
+            .doc(postId)
+            .update({
+          "caption": caption,
+          "imageURL": imageURL,
+          "editDate": DateTime.now(),
+        });
+      } else {
+        await userDataCollection
+            .doc(uid)
+            .collection("goals")
+            .doc(goalId)
+            .collection("posts")
+            .doc(postId)
+            .update({
+          "imageURL": imageURL,
+          "date": DateTime.now(),
+        });
+      }
     }
     return null;
   }
@@ -263,12 +275,19 @@ class DatabaseService {
   // posts list from snapshot
   List<PostModel> _postsListFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.docs.map((doc) {
+      DateTime? editDate;
+      if (!(doc.get('editDate') is String)) {
+        editDate = DateTime.fromMillisecondsSinceEpoch(
+            (doc.get('editDate') as Timestamp).millisecondsSinceEpoch);
+      }
+
       return PostModel(
         doc.id,
         doc.get('caption'),
         doc.get('imageURL'),
         DateTime.fromMillisecondsSinceEpoch(
             (doc.get('date') as Timestamp).millisecondsSinceEpoch),
+        editDate,
       );
     }).toList();
   }
@@ -299,12 +318,18 @@ class DatabaseService {
 
   // post from snapshot
   PostModel _postFromSnapshot(DocumentSnapshot postSnapshot) {
+    DateTime? editDate;
+    if (postSnapshot.get('editDate') != null) {
+      editDate = DateTime.fromMillisecondsSinceEpoch(
+          (postSnapshot.get('editDate') as Timestamp).millisecondsSinceEpoch);
+    }
     return PostModel(
       postSnapshot.id,
       postSnapshot.get('caption'),
       postSnapshot.get('imageURL'),
       DateTime.fromMillisecondsSinceEpoch(
           (postSnapshot.get('date') as Timestamp).millisecondsSinceEpoch),
+      editDate,
     );
   }
 

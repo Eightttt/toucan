@@ -32,6 +32,7 @@ class _EditPostState extends State<EditPost> {
   final Color toucanOrange = Color(0xfff28705);
   final Color toucanWhite = Color(0xFFFDFDF5);
   final double imageSize = 50;
+  late bool _isEdit;
 
   String? _caption = '';
 
@@ -43,12 +44,14 @@ class _EditPostState extends State<EditPost> {
   void initState() {
     super.initState();
     if (widget.post == null) {
+      _isEdit = false;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         // Pass true to pop the widget and its root
         // Unallow user to proceed without picking at least one picture
         showImageOptions();
       });
     } else {
+      _isEdit = true;
       _caption = widget.post?.caption;
       _urlPostPhoto = widget.post?.imageURL;
     }
@@ -61,9 +64,9 @@ class _EditPostState extends State<EditPost> {
         int count = 0;
         return WillPopScope(
           onWillPop: () async {
-            if (kIsWeb
+            if ((kIsWeb
                 ? _postPhotoWeb != null
-                : _postPhoto != null || widget.post != null) return true;
+                : _postPhoto != null) || _isEdit) return true;
             Navigator.popUntil(context, (route) {
               return count++ == 2;
             });
@@ -77,7 +80,7 @@ class _EditPostState extends State<EditPost> {
                 color: Color(0xfff28705),
                 onPressed: () {
                   (kIsWeb ? _postPhotoWeb == null : _postPhoto == null) &&
-                          (widget.post == null)
+                          (!_isEdit)
                       ? Navigator.popUntil(context, (route) {
                           return count++ == 2;
                         })
@@ -139,7 +142,7 @@ class _EditPostState extends State<EditPost> {
           postId,
           _caption!,
           _urlPostPhoto ?? '',
-          DateTime.now(),
+          _isEdit,
         );
       }
 
@@ -154,17 +157,16 @@ class _EditPostState extends State<EditPost> {
         );
       }
 
-      // Save all changes OR If first time creation of post, only url is updated
+      // Save all changes
       await DatabaseService(uid: widget.uid).updatePostData(
         widget.goalId!,
         postId,
         _caption!,
         _urlPostPhoto ?? widget.post!.imageURL,
-        DateTime.now(),
+        _isEdit,
       );
 
       setState(() {
-        print(_urlPostPhoto);
         _isSavingUserData = false;
       });
       Navigator.of(context).pop();
@@ -242,7 +244,7 @@ class _EditPostState extends State<EditPost> {
               child: ElevatedButton(
                 onPressed: () => savePostData(),
                 child: Text(
-                  "Post",
+                  _isEdit ? "Save" : "Post",
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
