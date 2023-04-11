@@ -449,12 +449,25 @@ class _PostCardState extends State<PostCard> {
           children: [
             Padding(
               padding: const EdgeInsets.only(left: 10.0, bottom: 3),
-              child: Text(
-                '${DateFormat('MMMM dd').format(widget.post.date)}',
-                style: TextStyle(
-                    fontStyle: FontStyle.italic,
-                    fontWeight: FontWeight.w300,
-                    color: Color.fromARGB(255, 91, 91, 91)),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text(
+                    '${DateFormat('d/MM/yy, hh:mm a').format(widget.post.date)}',
+                    style: TextStyle(
+                        fontWeight: FontWeight.w300,
+                        color: Color.fromARGB(255, 91, 91, 91)),
+                  ),
+                  Text(
+                    widget.post.editDate == null
+                        ? ''
+                        : ' - edited ${DateFormat('d/MM/yy').format(widget.post.editDate!)}',
+                    style: TextStyle(
+                        fontStyle: FontStyle.italic,
+                        fontWeight: FontWeight.w300,
+                        color: Color.fromARGB(255, 91, 91, 91)),
+                  ),
+                ],
               ),
             ),
             Padding(
