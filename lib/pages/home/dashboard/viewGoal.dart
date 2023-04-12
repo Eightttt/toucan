@@ -21,7 +21,6 @@ class ViewGoal extends StatefulWidget {
 
 class _ViewGoalState extends State<ViewGoal> {
   final ScrollController _scrollController = ScrollController();
-  final toucanRed = Color(0xFFD74714);
   final toucanWhite = Color(0xFFFDFDF5);
   final toucanOrange = Color(0xfff28705);
 
@@ -152,7 +151,7 @@ class _ViewGoalState extends State<ViewGoal> {
                         padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                         child: ElevatedButton.icon(
                           onPressed: () {
-                            showConfirmDeleteGoal(uid, goal.id);
+                            showConfirmDeleteGoal(uid, goal);
                           },
                           icon: Icon(Icons.delete),
                           label: Text(
@@ -161,9 +160,9 @@ class _ViewGoalState extends State<ViewGoal> {
                           ),
                           style: ElevatedButton.styleFrom(
                             elevation: 4,
-                            side: BorderSide(width: 1, color: toucanRed),
+                            side: BorderSide(width: 1, color: toucanOrange),
                             backgroundColor: toucanWhite,
-                            foregroundColor: toucanRed,
+                            foregroundColor: toucanOrange,
                           ),
                         ),
                       ),
@@ -181,7 +180,7 @@ class _ViewGoalState extends State<ViewGoal> {
     );
   }
 
-  showConfirmDeleteGoal(String uid, String goalId) {
+  showConfirmDeleteGoal(String uid, GoalModel goal) {
     showDialog(
         context: context,
         builder: (context) {
@@ -247,9 +246,12 @@ class _ViewGoalState extends State<ViewGoal> {
                   Expanded(
                     flex: 4,
                     child: ElevatedButton(
-                      onPressed: () async {
-                        await DatabaseService(uid: uid).deleteGoal(goalId);
-                        Navigator.popUntil(context, (route) => route.isFirst);
+                      onPressed: () {
+                        int count = 0;
+                        Navigator.popUntil(context, (route) {
+                          return count++ == 2;
+                        });
+                        showDeletingGoalDialog(uid, goal);
                       },
                       child: Text(
                         "Delete",
@@ -257,9 +259,8 @@ class _ViewGoalState extends State<ViewGoal> {
                       ),
                       style: ElevatedButton.styleFrom(
                         elevation: 2,
-                        side: BorderSide(width: 1, color: toucanRed),
-                        backgroundColor: toucanWhite,
-                        foregroundColor: toucanRed,
+                        side: BorderSide(width: 1, color: toucanOrange),
+                        backgroundColor: toucanOrange,
                         minimumSize: const Size(120, 33),
                         textStyle: const TextStyle(
                           fontWeight: FontWeight.w600,
@@ -277,6 +278,45 @@ class _ViewGoalState extends State<ViewGoal> {
                 borderRadius: BorderRadius.all(Radius.circular(15))),
           );
         });
+  }
+
+  showDeletingGoalDialog(String uid, GoalModel goal) async {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return WillPopScope(
+          onWillPop: () async {
+            return true;
+          },
+          child: AlertDialog(
+            titlePadding: EdgeInsets.fromLTRB(29, 50, 29, 40),
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // ==== Deleting Progress Indicator ====
+                Loading(size: 40),
+                Container(
+                  padding: EdgeInsets.only(top: 15),
+                  child: Text(
+                    'Goal: "${goal.title}"\nDeleting goal\'s data and its posts...',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                      height: 2,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(15))),
+          ),
+        );
+      },
+    );
+    await DatabaseService(uid: uid).deleteGoal(goal.id);
+    Navigator.popUntil(context, (route) => route.isFirst);
   }
 
   @override

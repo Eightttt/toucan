@@ -179,7 +179,11 @@ class DatabaseService {
 
   // delete goal in firebase
   Future deleteGoal(String goalId) async {
-    await userDataCollection.doc(uid).collection("goals").doc(goalId).delete();
+    DocumentReference goalRef =
+        userDataCollection.doc(uid).collection("goals").doc(goalId);
+
+    await deleteSubCollections(goalRef.collection('posts'));
+    await goalRef.delete();
   }
 
   // ===== POSTS =====
@@ -330,6 +334,19 @@ class DatabaseService {
         .collection("posts")
         .doc(postId)
         .delete();
+  }
+
+  // delete subcollection
+  Future deleteSubCollections(CollectionReference subcollectionRef) async {
+    int batchSize = 500;
+    QuerySnapshot snapshot = await subcollectionRef.limit(batchSize).get();
+
+    while (snapshot.docs.isNotEmpty) {
+      WriteBatch batch = FirebaseFirestore.instance.batch();
+      snapshot.docs.forEach((doc) => batch.delete(doc.reference));
+      await batch.commit();
+      snapshot = await subcollectionRef.limit(batchSize).get();
+    }
   }
 
   // Add friends to friends list
