@@ -414,10 +414,82 @@ class PostCard extends StatefulWidget {
 }
 
 class _PostCardState extends State<PostCard> {
-  final Color toucanWhite = Color(0xFFFDFDF5);
+  final toucanRed = Color(0xFFD74714);
+  final toucanWhite = Color(0xFFFDFDF5);
+  final toucanOrange = Color(0xfff28705);
 
   String caption = "";
   bool isExpand = false;
+
+  showEditOptions() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          iconPadding: EdgeInsets.only(top: 10),
+          icon: Align(
+            alignment: Alignment.topLeft,
+            child: IconButton(
+              color: Color(0xfff28705),
+              onPressed: () => Navigator.of(context).pop(),
+              icon: Icon(Icons.arrow_back_ios_rounded),
+            ),
+          ),
+          actionsPadding: EdgeInsets.only(bottom: 37),
+          actions: [
+            Row(
+              children: [
+                Spacer(flex: 1),
+                Expanded(
+                  flex: 5,
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                        child: ElevatedButton.icon(
+                          icon: Icon(Icons.edit_outlined),
+                          onPressed: () => showEditPost(),
+                          label: Text(
+                            "Edit Post",
+                            style: TextStyle(fontSize: 14),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            elevation: 4,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            showConfirmDelete();
+                          },
+                          icon: Icon(Icons.delete),
+                          label: Text(
+                            "Delete Post",
+                            style: TextStyle(fontSize: 14),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            elevation: 4,
+                            side: BorderSide(width: 1, color: toucanRed),
+                            backgroundColor: toucanWhite,
+                            foregroundColor: toucanRed,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Spacer(flex: 1),
+              ],
+            ),
+          ],
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(15))),
+        );
+      },
+    );
+  }
 
   showEditPost() {
     Navigator.of(context).push(
@@ -433,6 +505,108 @@ class _PostCardState extends State<PostCard> {
         ),
       ),
     );
+  }
+
+  showConfirmDelete() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            iconPadding: EdgeInsets.only(top: 30, bottom: 10),
+            icon: Icon(
+              Icons.error_outline_rounded,
+              size: 70,
+            ),
+            title: RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                text: "Are you sure?\n",
+                style: TextStyle(
+                  fontSize: 24,
+                  color: Colors.black,
+                  fontWeight: FontWeight.w600,
+                ),
+                children: [
+                  WidgetSpan(child: SizedBox(height: 30)),
+                  TextSpan(
+                    text:
+                        "Do you really want to delete this goal and its contents? This process cannot be undone.",
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Color.fromARGB(183, 91, 91, 91),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            actionsPadding: EdgeInsets.only(bottom: 40),
+            actions: [
+              SizedBox(height: 10),
+              Row(
+                children: [
+                  Spacer(flex: 1),
+                  Expanded(
+                    flex: 4,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text(
+                        "Cancel",
+                        style: TextStyle(fontSize: 14),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        elevation: 2,
+                        side: BorderSide(width: 1, color: toucanOrange),
+                        backgroundColor: toucanWhite,
+                        foregroundColor: toucanOrange,
+                        minimumSize: const Size(120, 33),
+                        textStyle: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Spacer(flex: 1),
+                  Expanded(
+                    flex: 4,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        int count = 0;
+                        DatabaseService(uid: widget.uid)
+                            .deletePost(widget.goalId, widget.post.id);
+                        Navigator.popUntil(context, (route) {
+                          return count++ == 2;
+                        });
+                      },
+                      child: Text(
+                        "Delete",
+                        style: TextStyle(fontSize: 14),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        elevation: 2,
+                        side: BorderSide(width: 1, color: toucanRed),
+                        backgroundColor: toucanWhite,
+                        foregroundColor: toucanRed,
+                        minimumSize: const Size(120, 33),
+                        textStyle: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Spacer(flex: 1),
+                ],
+              )
+            ],
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(15))),
+          );
+        });
   }
 
   @override
@@ -475,7 +649,7 @@ class _PostCardState extends State<PostCard> {
                   alignment: Alignment.bottomRight,
                   color: Color.fromARGB(255, 91, 91, 91),
                   icon: Icon(Icons.more_horiz),
-                  onPressed: () => showEditPost()),
+                  onPressed: () => showEditOptions()),
             )
           ],
         ),
