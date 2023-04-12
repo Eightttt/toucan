@@ -626,7 +626,6 @@ class PostCard extends StatefulWidget {
 }
 
 class _PostCardState extends State<PostCard> {
-  final toucanRed = Color(0xFFD74714);
   final toucanWhite = Color(0xFFFDFDF5);
   final toucanOrange = Color(0xfff28705);
 
@@ -683,9 +682,9 @@ class _PostCardState extends State<PostCard> {
                           ),
                           style: ElevatedButton.styleFrom(
                             elevation: 4,
-                            side: BorderSide(width: 1, color: toucanRed),
+                            side: BorderSide(width: 1, color: toucanOrange),
                             backgroundColor: toucanWhite,
-                            foregroundColor: toucanRed,
+                            foregroundColor: toucanOrange,
                           ),
                         ),
                       ),
@@ -799,9 +798,8 @@ class _PostCardState extends State<PostCard> {
                       ),
                       style: ElevatedButton.styleFrom(
                         elevation: 2,
-                        side: BorderSide(width: 1, color: toucanRed),
-                        backgroundColor: toucanWhite,
-                        foregroundColor: toucanRed,
+                        side: BorderSide(width: 1, color: toucanOrange),
+                        backgroundColor: toucanOrange,
                         minimumSize: const Size(120, 33),
                         textStyle: const TextStyle(
                           fontWeight: FontWeight.w600,
