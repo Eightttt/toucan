@@ -21,7 +21,7 @@ class GoalModel {
     this._description,
     this._isPrivate,
   ) {
-    this._status = _setStatus(startDate, endDate);
+    this._status = _setStatus(_startDate, _endDate);
   }
 
   String _setStatus(DateTime startDate, DateTime endDate) {
