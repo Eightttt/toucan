@@ -54,7 +54,6 @@ class _DashboardState extends State<Dashboard> {
     });
   }
 
-  // TODO: check link: https://stackoverflow.com/questions/56071731/scrollcontroller-how-can-i-detect-scroll-start-stop-and-scrolling
   _scrollDown() async {
     // print("start animation down");
     setState(() {
@@ -220,7 +219,7 @@ class _DashboardState extends State<Dashboard> {
                 },
                 body: GoalsListView(
                   uid: widget.uid,
-                  goals: unarchivedGoals!,
+                  goals: unarchivedGoals,
                 ),
               ),
             ),

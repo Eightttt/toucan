@@ -50,7 +50,6 @@ class _ViewGoalState extends State<ViewGoal> {
     });
   }
 
-  // TODO: check link: https://stackoverflow.com/questions/56071731/scrollcontroller-how-can-i-detect-scroll-start-stop-and-scrolling
   _scrollDown() async {
     // print("start animation down");
     setState(() {
