@@ -12,6 +12,7 @@ import 'package:toucan/shared/bottomNavBar.dart';
 import "package:toucan/shared/fadingOnScroll.dart";
 import 'package:toucan/services/auth.dart';
 import 'package:toucan/services/database.dart';
+import 'package:toucan/services/notification.dart';
 import '../../../shared/loading.dart';
 
 class Dashboard extends StatefulWidget {
@@ -119,7 +120,7 @@ class _DashboardState extends State<Dashboard> {
   @override
   Widget build(BuildContext context) {
     final UserDataModel? userData = Provider.of<UserDataModel?>(context);
-    final List<GoalModel>? goals = Provider.of<List<GoalModel>?>(context);
+    final List<GoalModel>? unarchivedGoals = Provider.of<List<GoalModel>?>(context);
     DateTime today = new DateTime.now();
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -137,7 +138,7 @@ class _DashboardState extends State<Dashboard> {
     });
 
     return Scaffold(
-      body: goals == null || userData == null
+      body: unarchivedGoals == null || userData == null
           ? Stack(
               children: [
                 ListView(
@@ -152,10 +153,7 @@ class _DashboardState extends State<Dashboard> {
             )
           : AbsorbPointer(
               absorbing: _isAnimating,
-              child: StreamProvider<List<GoalModel>?>.value(
-                value: DatabaseService(uid: widget.uid).goals,
-                initialData: null,
-                child: NestedScrollView(
+              child: NestedScrollView(
                   controller: _scrollController,
                   headerSliverBuilder: (context, innerBoxIsScrolled) {
                     return [
@@ -201,12 +199,11 @@ class _DashboardState extends State<Dashboard> {
                   },
                   body: GoalsListView(
                     uid: widget.uid,
-                    goals: goals,
+                    goals: unarchivedGoals,
                   ),
                 ),
-              ),
             ),
-      floatingActionButton: goals == null
+      floatingActionButton: unarchivedGoals == null
           ? null
           : FloatingActionButton(
               onPressed: () {
