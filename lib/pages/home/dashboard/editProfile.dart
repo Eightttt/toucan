@@ -38,6 +38,7 @@ class _EditProfileState extends State<EditProfile> {
   XFile? _profilePhotoWeb;
 
   TextEditingController _notificationTimeText = TextEditingController();
+  bool _hasInitializedNotificationTimeText = false;
   TimeOfDay? _pickedNotificationTime;
   TimeOfDay? _notificationTime;
 
@@ -147,7 +148,9 @@ class _EditProfileState extends State<EditProfile> {
   Widget build(BuildContext context) {
     final UserDataModel? userData = Provider.of<UserDataModel?>(context);
 
-    if (userData != null) {
+    if (userData != null && !_hasInitializedNotificationTimeText) {
+      _hasInitializedNotificationTimeText =
+          !_hasInitializedNotificationTimeText;
       _notificationTimeText.text =
           userData.notificationTime.format(context).toString();
     }
