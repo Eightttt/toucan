@@ -25,6 +25,9 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   final ScrollController _scrollController = ScrollController();
+  List<GoalModel>? prevUnarchivedGoals;
+  UserDataModel? prevUserData;
+  bool isScheduledNotifications = false;
   bool lastStatus = true;
   double height = 200;
   bool _isAnimating = false;
@@ -117,10 +120,25 @@ class _DashboardState extends State<Dashboard> {
         });
   }
 
+  scheduleNotificationDates(
+      List<GoalModel>? unarchivedGoals, UserDataModel? userData) {
+    if (userData != null && unarchivedGoals != null) {
+      if (userData != prevUserData || unarchivedGoals != prevUnarchivedGoals) {
+        prevUserData = userData;
+        prevUnarchivedGoals = unarchivedGoals;
+        NotificationService().scheduleNotificationsFromGoal(
+            goals: unarchivedGoals,
+            notificationTime: userData.notificationTime,
+            username: userData.username);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final UserDataModel? userData = Provider.of<UserDataModel?>(context);
-    final List<GoalModel>? unarchivedGoals = Provider.of<List<GoalModel>?>(context);
+    final List<GoalModel>? unarchivedGoals =
+        Provider.of<List<GoalModel>?>(context);
     DateTime today = new DateTime.now();
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -135,6 +153,9 @@ class _DashboardState extends State<Dashboard> {
           }
         }
       });
+
+      // Schedule the new notification dates as dashboard finished building
+      scheduleNotificationDates(unarchivedGoals, userData);
     });
 
     return Scaffold(
@@ -154,54 +175,54 @@ class _DashboardState extends State<Dashboard> {
           : AbsorbPointer(
               absorbing: _isAnimating,
               child: NestedScrollView(
-                  controller: _scrollController,
-                  headerSliverBuilder: (context, innerBoxIsScrolled) {
-                    return [
-                      SliverAppBar(
-                        backgroundColor: Color(0xFFFDFDF5),
-                        elevation: 5,
-                        pinned: true,
-                        expandedHeight: height,
-                        title: FadingOnScroll(
-                          scrollController: _scrollController,
-                          offset: _offset,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Image.asset(
-                                "assets/toucan-title-logo.png",
-                                fit: BoxFit.fitHeight,
-                                height: kToolbarHeight,
-                              ),
-                              IconButton(
-                                disabledColor: Colors.black,
-                                enableFeedback: !_isShrink ? false : true,
-                                onPressed: _isShrink
-                                    ? () => showDialog(
-                                        context: context,
-                                        builder: (context) => Settings(
-                                              uid: widget.uid,
-                                            ))
-                                    : null,
-                                icon: Icon(Icons.settings),
-                              ),
-                            ],
-                          ),
-                        ),
-                        flexibleSpace: FlexibleAppBar(
-                          today: today,
-                          description: userData.greeter,
-                          uid: widget.uid,
-                          urlProfilePhoto: userData.urlProfilePhoto,
+                controller: _scrollController,
+                headerSliverBuilder: (context, innerBoxIsScrolled) {
+                  return [
+                    SliverAppBar(
+                      backgroundColor: Color(0xFFFDFDF5),
+                      elevation: 5,
+                      pinned: true,
+                      expandedHeight: height,
+                      title: FadingOnScroll(
+                        scrollController: _scrollController,
+                        offset: _offset,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Image.asset(
+                              "assets/toucan-title-logo.png",
+                              fit: BoxFit.fitHeight,
+                              height: kToolbarHeight,
+                            ),
+                            IconButton(
+                              disabledColor: Colors.black,
+                              enableFeedback: !_isShrink ? false : true,
+                              onPressed: _isShrink
+                                  ? () => showDialog(
+                                      context: context,
+                                      builder: (context) => Settings(
+                                            uid: widget.uid,
+                                          ))
+                                  : null,
+                              icon: Icon(Icons.settings),
+                            ),
+                          ],
                         ),
                       ),
-                    ];
-                  },
-                  body: GoalsListView(
-                    uid: widget.uid,
-                    goals: unarchivedGoals,
-                  ),
+                      flexibleSpace: FlexibleAppBar(
+                        today: today,
+                        description: userData.greeter,
+                        uid: widget.uid,
+                        urlProfilePhoto: userData.urlProfilePhoto,
+                      ),
+                    ),
+                  ];
+                },
+                body: GoalsListView(
+                  uid: widget.uid,
+                  goals: unarchivedGoals!,
                 ),
+              ),
             ),
       floatingActionButton: unarchivedGoals == null
           ? null
