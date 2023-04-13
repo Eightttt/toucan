@@ -64,9 +64,8 @@ class _EditPostState extends State<EditPost> {
         int count = 0;
         return WillPopScope(
           onWillPop: () async {
-            if ((kIsWeb
-                ? _postPhotoWeb != null
-                : _postPhoto != null) || _isEdit) return true;
+            if ((kIsWeb ? _postPhotoWeb != null : _postPhoto != null) ||
+                _isEdit) return true;
             Navigator.popUntil(context, (route) {
               return count++ == 2;
             });
@@ -169,7 +168,10 @@ class _EditPostState extends State<EditPost> {
       setState(() {
         _isSavingUserData = false;
       });
-      Navigator.of(context).pop();
+      int count = 0;
+      Navigator.popUntil(context, (route) {
+        return count++ == 2;
+      });
     } else {
       print("error");
     }
