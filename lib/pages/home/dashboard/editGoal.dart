@@ -70,7 +70,10 @@ class _EditGoalState extends State<EditGoal> {
         _description ?? "Page description",
         false,
       );
-      Navigator.of(context).pop();
+      int count = 0;
+      Navigator.popUntil(context, (route) {
+        return count++ == 2;
+      });
     } else {
       print("error");
     }
@@ -204,33 +207,26 @@ class _EditGoalState extends State<EditGoal> {
                       Expanded(
                         flex: 2,
                         child: TextFormField(
-                            initialValue: "${_period}",
-                            onChanged: (number) {
-                              if (number.length > 0) {
-                                setState(() => _period = int.parse(number));
-                                // TODO: test this without onchanged but onsaved
-                              } else {
-                                setState(() => _period = 1);
-                              }
-                            },
-                            decoration: InputDecoration(
-                              hintText: "1",
-                              errorMaxLines: 3,
-                            ),
-                            keyboardType: TextInputType.number,
-                            inputFormatters: <TextInputFormatter>[
-                              FilteringTextInputFormatter.allow(
-                                  RegExp(r'[0-9]')),
-                            ],
-                            validator: (value) {
-                              if (value!.length == 0) {
-                                return 'Enter number';
-                              } else if (value == 0) {
-                                return 'Must be greater than 0';
-                              } else {
-                                return null;
-                              }
-                            }),
+                          initialValue: "${_period}",
+                          decoration: InputDecoration(
+                            hintText: "1",
+                            errorMaxLines: 3,
+                          ),
+                          keyboardType: TextInputType.number,
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                          ],
+                          validator: (value) {
+                            if (value!.length == 0) {
+                              return 'Enter number';
+                            } else if (value == "0") {
+                              return 'Must be greater than 0';
+                            } else {
+                              return null;
+                            }
+                          },
+                          onSaved: (value) => _period = int.parse(value!),
+                        ),
                       ),
                       SizedBox(width: 20),
                       Expanded(
