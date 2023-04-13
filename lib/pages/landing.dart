@@ -37,7 +37,7 @@ class _LandingState extends State<Landing> {
             : MultiProvider(
                 providers: [
                   StreamProvider<List<GoalModel>?>.value(
-                    value: DatabaseService(uid: uid).goals,
+                    value: DatabaseService(uid: uid).unarchivedGoals,
                     initialData: null,
                   ),
                   StreamProvider<UserDataModel?>.value(

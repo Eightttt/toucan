@@ -7,10 +7,12 @@ import 'package:image_picker/image_picker.dart';
 import 'package:toucan/models/goalModel.dart';
 import 'package:toucan/models/postModel.dart';
 import 'package:toucan/models/userDataModel.dart';
+import 'package:flutter_date_interval/flutter_date_interval.dart';
 
 class DatabaseService {
   final String? uid;
   String? pathProfilePhoto;
+  List<DateTime> notifDates = [];
   DatabaseService({required this.uid}) {
     pathProfilePhoto = "photos/users/${uid}_profilePhoto.jpg";
   }
@@ -121,10 +123,22 @@ class DatabaseService {
     }
   }
 
+  // Get goals list stream that are not yet done
+  Stream<List<GoalModel>> get unarchivedGoals {
+    return userDataCollection
+        .doc(uid)
+        .collection("goals")
+        .where("endDate", isGreaterThan: Timestamp.fromDate(DateTime.now()))
+        .snapshots()
+        .map(_goalsListFromSnapshot);
+  }
+
   // goals list from snapshot
   List<GoalModel> _goalsListFromSnapshot(QuerySnapshot snapshot) {
-    return snapshot.docs.map((doc) {
-      return GoalModel(
+    Set<DateTime> notifDatesSet = {};
+
+    List<GoalModel> goalsList = snapshot.docs.map((doc) {
+      GoalModel goal = GoalModel(
         doc.id,
         doc.get('title'),
         doc.get('tag'),
@@ -137,16 +151,50 @@ class DatabaseService {
         doc.get('description'),
         doc.get('isPrivate'),
       );
+
+      // Merge all notif dates to a set (remove duplicates)
+      notifDatesSet.addAll(_getNotifDates(goal));
+      return goal;
     }).toList();
+
+    List<DateTime> sortedNotifDates = notifDatesSet.toList();
+    sortedNotifDates.sort();
+    notifDates = sortedNotifDates.take(7).toList();
+
+    // Get the 7 soonest notif dates as a list
+    print("==== SET OF DATES ====");
+    notifDates.forEach((element) {
+      print("Dates: $element");
+    });
+    return goalsList;
   }
 
-  // Get goals list stream
-  Stream<List<GoalModel>> get goals {
-    return userDataCollection
-        .doc(uid)
-        .collection("goals")
-        .snapshots()
-        .map(_goalsListFromSnapshot);
+  // Get first seven dates on when to notify user
+  Iterable<DateTime> _getNotifDates(GoalModel goal) {
+    // check start date
+    // if in progress, start is today
+    DateTime start = goal.startDate;
+    if (goal.status == "in-progress") start = DateTime.now();
+
+    Intervals interval = _getIntervalFromFrequency(goal.frequency);
+    DateInterval dateInterval =
+        DateInterval(startDate: start, interval: interval, period: goal.period);
+
+    // check end date to limit size of dateInterval iterable
+    // if end date is 6 months or more from now,
+    // set end date to 6 months from today
+    DateTime sixMonthsFromToday = DateTime.now().add(Duration(days: 30 * 6));
+    DateTime end = goal.endDate;
+    if (goal.endDate.isAfter(sixMonthsFromToday)) end = sixMonthsFromToday;
+    return dateInterval.getDatesThrough(end).take(7);
+  }
+
+  // Get interval from frequency of Goal
+  Intervals _getIntervalFromFrequency(String frequency) {
+    if (frequency == "day/s") return Intervals.daily;
+    if (frequency == "week/s") return Intervals.weekly;
+    if (frequency == "month/s") return Intervals.monthly;
+    return Intervals.yearly;
   }
 
   // Get individual goal stream
