@@ -5,9 +5,12 @@ import 'package:toucan/firebase_options.dart';
 import 'package:toucan/pages/landing.dart';
 import 'package:toucan/models/userModel.dart';
 import 'package:toucan/services/auth.dart';
+import 'package:toucan/services/notification.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  NotificationService().requestPermissions();
+  NotificationService().initializeNotif();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
