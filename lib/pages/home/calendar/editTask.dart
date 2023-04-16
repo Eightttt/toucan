@@ -51,6 +51,7 @@ class _EditTaskState extends State<EditTask> {
     if (widget.task != null) {
       _chosenDateController.text =
           DateFormat('MMMM dd, yyyy').format(widget.task!.date);
+      _pickedDate = widget.task!.date;
     }
   }
 
@@ -120,7 +121,7 @@ class _EditTaskState extends State<EditTask> {
                     onTap: () async {
                       _pickedDate = await showDatePicker(
                         context: context,
-                        initialDate: widget.task?.date ?? DateTime.now(),
+                        initialDate: _pickedDate ?? DateTime.now(),
                         firstDate: DateTime(2023),
                         lastDate: DateTime(2200),
                       );
