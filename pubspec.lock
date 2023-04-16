@@ -584,6 +584,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.0.5"
+CalendarBranch
+  simple_gesture_detector:
+    dependency: transitive
+    description:
+      name: simple_gesture_detector
+      sha256: "86d08f85f1f58583b7b4b941d989f48ea6ce08c1724a1d10954a277c2ec36592"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.0"
   rxdart:
     dependency: transitive
     description:
@@ -645,6 +654,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.0"
+  table_calendar:
+    dependency: "direct main"
+    description:
+      name: table_calendar
+      sha256: "7f1270313c0cdb245b583ed8518982c01d4a7e95869b3c30abcbae3b642c45d0"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.8"
   synchronized:
     dependency: transitive
     description:
@@ -726,5 +743,5 @@ packages:
     source: hosted
     version: "3.1.1"
 sdks:
-  dart: ">=2.19.0 <4.0.0"
+  dart: ">=2.19.0 <3.0.0"
   flutter: ">=3.3.0"
