@@ -285,7 +285,7 @@ class _ViewGoalState extends State<ViewGoal> {
       builder: (context) {
         return WillPopScope(
           onWillPop: () async {
-            return true;
+            return false;
           },
           child: AlertDialog(
             titlePadding: EdgeInsets.fromLTRB(29, 50, 29, 40),
