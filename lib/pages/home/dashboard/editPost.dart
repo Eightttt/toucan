@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +13,7 @@ import 'package:toucan/shared/loading.dart';
 
 class EditPost extends StatefulWidget {
   final String uid;
-  final String goalId;
+  final String? goalId;
   final PostModel? post;
   const EditPost(
       {Key? key, required this.uid, required this.goalId, required this.post})
@@ -60,8 +61,9 @@ class _EditPostState extends State<EditPost> {
         int count = 0;
         return WillPopScope(
           onWillPop: () async {
-            if (kIsWeb ? _postPhotoWeb != null : _postPhoto != null || widget.post != null)
-              return true;
+            if (kIsWeb
+                ? _postPhotoWeb != null
+                : _postPhoto != null || widget.post != null) return true;
             Navigator.popUntil(context, (route) {
               return count++ == 2;
             });
@@ -74,7 +76,8 @@ class _EditPostState extends State<EditPost> {
               child: IconButton(
                 color: Color(0xfff28705),
                 onPressed: () {
-                  (kIsWeb ? _postPhotoWeb == null : _postPhoto == null) && (widget.post == null)
+                  (kIsWeb ? _postPhotoWeb == null : _postPhoto == null) &&
+                          (widget.post == null)
                       ? Navigator.popUntil(context, (route) {
                           return count++ == 2;
                         })
@@ -128,10 +131,11 @@ class _EditPostState extends State<EditPost> {
         _isSavingUserData = true;
       });
 
+      if (widget.goalId == null) return;
       // If post doesn't exist, create it first and get the postId
       if (postId == null) {
         postId = await DatabaseService(uid: widget.uid).updatePostData(
-          widget.goalId,
+          widget.goalId!,
           postId,
           _caption!,
           _urlPostPhoto ?? '',
@@ -140,17 +144,19 @@ class _EditPostState extends State<EditPost> {
       }
 
       // Upload post photo and get url
-      _urlPostPhoto = await databaseService.uploadPostPhoto(
-        widget.goalId,
-        postId!,
-        _postPhoto,
-        _postPhotoWeb,
-        setUploadTask,
-      );
+      if (kIsWeb ? _postPhotoWeb != null : _postPhoto != null) {
+        _urlPostPhoto = await databaseService.uploadPostPhoto(
+          widget.goalId!,
+          postId!,
+          _postPhoto,
+          _postPhotoWeb,
+          setUploadTask,
+        );
+      }
 
       // Save all changes OR If first time creation of post, only url is updated
       await DatabaseService(uid: widget.uid).updatePostData(
-        widget.goalId,
+        widget.goalId!,
         postId,
         _caption!,
         _urlPostPhoto ?? widget.post!.imageURL,
@@ -158,6 +164,7 @@ class _EditPostState extends State<EditPost> {
       );
 
       setState(() {
+        print(_urlPostPhoto);
         _isSavingUserData = false;
       });
       Navigator.of(context).pop();
@@ -274,8 +281,8 @@ class _EditPostState extends State<EditPost> {
                                   child: Container(
                                     color: toucanWhite,
                                     width: imageSize,
-                                    child: Image.network(
-                                      userData.urlProfilePhoto,
+                                    child: CachedNetworkImage(
+                                      imageUrl: userData.urlProfilePhoto,
                                       fit: BoxFit.cover,
                                     ),
                                   ),
@@ -325,6 +332,7 @@ class _EditPostState extends State<EditPost> {
                             ),
                           ),
 
+                          // ==== Post Image ====
                           Padding(
                             padding: const EdgeInsets.only(left: 20, top: 12),
                             child: ElevatedButton(
@@ -374,8 +382,8 @@ class _EditPostState extends State<EditPost> {
                                         : ClipRRect(
                                             borderRadius:
                                                 BorderRadius.circular(10),
-                                            child: Image.network(
-                                              _urlPostPhoto!,
+                                            child: CachedNetworkImage(
+                                              imageUrl: _urlPostPhoto!,
                                               fit: BoxFit.cover,
                                             ),
                                           ),
@@ -386,8 +394,8 @@ class _EditPostState extends State<EditPost> {
                                       borderRadius: BorderRadius.circular(10),
                                       child: kIsWeb
                                           ? _postPhotoWeb != null
-                                              ? Image.network(
-                                                  _postPhotoWeb!.path,
+                                              ? CachedNetworkImage(
+                                                  imageUrl: _postPhotoWeb!.path,
                                                   fit: BoxFit.cover,
                                                 )
                                               : SizedBox()

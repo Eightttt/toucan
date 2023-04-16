@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import "package:intl/intl.dart";
 import 'package:provider/provider.dart';
@@ -268,21 +269,10 @@ class FlexibleAppBar extends StatelessWidget {
                     color: Color(0xFFFDFDF5),
                     height: imageSize,
                     width: imageSize,
-                    child: Image.network(
-                      urlProfilePhoto,
+                    child: CachedNetworkImage(
+                      imageUrl: urlProfilePhoto,
                       fit: BoxFit.cover,
-                      // When image is loading from the server it takes some time
-                      // So we will show progress indicator while loading
-                      loadingBuilder: (BuildContext context, Widget child,
-                          ImageChunkEvent? loadingProgress) {
-                        if (loadingProgress == null) {
-                          if (!hasInitialized) {
-                            hasInitialized = !hasInitialized;
-                          } else {
-                            hasInitialized = !hasInitialized;
-                          }
-                          return child;
-                        }
+                      progressIndicatorBuilder: (context, url, progress) {
                         return Container(
                           margin: EdgeInsets.all(imageSize * .35),
                           width: imageSize * .3,
@@ -294,9 +284,8 @@ class FlexibleAppBar extends StatelessWidget {
                             color: Color(0xfff28705),
                             backgroundColor: Color.fromARGB(69, 242, 135, 5),
                             strokeWidth: 4,
-                            value: loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded /
-                                    loadingProgress.expectedTotalBytes!
+                            value: progress.totalSize != null
+                                ? progress.downloaded / progress.totalSize!
                                 : null,
                           ),
                         );
@@ -423,19 +412,20 @@ class GoalCard extends StatelessWidget {
             contentPadding: EdgeInsets.fromLTRB(20, 0, 0, 0),
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(
-                  builder: (context) => MultiProvider(
-                    providers: [
-                      StreamProvider<GoalModel?>.value(
-                        value: DatabaseService(uid: uid).getGoal(goal.id),
-                        initialData: null,
-                      ),
-                       StreamProvider<List<PostModel>?>.value(
-                        value: DatabaseService(uid: uid).getPosts(goal.id),
-                        initialData: null,
-                      ),
-                    ],
-                    child: ViewGoal(),
-                  )),
+                builder: (context) => MultiProvider(
+                  providers: [
+                    StreamProvider<GoalModel?>.value(
+                      value: DatabaseService(uid: uid).getGoal(goal.id),
+                      initialData: null,
+                    ),
+                    StreamProvider<List<PostModel>?>.value(
+                      value: DatabaseService(uid: uid).getPosts(goal.id),
+                      initialData: null,
+                    ),
+                  ],
+                  child: ViewGoal(),
+                ),
+              ),
             ),
             title: SizedBox(
               height: 89,
