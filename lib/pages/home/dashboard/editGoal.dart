@@ -52,7 +52,6 @@ class _EditGoalState extends State<EditGoal> {
               DateFormat('MMMM dd, yyyy').format(_dateRange.end);
       _description = widget.goal!.description;
     }
-    ;
   }
 
   saveGoal() {
@@ -83,7 +82,7 @@ class _EditGoalState extends State<EditGoal> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-          color: Colors.white,
+          color: Color(0xFFFDFDF5),
           borderRadius: BorderRadius.vertical(top: Radius.circular(26))
           //more than 50% of width makes circle
           ),
@@ -170,10 +169,11 @@ class _EditGoalState extends State<EditGoal> {
                     onTap: () async {
                       DateTimeRange? pickedDateRange =
                           await showDateRangePicker(
-                              context: context,
-                              initialDateRange: _dateRange,
-                              firstDate: DateTime(2023),
-                              lastDate: DateTime(2200));
+                        context: context,
+                        initialDateRange: _dateRange,
+                        firstDate: DateTime(2023),
+                        lastDate: DateTime(2200),
+                      );
                       if (pickedDateRange != null) {
                         _dateRange = pickedDateRange;
                         _startEndDate.text = DateFormat('MMMM dd, yyyy')
