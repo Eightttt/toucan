@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import "package:intl/intl.dart";
 import 'package:table_calendar/table_calendar.dart';
 import 'package:toucan/models/taskModel.dart';
+import 'package:toucan/pages/home/calendar/editTask.dart';
 
 class Calendar extends StatefulWidget {
   Calendar({Key? key}) : super(key: key);
@@ -57,6 +58,17 @@ class _CalendarState extends State<Calendar> {
     return _currentTasks;
   }
 
+  void showAddNewTask(TaskModel? task) {
+    showModalBottomSheet(
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      barrierColor: Color.fromARGB(85, 0, 0, 0),
+      enableDrag: false,
+      context: context,
+      builder: (context) => EditTask(task),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -70,7 +82,7 @@ class _CalendarState extends State<Calendar> {
               fit: BoxFit.fitHeight,
             ),
             IconButton(
-              onPressed: () {},
+              onPressed: () => showAddNewTask(null),
               icon: Icon(Icons.add_circle_outline_rounded),
               color: Color(0xfff28705),
               iconSize: 35,
@@ -103,8 +115,8 @@ class _CalendarState extends State<Calendar> {
                 availableGestures: AvailableGestures.all,
                 selectedDayPredicate: (day) => isSameDay(day, today),
                 focusedDay: today,
-                firstDay: DateTime.utc(2023, 1, 1),
-                lastDay: DateTime.utc(2100, 1, 1),
+                firstDay: DateTime(2023),
+                lastDay: DateTime(2200),
                 calendarStyle: CalendarStyle(
                   selectedDecoration: BoxDecoration(
                     color: Color(0xfff28705),
@@ -180,15 +192,23 @@ class _CalendarState extends State<Calendar> {
                                 (_viewedTasks![index].isDone == false)
                                     ? Icons.circle_outlined
                                     : Icons.check_circle_outline,
-                                color: Color(0xfff28705),
                               ),
                               title: Text(
-                                _viewedTasks![index].task,
+                                _viewedTasks![index].title,
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontStyle: FontStyle.italic,
                                 ),
                               ),
+                              trailing: IconButton(
+                                onPressed: () =>
+                                    showAddNewTask(_viewedTasks![index]),
+                                icon: Icon(
+                                  Icons.edit_note_rounded,
+                                  size: 30,
+                                ),
+                              ),
+                              iconColor: Color(0xfff28705),
                               selectedTileColor: Color(0xFF84C35D),
                               selectedColor: Color(0xFFFDFDF5),
                               selected: _viewedTasks![index].isDone,
