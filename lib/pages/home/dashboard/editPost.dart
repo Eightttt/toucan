@@ -168,10 +168,7 @@ class _EditPostState extends State<EditPost> {
       setState(() {
         _isSavingUserData = false;
       });
-      int count = 0;
-      Navigator.popUntil(context, (route) {
-        return count++ == 2;
-      });
+      Navigator.of(context).pop();
     } else {
       print("error");
     }
