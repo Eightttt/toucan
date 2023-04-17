@@ -260,18 +260,6 @@ class _CalendarState extends State<Calendar> {
           : Center(
               child: Column(
                 children: [
-                  SizedBox(height: 20),
-                  Container(
-                    alignment: Alignment.centerLeft,
-                    padding: EdgeInsets.fromLTRB(20, 10, 10, 5),
-                    child: Text(
-                      '${DateFormat('MMMM, yyyy').format(today)}',
-                      style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(10, 0, 10, 15),
                     child: TableCalendar(
