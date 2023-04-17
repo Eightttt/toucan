@@ -69,10 +69,7 @@ class _EditGoalState extends State<EditGoal> {
         _description ?? "Page description",
         false,
       );
-      int count = 0;
-      Navigator.popUntil(context, (route) {
-        return count++ == 2;
-      });
+      Navigator.of(context).pop();
     } else {
       print("error");
     }
