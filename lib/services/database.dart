@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:toucan/models/goalModel.dart';
 import 'package:toucan/models/postModel.dart';
+import 'package:toucan/models/taskModel.dart';
 import 'package:toucan/models/userDataModel.dart';
 
 class DatabaseService {
@@ -131,26 +132,25 @@ class DatabaseService {
         .map(_goalsListFromSnapshot);
   }
 
-  // goals list from snapshot
+  // Goals list from snapshot
   List<GoalModel> _goalsListFromSnapshot(QuerySnapshot snapshot) {
-    List<GoalModel> goalsList = snapshot.docs.map((doc) {
-      GoalModel goal = GoalModel(
-        doc.id,
-        doc.get('title'),
-        doc.get('tag'),
-        DateTime.fromMillisecondsSinceEpoch(
-            (doc.get('startDate') as Timestamp).millisecondsSinceEpoch),
-        DateTime.fromMillisecondsSinceEpoch(
-            (doc.get('endDate') as Timestamp).millisecondsSinceEpoch),
-        doc.get('period'),
-        doc.get('frequency'),
-        doc.get('description'),
-        doc.get('isPrivate'),
-      );
-
-      return goal;
-    }).toList();
-    return goalsList;
+    return snapshot.docs
+        .map(
+          (doc) => GoalModel(
+            doc.id,
+            doc.get('title'),
+            doc.get('tag'),
+            DateTime.fromMillisecondsSinceEpoch(
+                (doc.get('startDate') as Timestamp).millisecondsSinceEpoch),
+            DateTime.fromMillisecondsSinceEpoch(
+                (doc.get('endDate') as Timestamp).millisecondsSinceEpoch),
+            doc.get('period'),
+            doc.get('frequency'),
+            doc.get('description'),
+            doc.get('isPrivate'),
+          ),
+        )
+        .toList();
   }
 
   // Get individual goal stream
@@ -164,7 +164,7 @@ class DatabaseService {
             !goalSnapshot.exists ? null : _goalFromSnapshot(goalSnapshot));
   }
 
-  // goal from snapshot
+  // Goal from snapshot
   GoalModel _goalFromSnapshot(DocumentSnapshot goalSnapshot) {
     return GoalModel(
       goalSnapshot.id,
@@ -181,7 +181,7 @@ class DatabaseService {
     );
   }
 
-  // delete goal in firebase
+  // Delete goal in firebase
   Future deleteGoal(String goalId) async {
     DocumentReference goalRef =
         userDataCollection.doc(uid).collection("goals").doc(goalId);
@@ -279,7 +279,7 @@ class DatabaseService {
     }
   }
 
-  // posts list from snapshot
+  // Posts list from snapshot
   List<PostModel> _postsListFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.docs.map((doc) {
       return PostModel(
@@ -317,7 +317,7 @@ class DatabaseService {
             !postSnapshot.exists ? null : _postFromSnapshot(postSnapshot));
   }
 
-  // post from snapshot
+  // Post from snapshot
   PostModel _postFromSnapshot(DocumentSnapshot postSnapshot) {
     return PostModel(
       postSnapshot.id,
@@ -329,7 +329,7 @@ class DatabaseService {
     );
   }
 
-  // delete post in firebase
+  // Delete post in firebase
   Future deletePost(String goalId, String postId) async {
     await userDataCollection
         .doc(uid)
@@ -340,7 +340,65 @@ class DatabaseService {
         .delete();
   }
 
-  // delete subcollection
+  // ===== TASKS =====
+  // Update Task Data
+  Future updateTaskData(
+    String? taskId,
+    String title,
+    DateTime date,
+    bool isDone,
+  ) async {
+    // Task Id is null if creating a new Post
+    if (uid != null) {
+      await userDataCollection.doc(uid).collection("tasks").doc(taskId).set(
+          {"title": title, "date": Timestamp.fromDate(date), "isDone": isDone});
+    }
+  }
+
+  // Update task status if done or not
+  Future updateTaskStatus(
+    String taskId,
+    bool isDone,
+  ) async {
+    if (uid != null) {
+      await userDataCollection
+          .doc(uid)
+          .collection("tasks")
+          .doc(taskId)
+          .update({"isDone": isDone});
+    }
+  }
+
+  // Get past Tasks list stream
+  Stream<List<TaskModel>> get tasks {
+    return userDataCollection
+        .doc(uid)
+        .collection("tasks")
+        .snapshots()
+        .map(_tasksListFromSnapshot);
+  }
+
+  // Tasks list from snapshot
+  List<TaskModel> _tasksListFromSnapshot(QuerySnapshot snapshot) {
+    return snapshot.docs
+        .map(
+          (doc) => TaskModel(
+            doc.id,
+            doc.get('title'),
+            DateTime.fromMillisecondsSinceEpoch(
+                (doc.get('date') as Timestamp).millisecondsSinceEpoch),
+            doc.get('isDone'),
+          ),
+        )
+        .toList();
+  }
+
+  // Delete Task in firebase
+  Future deleteTask(String taskId) async {
+    userDataCollection.doc(uid).collection("tasks").doc(taskId).delete();
+  }
+
+  // ==== Delete subcollection ====
   Future deleteSubCollections(CollectionReference subcollectionRef) async {
     int batchSize = 500;
     QuerySnapshot snapshot = await subcollectionRef.limit(batchSize).get();
@@ -353,5 +411,5 @@ class DatabaseService {
     }
   }
 
-  // Add friends to friends list
+  // TODO: Add friends list
 }

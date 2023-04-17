@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import "package:intl/intl.dart";
+import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:toucan/models/taskModel.dart';
 import 'package:toucan/pages/home/calendar/editTask.dart';
@@ -7,10 +8,9 @@ import 'package:toucan/services/database.dart';
 import 'package:toucan/shared/loading.dart';
 
 class Calendar extends StatefulWidget {
-  final String? uid;
+  final String uid;
 
-  // TODO: remove ""
-  Calendar({Key? key, this.uid = ""}) : super(key: key);
+  Calendar({Key? key, required this.uid}) : super(key: key);
 
   @override
   State<Calendar> createState() => _CalendarState();
@@ -21,35 +21,17 @@ class _CalendarState extends State<Calendar> {
   DateTime today = DateTime.now();
   //Date today
 
-  final _taskListTags = ["Today", "Past", "Upcoming"];
+  final _taskListTags = ["Past", "Today", "Upcoming"];
   String _chosenTaskListTag = "Today";
-
-  //Dummy List
-  List<TaskModel> _pastTasks = [
-    TaskModel(
-        "fakeid", DateTime.now().subtract(Duration(days: 5)), "Task 6", false),
-    TaskModel(
-        "fakeid", DateTime.now().subtract(Duration(days: 1)), "Task 8", true),
-    TaskModel(
-        "fakeid", DateTime.now().subtract(Duration(days: 3)), "Task 9", false),
-  ];
-
-  //Dummy List
-  List<TaskModel> _currentTasks = [
-    TaskModel("fakeid", DateTime.now(), "Task 2", false),
-    TaskModel("fakeid", DateTime.now(), "Task 4", true),
-    TaskModel("fakeid", DateTime.now(), "Task 7", false),
-  ];
-
-  //Dummy List
-  List<TaskModel> _upcomingTasks = [
-    TaskModel("fakeid", DateTime.now().add(Duration(days: 1)), "Task 1", true),
-    TaskModel("fakeid", DateTime.now().add(Duration(days: 3)), "Task 3", false),
-    TaskModel("fakeid", DateTime.now().add(Duration(days: 27)), "Task 5", true),
-  ];
 
   // Current list of tasks being viewed by user
   List<TaskModel>? _viewedTasks;
+  List<TaskModel>? _prevTasks;
+  List<TaskModel>? pastTasks;
+  List<TaskModel>? todayTasks;
+  List<TaskModel>? upcomingTasks;
+
+  bool isInitializedTasks = false;
 
   //Boolean for task complete or not
   bool status = false;
@@ -60,24 +42,32 @@ class _CalendarState extends State<Calendar> {
   @override
   void initState() {
     super.initState();
-    _viewedTasks = _upcomingTasks;
   }
 
-  List<TaskModel> getTasksList(String taskTag) {
-    if (taskTag == "Past") return _pastTasks;
-    if (taskTag == "Upcoming") return _upcomingTasks;
-    return _currentTasks;
+  List<TaskModel> getTasksList(
+    String taskTag,
+    List<TaskModel> pastTasks,
+    List<TaskModel> todayTasks,
+    List<TaskModel> upcomingTasks,
+  ) {
+    if (taskTag == "Past") return pastTasks;
+    if (taskTag == "Upcoming") return upcomingTasks;
+    return todayTasks;
   }
 
-  void showAddNewTask(TaskModel? task) {
+  void showEditTask(TaskModel? task) {
     showModalBottomSheet(
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       barrierColor: Color.fromARGB(85, 0, 0, 0),
       enableDrag: false,
       context: context,
-      builder: (context) => EditTask(task),
+      builder: (context) => EditTask(uid: widget.uid, task: task),
     );
+  }
+
+  void updateStatus(TaskModel task, bool isDone) {
+    EditTask(uid: widget.uid, task: task).updateTaskStatus(isDone);
   }
 
   showConfirmDeleteTask(String uid, TaskModel task) {
@@ -213,13 +203,35 @@ class _CalendarState extends State<Calendar> {
         );
       },
     );
-    // await DatabaseService(uid: uid).deleteTask(task.id);
-    await Future.delayed(Duration(seconds: 7));
+    await DatabaseService(uid: uid).deleteTask(task.id);
     Navigator.popUntil(context, (route) => route.isFirst);
   }
 
   @override
   Widget build(BuildContext context) {
+    final List<TaskModel>? tasks =
+        Provider.of<List<TaskModel>?>(context, listen: true);
+
+    if (tasks != null && tasks != _prevTasks) {
+      DateTime now = DateTime.now();
+      DateTime startOfDay = DateTime(now.year, now.month, now.day);
+      DateTime endOfDay = DateTime(now.year, now.month, now.day, 23, 59, 59);
+
+      pastTasks = tasks
+          .where((task) => task.date.isBefore(startOfDay) && !task.isDone)
+          .toList();
+      todayTasks = tasks
+          .where((task) =>
+              !task.date.isBefore(startOfDay) && !task.date.isAfter(endOfDay))
+          .toList();
+      upcomingTasks =
+          tasks.where((task) => task.date.isAfter(endOfDay)).toList();
+
+      _viewedTasks = getTasksList(
+          _chosenTaskListTag, pastTasks!, todayTasks!, upcomingTasks!);
+      _prevTasks = tasks;
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -231,7 +243,7 @@ class _CalendarState extends State<Calendar> {
               fit: BoxFit.fitHeight,
             ),
             IconButton(
-              onPressed: () => showAddNewTask(null),
+              onPressed: () => showEditTask(null),
               icon: Icon(Icons.add_circle_outline_rounded),
               color: toucanOrange,
               iconSize: 35,
@@ -240,173 +252,195 @@ class _CalendarState extends State<Calendar> {
         ),
         backgroundColor: toucanWhite,
       ),
-      body: Center(
-        child: Column(
-          children: [
-            SizedBox(height: 20),
-            Container(
-              alignment: Alignment.centerLeft,
-              padding: EdgeInsets.fromLTRB(20, 10, 10, 5),
-              child: Text(
-                '${DateFormat('MMMM, yyyy').format(today)}',
-                style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(10, 0, 10, 15),
-              child: TableCalendar(
-                rowHeight: 40,
-                headerStyle: HeaderStyle(
-                    formatButtonVisible: false, titleCentered: true),
-                availableGestures: AvailableGestures.all,
-                selectedDayPredicate: (day) => isSameDay(day, today),
-                focusedDay: today,
-                firstDay: DateTime(2023),
-                lastDay: DateTime(2200),
-                calendarStyle: CalendarStyle(
-                  selectedDecoration: BoxDecoration(
-                    color: toucanOrange,
-                    shape: BoxShape.rectangle,
-                    borderRadius: BorderRadius.circular(10),
+      body: pastTasks == null || todayTasks == null || upcomingTasks == null
+          ? Container(
+              color: Color(0xFFFDFDF5),
+              child: Loading(size: 40),
+            )
+          : Center(
+              child: Column(
+                children: [
+                  SizedBox(height: 20),
+                  Container(
+                    alignment: Alignment.centerLeft,
+                    padding: EdgeInsets.fromLTRB(20, 10, 10, 5),
+                    child: Text(
+                      '${DateFormat('MMMM, yyyy').format(today)}',
+                      style: TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ),
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  boxShadow: <BoxShadow>[
-                    BoxShadow(color: Color.fromARGB(69, 0, 0, 0), blurRadius: 5)
-                  ],
-                  color: toucanWhite,
-                ),
-                child: Column(
-                  children: [
-                    Container(
-                      alignment: Alignment.centerLeft,
-                      padding: EdgeInsets.fromLTRB(25, 20, 10, 10),
-                      child: DropdownButton(
-                        isDense: true,
-                        dropdownColor: toucanWhite,
-                        value: _chosenTaskListTag,
-                        items: _taskListTags
-                            .map(
-                              (taskTag) => DropdownMenuItem(
-                                child: Container(
-                                  color: toucanWhite,
-                                  child: Text(
-                                    taskTag,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 20,
-                                    ),
-                                  ),
-                                ),
-                                value: taskTag,
-                              ),
-                            )
-                            .toList(),
-                        onChanged: (val) {
-                          setState(
-                            () {
-                              _chosenTaskListTag = val as String;
-                              _viewedTasks = getTasksList(_chosenTaskListTag);
-                            },
-                          );
-                        },
-                        underline: SizedBox(),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(10, 0, 10, 15),
+                    child: TableCalendar(
+                      rowHeight: 40,
+                      headerStyle: HeaderStyle(
+                          formatButtonVisible: false, titleCentered: true),
+                      availableGestures: AvailableGestures.all,
+                      selectedDayPredicate: (day) => isSameDay(day, today),
+                      focusedDay: today,
+                      firstDay: DateTime(2023),
+                      lastDay: DateTime(2200),
+                      calendarStyle: CalendarStyle(
+                        selectedDecoration: BoxDecoration(
+                          color: toucanOrange,
+                          shape: BoxShape.rectangle,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
                     ),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: _viewedTasks!.length,
-                        itemBuilder: (context, index) {
-                          return Card(
-                            margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                            child: ListTile(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              onTap: () {
-                                setState(() {
-                                  // TODO: update database, replace setter
-                                  _viewedTasks![index].isDone =
-                                      !_viewedTasks![index].isDone;
-                                });
+                  ),
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        boxShadow: <BoxShadow>[
+                          BoxShadow(
+                              color: Color.fromARGB(69, 0, 0, 0), blurRadius: 5)
+                        ],
+                        color: toucanWhite,
+                      ),
+                      child: Column(
+                        children: [
+                          // Task Titles Drop Down
+                          Container(
+                            alignment: Alignment.centerLeft,
+                            padding: EdgeInsets.fromLTRB(25, 20, 10, 10),
+                            child: DropdownButton(
+                              isDense: true,
+                              dropdownColor: toucanWhite,
+                              value: _chosenTaskListTag,
+                              items: _taskListTags
+                                  .map(
+                                    (taskTag) => DropdownMenuItem(
+                                      child: Container(
+                                        color: toucanWhite,
+                                        child: Text(
+                                          taskTag,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 20,
+                                          ),
+                                        ),
+                                      ),
+                                      value: taskTag,
+                                    ),
+                                  )
+                                  .toList(),
+                              onChanged: (val) {
+                                setState(
+                                  () {
+                                    _chosenTaskListTag = val as String;
+                                    _viewedTasks = getTasksList(
+                                        _chosenTaskListTag,
+                                        pastTasks!,
+                                        todayTasks!,
+                                        upcomingTasks!);
+                                  },
+                                );
                               },
-                              leading: Icon(
-                                (_viewedTasks![index].isDone == false)
-                                    ? Icons.circle_outlined
-                                    : Icons.check_circle_outline,
-                              ),
-                              title: Text(
-                                _viewedTasks![index].title,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontStyle: FontStyle.italic,
-                                ),
-                              ),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    visualDensity: VisualDensity.compact,
-                                    padding: EdgeInsets.zero,
-                                    iconSize: 30,
-                                    onPressed: () =>
-                                        showAddNewTask(_viewedTasks![index]),
-                                    icon: Icon(
-                                      Icons.edit_note_rounded,
-                                    ),
-                                  ),
-                                  IconButton(
-                                    visualDensity: VisualDensity.compact,
-                                    padding: EdgeInsets.zero,
-                                    iconSize: 25,
-                                    onPressed: () => showConfirmDeleteTask(
-                                        widget.uid!, _viewedTasks![index]),
-                                    icon: Icon(
-                                      Icons.delete_forever_rounded,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              iconColor: toucanOrange,
-                              selectedTileColor: Color(0xFF84C35D),
-                              selectedColor: toucanWhite,
-                              selected: _viewedTasks![index].isDone,
+                              underline: SizedBox(),
                             ),
-                          );
-                        },
+                          ),
+
+                          // List of Tasks
+                          Expanded(
+                            child: ListView.builder(
+                              itemCount: _viewedTasks!.length == 0
+                                  ? 1
+                                  : _viewedTasks!.length,
+                              itemBuilder: (context, index) {
+                                return _viewedTasks!.length == 0
+
+                                    // No tasks
+                                    ? Text(
+                                        "No tasks to be found here",
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontStyle: FontStyle.italic,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 15,
+                                          height: 2,
+                                        ),
+                                      )
+
+                                    // With Tasks
+                                    : Card(
+                                        margin: const EdgeInsets.fromLTRB(
+                                            20, 10, 20, 10),
+                                        child: ListTile(
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
+                                          onTap: () {
+                                            setState(() {
+                                              updateStatus(_viewedTasks![index],
+                                                  !_viewedTasks![index].isDone);
+                                            });
+                                          },
+                                          leading: Center(
+                                            widthFactor: 1,
+                                            child: Icon(
+                                              (_viewedTasks![index].isDone ==
+                                                      false)
+                                                  ? Icons.circle_outlined
+                                                  : Icons.check_circle_outline,
+                                            ),
+                                          ),
+                                          title: Text(
+                                            _viewedTasks![index].title,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontStyle: FontStyle.italic,
+                                            ),
+                                          ),
+                                          trailing: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              IconButton(
+                                                visualDensity:
+                                                    VisualDensity.compact,
+                                                padding: EdgeInsets.zero,
+                                                iconSize: 30,
+                                                onPressed: () => showEditTask(
+                                                    _viewedTasks![index]),
+                                                icon: Icon(
+                                                  Icons.edit_note_rounded,
+                                                ),
+                                              ),
+                                              IconButton(
+                                                visualDensity:
+                                                    VisualDensity.compact,
+                                                padding: EdgeInsets.zero,
+                                                iconSize: 25,
+                                                onPressed: () =>
+                                                    showConfirmDeleteTask(
+                                                        widget.uid,
+                                                        _viewedTasks![index]),
+                                                icon: Icon(
+                                                  Icons.delete_forever_rounded,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          iconColor: toucanOrange,
+                                          selectedTileColor: Color(0xFF84C35D),
+                                          selectedColor: toucanWhite,
+                                          selected: _viewedTasks![index].isDone,
+                                        ),
+                                      );
+                              },
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: BottomAppBar(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            IconButton(
-                onPressed: () {}, icon: Icon(Icons.calendar_today_rounded)),
-            IconButton(
-                onPressed: () {},
-                icon: Icon(Icons.home_rounded),
-                color: Colors.grey),
-            IconButton(
-                onPressed: () {},
-                icon: Icon(Icons.people_alt_rounded),
-                color: Colors.grey),
-          ],
-        ),
-      ),
     );
   }
 }
