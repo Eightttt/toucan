@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:toucan/models/taskModel.dart';
+import 'package:toucan/services/database.dart';
 
 class EditTask extends StatefulWidget {
   final TaskModel? task;
+  final String uid;
 
-  const EditTask(this.task, {super.key});
+  const EditTask({
+    required this.task,
+    required this.uid,
+  });
+
+  updateTaskStatus(bool isDone) async {
+    DatabaseService(uid: uid).updateTaskStatus(task!.id, isDone);
+  }
 
   @override
   State<EditTask> createState() => _EditTaskState();
@@ -13,7 +22,6 @@ class EditTask extends StatefulWidget {
 
 class _EditTaskState extends State<EditTask> {
   final formKey = GlobalKey<FormState>();
-  bool isLoading = false;
 
   String _taskTitle = "";
 
@@ -23,20 +31,13 @@ class _EditTaskState extends State<EditTask> {
 
   DateTime? _pickedDate;
 
-  void showLoading() {
-    setState(() {
-      isLoading = !isLoading;
-    });
-  }
-
   saveTask() async {
     final isValid = formKey.currentState?.validate();
     if (isValid!) {
       formKey.currentState!.save();
 
-      showLoading();
-      // TODO: add database save here
-      showLoading();
+      DatabaseService(uid: widget.uid)
+          .updateTaskData(widget.task?.id, _taskTitle, _chosenDate, false);
       print("Task title: $_taskTitle\nChosen date: $_chosenDate");
 
       Navigator.of(context).pop();
@@ -93,7 +94,7 @@ class _EditTaskState extends State<EditTask> {
                   ),
                   TextFormField(
                     initialValue: widget.task?.title,
-                    maxLength: 20,
+                    maxLength: 50,
                     decoration: InputDecoration(hintText: "Title:"),
                     validator: (value) {
                       if (value!.length <= 0) {
