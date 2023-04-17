@@ -2,11 +2,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:toucan/firebase_options.dart';
-import 'package:toucan/pages/home/calendar/calendar.dart';
 import 'package:toucan/pages/landing.dart';
 import 'package:toucan/models/userModel.dart';
 import 'package:toucan/services/auth.dart';
-import 'package:toucan/pages/home/dashboard/dashboard.dart';
 import 'package:toucan/services/notification.dart';
 
 Future main() async {
