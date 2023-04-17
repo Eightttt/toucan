@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:toucan/models/userDataModel.dart';
 import 'package:toucan/pages/authenticate/confirmation.dart';
 import 'package:toucan/pages/authenticate/welcome.dart';
 import 'package:toucan/models/userModel.dart';
-import 'package:toucan/pages/home/dashboard/dashboard.dart';
+import 'package:toucan/pages/home/home.dart';
 
-import '../models/goalModel.dart';
-import '../services/database.dart';
 
 class Landing extends StatefulWidget {
   Landing({Key? key}) : super(key: key);
@@ -34,20 +31,6 @@ class _LandingState extends State<Landing> {
         ? Welcome(toggleIsFirstTimeLogin: toggleIsFirstTimeLogin)
         : _isFirstTimeLogin
             ? Confirmation(toggleIsFirstTimeLogin: toggleIsFirstTimeLogin)
-            : MultiProvider(
-                providers: [
-                  StreamProvider<List<GoalModel>?>.value(
-                    value: DatabaseService(uid: uid).unarchivedGoals,
-                    initialData: null,
-                  ),
-                  StreamProvider<UserDataModel?>.value(
-                    value: DatabaseService(uid: uid).userData,
-                    initialData: null,
-                  ),
-                ],
-                child: Dashboard(
-                  uid: uid!,
-                ),
-              );
+            : Home(uid: uid!);
   }
 }

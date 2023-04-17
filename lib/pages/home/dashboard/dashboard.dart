@@ -8,7 +8,6 @@ import 'package:toucan/models/userDataModel.dart';
 import 'package:toucan/pages/home/dashboard/editGoal.dart';
 import 'package:toucan/pages/home/dashboard/editProfile.dart';
 import 'package:toucan/pages/home/dashboard/viewGoal.dart';
-import 'package:toucan/shared/bottomNavBar.dart';
 import "package:toucan/shared/fadingOnScroll.dart";
 import 'package:toucan/services/auth.dart';
 import 'package:toucan/services/database.dart';
@@ -32,6 +31,7 @@ class _DashboardState extends State<Dashboard> {
   double height = 200;
   bool _isAnimating = false;
   double _offset = 0;
+  int currentIndex = 1;
 
   @override
   void initState() {
@@ -232,7 +232,6 @@ class _DashboardState extends State<Dashboard> {
               child: Icon(
                 Icons.add,
               )),
-      bottomNavigationBar: BottomNavBar(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
