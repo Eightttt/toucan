@@ -27,7 +27,8 @@ class DatabaseService {
     if (uid != null) {
       await userDataCollection.doc(uid).set({
         "username": username,
-        "followerCode": (DateTime.now().millisecondsSinceEpoch * 10000) + Random().nextInt(10000),
+        "followerCode": (DateTime.now().millisecondsSinceEpoch * 10000) +
+            Random().nextInt(10000),
         "greeter": greeter,
         "notificationTime": _timeOfDayToFirebase(notificationTime),
         "urlProfilePhoto": urlProfilePhoto,
@@ -263,6 +264,7 @@ class DatabaseService {
             .collection("posts")
             .doc(postId)
             .update({
+          "uid": uid,
           "caption": caption,
           "imageURL": imageURL,
           "date": Timestamp.fromDate(DateTime.now()),
@@ -284,6 +286,7 @@ class DatabaseService {
     final Reference ref;
     String pathPostImage = 'photos/posts/$uid/$goalId/$postId.jpg';
 
+    // If platform is web
     if (kIsWeb) {
       ref = FirebaseStorage.instance
           .refFromURL("gs://toucan-8676b.appspot.com/")
@@ -294,6 +297,7 @@ class DatabaseService {
 
     try {
       UploadTask uploadTask;
+      // If platform is web
       if (kIsWeb) {
         uploadTask = ref.putData(await imageWeb!.readAsBytes(),
             SettableMetadata(contentType: 'jpg'));
@@ -314,6 +318,20 @@ class DatabaseService {
   // Posts list from snapshot
   List<PostModel> _postsListFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.docs.map((doc) {
+      return PostModel(
+        doc.id,
+        doc.get('caption'),
+        doc.get('imageURL'),
+        DateTime.fromMillisecondsSinceEpoch(
+            (doc.get('date') as Timestamp).millisecondsSinceEpoch),
+        doc.get('isEdited'),
+      );
+    }).toList();
+  }
+
+  // Posts list from snapshot
+  List<PostModel> _postsListOfOthersFromSnapshot(QuerySnapshot snapshot) {
+    return snapshot.docs.where((doc) => doc.get("uid") != uid).map((doc) {
       return PostModel(
         doc.id,
         doc.get('caption'),
@@ -351,11 +369,16 @@ class DatabaseService {
 
   // Get posts collection group stream
   Stream<List<PostModel>> get followingsPosts {
+    DateTime now = DateTime.now();
+    DateTime startOfDay = DateTime(now.year, now.month, now.day);
+    DateTime endOfDay = DateTime(now.year, now.month, now.day, 23, 59, 59);
     // Shows posts today of all followings excluding user's own posts
     return FirebaseFirestore.instance
         .collectionGroup("posts")
+        .where("date", isLessThanOrEqualTo: Timestamp.fromDate(endOfDay))
+        .where("date", isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
         .snapshots()
-        .map(_postsListFromSnapshot);
+        .map(_postsListOfOthersFromSnapshot);
   }
 
   // Post from snapshot
