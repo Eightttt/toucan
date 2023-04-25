@@ -33,6 +33,10 @@ class _HomeState extends State<Home> {
           StreamProvider<List<TaskModel>?>.value(
             value: DatabaseService(uid: widget.uid).tasks,
             initialData: null,
+            catchError: (context, error) {
+              print("Error: $error");
+              return null; // return a default value
+            },
           ),
         ],
         child: Calendar(uid: widget.uid),
@@ -44,10 +48,18 @@ class _HomeState extends State<Home> {
           StreamProvider<List<GoalModel>?>.value(
             value: DatabaseService(uid: widget.uid).unarchivedGoals,
             initialData: null,
+            catchError: (context, error) {
+              print("Error: $error");
+              return null; // return a default value
+            },
           ),
           StreamProvider<UserDataModel?>.value(
             value: DatabaseService(uid: widget.uid).userData,
             initialData: null,
+            catchError: (context, error) {
+              print("Error: $error");
+              return null; // return a default value
+            },
           ),
         ],
         child: Dashboard(uid: widget.uid),
@@ -59,6 +71,10 @@ class _HomeState extends State<Home> {
           StreamProvider<List<PostModel>?>.value(
             value: DatabaseService(uid: widget.uid).followingsPosts,
             initialData: null,
+            catchError: (context, error) {
+              print("Error: $error");
+              return null; // return a default value
+            },
           ),
         ],
         child: TempSocials(uid: widget.uid),
