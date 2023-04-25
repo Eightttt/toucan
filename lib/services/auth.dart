@@ -14,7 +14,7 @@ class AuthService {
       User? user = result.user;
 
       // create new document for user
-      await DatabaseService(uid: user?.uid).updateUserData(
+      await DatabaseService(uid: user?.uid).initializeUserData(
         username,
         "Have a great day, Toucan!",
         TimeOfDay(hour: 8, minute: 0),

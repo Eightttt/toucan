@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import "package:intl/intl.dart";
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:toucan/models/taskModel.dart';
@@ -209,8 +208,7 @@ class _CalendarState extends State<Calendar> {
 
   @override
   Widget build(BuildContext context) {
-    final List<TaskModel>? tasks =
-        Provider.of<List<TaskModel>?>(context, listen: true);
+    final List<TaskModel>? tasks = Provider.of<List<TaskModel>?>(context);
 
     if (tasks != null && tasks != _prevTasks) {
       DateTime now = DateTime.now();
@@ -303,7 +301,6 @@ class _CalendarState extends State<Calendar> {
                                   .map(
                                     (taskTag) => DropdownMenuItem(
                                       child: Container(
-                                        color: toucanWhite,
                                         child: Text(
                                           taskTag,
                                           style: TextStyle(

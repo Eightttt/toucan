@@ -8,6 +8,7 @@ import 'package:toucan/models/goalModel.dart';
 import 'package:toucan/models/postModel.dart';
 import 'package:toucan/models/taskModel.dart';
 import 'package:toucan/models/userDataModel.dart';
+import 'dart:math';
 
 class DatabaseService {
   final String? uid;
@@ -20,17 +21,48 @@ class DatabaseService {
   final CollectionReference userDataCollection =
       FirebaseFirestore.instance.collection('usersData');
 
-  // Future updateUserData()
-  Future updateUserData(String username, String greeter,
+  // Future initializeUserData()
+  Future initializeUserData(String username, String greeter,
       TimeOfDay notificationTime, String urlProfilePhoto) async {
-    // TODO: Add profile picture, friend code, friends list
+    if (uid != null) {
+      await userDataCollection.doc(uid).set({
+        "username": username,
+        "followerCode": (DateTime.now().millisecondsSinceEpoch * 10000) + Random().nextInt(10000),
+        "greeter": greeter,
+        "notificationTime": _timeOfDayToFirebase(notificationTime),
+        "urlProfilePhoto": urlProfilePhoto,
+        "followingList": [],
+      });
+    }
+  }
 
+  // Future initializeUserData()
+  Future updateUserData(
+    String username,
+    String greeter,
+    TimeOfDay notificationTime,
+    String urlProfilePhoto,
+  ) async {
     if (uid != null) {
       await userDataCollection.doc(uid).set({
         "username": username,
         "greeter": greeter,
         "notificationTime": _timeOfDayToFirebase(notificationTime),
         "urlProfilePhoto": urlProfilePhoto,
+      });
+    }
+  }
+
+  // Add new Following to User Data
+  Future addNewFollowing(
+    String otherUid,
+  ) async {
+    if (uid != null) {
+      DocumentSnapshot userDataDoc = await userDataCollection.doc(uid).get();
+      List<String> followingList = await userDataDoc.get("followingList");
+      followingList.add(otherUid);
+      await userDataCollection.doc(uid).set({
+        "followingList": followingList,
       });
     }
   }
@@ -315,6 +347,15 @@ class DatabaseService {
         .snapshots()
         .map((postSnapshot) =>
             !postSnapshot.exists ? null : _postFromSnapshot(postSnapshot));
+  }
+
+  // Get posts collection group stream
+  Stream<List<PostModel>> get followingsPosts {
+    // Shows posts today of all followings excluding user's own posts
+    return FirebaseFirestore.instance
+        .collectionGroup("posts")
+        .snapshots()
+        .map(_postsListFromSnapshot);
   }
 
   // Post from snapshot

@@ -64,7 +64,6 @@ class Buttons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     showLogInSheet() {
-      // TODO: Animate other elements
       return showModalBottomSheet<void>(
           enableDrag: false,
           context: context,
@@ -74,7 +73,6 @@ class Buttons extends StatelessWidget {
     }
 
     showSignUpSheet() {
-      // TODO: Animate other elements
       return showModalBottomSheet<void>(
           isScrollControlled: true,
           enableDrag: false,

@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:toucan/models/goalModel.dart';
+import 'package:toucan/models/postModel.dart';
 import 'package:toucan/models/taskModel.dart';
 import 'package:toucan/models/userDataModel.dart';
 import 'package:toucan/pages/home/calendar/calendar.dart';
 import 'package:toucan/pages/home/dashboard/dashboard.dart';
 import 'package:toucan/services/database.dart';
+
+import 'socials/tempSocials.dart';
 
 class Home extends StatefulWidget {
   final String uid;
@@ -51,7 +54,15 @@ class _HomeState extends State<Home> {
       ),
 
       // Socials Page = 2
-      Container(),
+      MultiProvider(
+        providers: [
+          StreamProvider<List<PostModel>?>.value(
+            value: DatabaseService(uid: widget.uid).followingsPosts,
+            initialData: null,
+          ),
+        ],
+        child: TempSocials(uid: widget.uid),
+      ),
     ];
     super.initState();
   }

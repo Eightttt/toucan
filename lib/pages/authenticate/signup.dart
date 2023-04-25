@@ -109,7 +109,6 @@ class _SignUpFormState extends State<SignUpForm> {
       widget.showLoading();
       dynamic result = await _authService.register(email, password, username);
       widget.showLoading();
-      //TODO: Save username into user data
 
       if (result == null) {
         final snackBar = SnackBar(
