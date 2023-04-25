@@ -8,6 +8,7 @@ import 'package:toucan/models/goalModel.dart';
 import 'package:toucan/models/postModel.dart';
 import 'package:toucan/models/taskModel.dart';
 import 'package:toucan/models/userDataModel.dart';
+import 'package:toucan/models/userFollowCodeModel.dart';
 import 'dart:math';
 
 class DatabaseService {
@@ -21,14 +22,26 @@ class DatabaseService {
   final CollectionReference userDataCollection =
       FirebaseFirestore.instance.collection('usersData');
 
+  // Get existing users stream
+  Stream<List<UserFollowCodeModel>> get existingUsers {
+    return userDataCollection.snapshots().map(_userFromSnapshot);
+  }
+
+  // User from Snapshot
+  List<UserFollowCodeModel> _userFromSnapshot(QuerySnapshot snapshot) {
+    return snapshot.docs.map((doc) {
+      return UserFollowCodeModel(followCode: doc.get("followCode"));
+    }).toList();
+  }
+
   // Future initializeUserData()
   Future initializeUserData(String username, String greeter,
       TimeOfDay notificationTime, String urlProfilePhoto) async {
     if (uid != null) {
       await userDataCollection.doc(uid).set({
         "username": username,
-        "followerCode": (DateTime.now().millisecondsSinceEpoch * 10000) +
-            Random().nextInt(10000),
+        "followCode": (DateTime.now().millisecondsSinceEpoch * 1000) +
+            Random().nextInt(1000),
         "greeter": greeter,
         "notificationTime": _timeOfDayToFirebase(notificationTime),
         "urlProfilePhoto": urlProfilePhoto,
@@ -37,7 +50,7 @@ class DatabaseService {
     }
   }
 
-  // Future initializeUserData()
+  // Future updateUserData()
   Future updateUserData(
     String username,
     String greeter,
@@ -55,7 +68,7 @@ class DatabaseService {
   }
 
   // Add new Following to User Data
-  Future addNewFollowing(
+  Future followUser(
     String otherUid,
   ) async {
     if (uid != null) {
@@ -82,6 +95,18 @@ class DatabaseService {
   // Get userdata stream
   Stream<UserDataModel> get userData {
     return userDataCollection.doc(uid).snapshots().map(_userDataFromSnapshot);
+  }
+
+  // Get user follow code
+  Future<int> get followCode async {
+    DocumentSnapshot userDataDoc = await userDataCollection.doc(uid).get();
+    return await userDataDoc.get("followCode");
+  }
+
+  // Get user follow list
+  Future<List<dynamic>> get followingList async {
+    DocumentSnapshot userDataDoc = await userDataCollection.doc(uid).get();
+    return await userDataDoc.get("followingList");
   }
 
   // Format timeOfDay to Map to save in Firebase
