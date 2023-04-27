@@ -53,6 +53,7 @@ class DatabaseService {
 
   // Future updateUserData()
   Future updateUserData(
+    int followCode,
     String username,
     String greeter,
     TimeOfDay notificationTime,
@@ -65,6 +66,15 @@ class DatabaseService {
         "notificationTime": _timeOfDayToFirebase(notificationTime),
         "urlProfilePhoto": urlProfilePhoto,
       });
+
+      // Update username field of all posts
+      await FirebaseFirestore.instance
+          .collectionGroup("posts")
+          .where("followCode", isEqualTo: followCode)
+          .get()
+          .then((snapshot) => snapshot.docs.forEach((doc) {
+                doc.reference.update({"username": username});
+              }));
     }
   }
 
@@ -198,6 +208,7 @@ class DatabaseService {
     return userDataCollection
         .doc(uid)
         .collection("goals")
+        .orderBy("endDate", descending: true)
         .snapshots()
         .map(_goalsListFromSnapshot);
   }
@@ -394,6 +405,7 @@ class DatabaseService {
         .collection("goals")
         .doc(goalId)
         .collection("posts")
+        .orderBy("date", descending: true)
         .snapshots()
         .map(_postsListFromSnapshot);
   }
@@ -421,6 +433,7 @@ class DatabaseService {
         .collectionGroup("posts")
         .where("date", isLessThanOrEqualTo: Timestamp.fromDate(endOfDay))
         .where("date", isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
+        .orderBy("date")
         .snapshots()
         .map(_postsListOfOthersFromSnapshot);
   }

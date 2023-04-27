@@ -98,6 +98,7 @@ class _EditProfileState extends State<EditProfile> {
       _urlProfilePhoto = await databaseService.uploadProfilePhoto(
           _profilePhoto, _profilePhotoWeb, setUploadTask);
       DatabaseService(uid: widget.uid).updateUserData(
+        userData.followCode,
         _username,
         _greeter,
         _notificationTime ?? userData.notificationTime,
