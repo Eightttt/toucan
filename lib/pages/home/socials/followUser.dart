@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:toucan/models/userFollowCodeModel.dart';
+import 'package:toucan/services/database.dart';
 
 class FollowUser extends StatefulWidget {
   FollowUser(
@@ -26,12 +27,11 @@ class _FollowUserState extends State<FollowUser> {
 
   String _theirFriendCode = "";
 
-  followUser(BuildContext context) {
+  followUser(BuildContext context) async {
     final isValid = formKeyFollow.currentState?.validate();
     if (isValid != null && isValid) {
       formKeyFollow.currentState!.save();
-      print(_theirFriendCode);
-      // DatabaseService(uid: uid).followUser(otherUid);
+      await DatabaseService(uid: widget.uid).followUser(int.parse(_theirFriendCode));
       Navigator.of(context).pop();
     }
   }
