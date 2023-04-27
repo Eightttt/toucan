@@ -58,7 +58,7 @@ class DatabaseService {
     String urlProfilePhoto,
   ) async {
     if (uid != null) {
-      await userDataCollection.doc(uid).set({
+      await userDataCollection.doc(uid).update({
         "username": username,
         "greeter": greeter,
         "notificationTime": _timeOfDayToFirebase(notificationTime),
@@ -69,13 +69,13 @@ class DatabaseService {
 
   // Add new Following to User Data
   Future followUser(
-    String otherUid,
+    int followCode,
   ) async {
     if (uid != null) {
       DocumentSnapshot userDataDoc = await userDataCollection.doc(uid).get();
-      List<String> followingList = await userDataDoc.get("followingList");
-      followingList.add(otherUid);
-      await userDataCollection.doc(uid).set({
+      List<dynamic> followingList = await userDataDoc.get("followingList");
+      followingList.add(followCode);
+      await userDataCollection.doc(uid).update({
         "followingList": followingList,
       });
     }
@@ -289,7 +289,7 @@ class DatabaseService {
             .collection("posts")
             .doc(postId)
             .update({
-          "uid": uid,
+          "followCode": followCode,
           "caption": caption,
           "imageURL": imageURL,
           "date": Timestamp.fromDate(DateTime.now()),
@@ -344,6 +344,7 @@ class DatabaseService {
   List<PostModel> _postsListFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.docs.map((doc) {
       return PostModel(
+        doc.get('followCode'),
         doc.id,
         doc.get('caption'),
         doc.get('imageURL'),
@@ -356,8 +357,9 @@ class DatabaseService {
 
   // Posts list from snapshot
   List<PostModel> _postsListOfOthersFromSnapshot(QuerySnapshot snapshot) {
-    return snapshot.docs.where((doc) => doc.get("uid") != uid).map((doc) {
+    return snapshot.docs.where((doc) => doc.get("followCode") != followCode).map((doc) {
       return PostModel(
+        doc.get('followCode'),
         doc.id,
         doc.get('caption'),
         doc.get('imageURL'),
@@ -409,6 +411,7 @@ class DatabaseService {
   // Post from snapshot
   PostModel _postFromSnapshot(DocumentSnapshot postSnapshot) {
     return PostModel(
+      postSnapshot.get('followCode'),
       postSnapshot.id,
       postSnapshot.get('caption'),
       postSnapshot.get('imageURL'),
