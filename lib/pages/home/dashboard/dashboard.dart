@@ -433,10 +433,18 @@ class GoalCard extends StatelessWidget {
                     StreamProvider<GoalModel?>.value(
                       value: DatabaseService(uid: uid).getGoal(goal.id),
                       initialData: null,
+                      catchError: (context, error) {
+                        print("Error: $error");
+                        return null; // return a default value
+                      },
                     ),
                     StreamProvider<List<PostModel>?>.value(
                       value: DatabaseService(uid: uid).getPosts(goal.id),
                       initialData: null,
+                      catchError: (context, error) {
+                        print("Error: $error");
+                        return null; // return a default value
+                      },
                     ),
                   ],
                   child: ViewGoal(),

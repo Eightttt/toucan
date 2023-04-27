@@ -51,6 +51,10 @@ class ToucanApp extends StatelessWidget {
     return StreamProvider<UserModel?>.value(
       value: AuthService().user,
       initialData: null,
+      catchError: (context, error) {
+        print("Error: $error");
+        return null; // return a default value
+      },
       child: MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(

@@ -77,7 +77,7 @@ class _HomeState extends State<Home> {
             },
           ),
         ],
-        child: StreamProvider.value(
+        child: StreamProvider<UserDataModel?>.value(
           value: DatabaseService(uid: widget.uid).userData,
           initialData: null,
           catchError: (context, error) {

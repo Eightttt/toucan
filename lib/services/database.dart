@@ -279,7 +279,7 @@ class DatabaseService {
             .doc(goalId)
             .collection("posts")
             .doc(postId)
-            .update({
+            .set({
           "followCode": followCode,
           "caption": caption,
           "imageURL": imageURL,
@@ -348,8 +348,7 @@ class DatabaseService {
 
   // Posts list from snapshot
   List<PostModel> _postsListOfOthersFromSnapshot(QuerySnapshot snapshot) {
-    return snapshot.docs
-        .map((doc) {
+    return snapshot.docs.map((doc) {
       return PostModel(
         doc.get('followCode'),
         doc.id,

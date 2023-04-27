@@ -419,6 +419,10 @@ class _ViewGoalState extends State<ViewGoal> {
               builder: (context) => StreamProvider<UserDataModel?>.value(
                 value: DatabaseService(uid: user.uid).userData,
                 initialData: null,
+                catchError: (context, error) {
+                  print("Error: $error");
+                  return null; // return a default value
+                },
                 child: EditPost(
                   uid: user.uid,
                   goalId: goal?.id,
@@ -707,6 +711,10 @@ class _PostCardState extends State<PostCard> {
         builder: (context) => StreamProvider<UserDataModel?>.value(
           value: DatabaseService(uid: widget.uid).userData,
           initialData: null,
+          catchError: (context, error) {
+            print("Error: $error");
+            return null; // return a default value
+          },
           child: EditPost(
             uid: widget.uid,
             goalId: widget.goalId,
