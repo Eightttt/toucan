@@ -122,13 +122,14 @@ class _EditTaskState extends State<EditTask> {
                     ),
                     controller: _chosenDateController,
                     onTap: () async {
-                      _pickedDate = await showDatePicker(
+                      DateTime? tempPickedDate = await showDatePicker(
                         context: context,
                         initialDate: _pickedDate ?? DateTime.now(),
                         firstDate: DateTime(2023),
                         lastDate: DateTime(2200),
                       );
-                      if (_pickedDate != null) {
+                      if (tempPickedDate != null) {
+                        _pickedDate = tempPickedDate;
                         _chosenDateController.text =
                             DateFormat('MMMM dd, yyyy').format(_pickedDate!);
                       }
