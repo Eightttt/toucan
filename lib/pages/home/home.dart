@@ -77,7 +77,15 @@ class _HomeState extends State<Home> {
             },
           ),
         ],
-        child: TempSocials(uid: widget.uid),
+        child: StreamProvider.value(
+          value: DatabaseService(uid: widget.uid).userData,
+          initialData: null,
+          catchError: (context, error) {
+            print("Error: $error");
+            return null; // return a default value
+          },
+          child: TempSocials(uid: widget.uid),
+        ),
       ),
     ];
     super.initState();
