@@ -39,6 +39,7 @@ class DatabaseService {
       TimeOfDay notificationTime, String urlProfilePhoto) async {
     if (uid != null) {
       await userDataCollection.doc(uid).set({
+        "uid": uid,
         "username": username,
         "followCode": (DateTime.now().millisecondsSinceEpoch * 1000) +
             Random().nextInt(1000),
@@ -85,6 +86,7 @@ class DatabaseService {
   UserDataModel _userDataFromSnapshot(DocumentSnapshot userDataDoc) {
     //
     return UserDataModel(
+      userDataDoc.get("uid"),
       userDataDoc.get("username"),
       userDataDoc.get("followingList"),
       userDataDoc.get("followCode"),
@@ -97,6 +99,27 @@ class DatabaseService {
   // Get userdata stream
   Stream<UserDataModel> get userData {
     return userDataCollection.doc(uid).snapshots().map(_userDataFromSnapshot);
+  }
+
+  // User data from snapshot
+  List<UserDataModel> _followingsUserDataFromSnapshot(QuerySnapshot snapshot) {
+    //
+    return snapshot.docs
+        .map((userDataDoc) => UserDataModel(
+              userDataDoc.get("uid"),
+              userDataDoc.get("username"),
+              userDataDoc.get("followingList"),
+              userDataDoc.get("followCode"),
+              userDataDoc.get("greeter"),
+              _timeOfDayFromFirebase(userDataDoc.get("notificationTime")),
+              userDataDoc.get("urlProfilePhoto"),
+            ))
+        .toList();
+  }
+
+  // Get list of userdata of users you follow stream
+  Stream<List<UserDataModel>> get followingsUsersData {
+    return userDataCollection.snapshots().map(_followingsUserDataFromSnapshot);
   }
 
   // Format timeOfDay to Map to save in Firebase

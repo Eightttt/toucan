@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:toucan/models/goalModel.dart';
+import 'package:toucan/models/userModel.dart';
 import 'package:toucan/services/database.dart';
 
 class EditGoal extends StatefulWidget {
-  final String uid;
   final GoalModel? goal;
-  const EditGoal({Key? key, required this.uid, required this.goal})
-      : super(key: key);
+  const EditGoal({Key? key, required this.goal}) : super(key: key);
 
   @override
   State<EditGoal> createState() => _EditGoalState();
@@ -54,11 +54,11 @@ class _EditGoalState extends State<EditGoal> {
     }
   }
 
-  saveGoal() {
+  saveGoal(String uid) {
     final isValid = formKeyGoal.currentState?.validate();
     if (isValid != null && isValid) {
       formKeyGoal.currentState!.save();
-      DatabaseService(uid: widget.uid).updateGoalData(
+      DatabaseService(uid: uid).updateGoalData(
         widget.goal?.id,
         _goalTitle,
         _chosenGoalTag,
@@ -77,6 +77,7 @@ class _EditGoalState extends State<EditGoal> {
 
   @override
   Widget build(BuildContext context) {
+    final UserModel user = Provider.of<UserModel>(context);
     return Container(
       decoration: BoxDecoration(
           color: Color(0xFFFDFDF5),
@@ -302,7 +303,7 @@ class _EditGoalState extends State<EditGoal> {
                       Expanded(
                         flex: 4,
                         child: ElevatedButton(
-                            onPressed: () => saveGoal(),
+                            onPressed: () => saveGoal(user.uid),
                             style: ElevatedButton.styleFrom(
                               elevation: 4,
                             ),

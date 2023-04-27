@@ -13,7 +13,8 @@ import 'editGoal.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class ViewGoal extends StatefulWidget {
-  const ViewGoal({super.key});
+  final String? othersUid;
+  const ViewGoal({super.key, this.othersUid});
 
   @override
   State<ViewGoal> createState() => _ViewGoalState();
@@ -94,7 +95,7 @@ class _ViewGoalState extends State<ViewGoal> {
         _scrollController.offset > (height - kToolbarHeight) / 2;
   }
 
-  showEditGoal(String uid, GoalModel goal) {
+  showEditGoal(GoalModel goal) {
     return showModalBottomSheet<void>(
         isScrollControlled: true,
         backgroundColor: Colors.transparent,
@@ -103,7 +104,6 @@ class _ViewGoalState extends State<ViewGoal> {
         context: context,
         builder: (BuildContext context) {
           return EditGoal(
-            uid: uid,
             goal: goal,
           );
         });
@@ -136,7 +136,7 @@ class _ViewGoalState extends State<ViewGoal> {
                         padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
                         child: ElevatedButton.icon(
                           icon: Icon(Icons.edit_outlined),
-                          onPressed: () => showEditGoal(uid, goal),
+                          onPressed: () => showEditGoal(goal),
                           label: Text(
                             "Edit Goal",
                             style: TextStyle(fontSize: 14),
@@ -389,14 +389,16 @@ class _ViewGoalState extends State<ViewGoal> {
                               height: kToolbarHeight,
                             ),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 16),
-                            child: IconButton(
-                                color: Colors.black,
-                                icon: Icon(Icons.more_horiz),
-                                onPressed: () =>
-                                    showGoalOptions(user.uid, goal)),
-                          ),
+                          widget.othersUid != null
+                              ? SizedBox()
+                              : Padding(
+                                  padding: const EdgeInsets.only(right: 16),
+                                  child: IconButton(
+                                      color: Colors.black,
+                                      icon: Icon(Icons.more_horiz),
+                                      onPressed: () =>
+                                          showGoalOptions(user.uid, goal)),
+                                ),
                         ],
                       ),
                       flexibleSpace: FlexibleAppBar(
@@ -408,34 +410,37 @@ class _ViewGoalState extends State<ViewGoal> {
                 body: PostsListView(
                   posts: posts,
                   uid: user.uid,
+                  othersUid: widget.othersUid,
                   goalId: goal.id,
                 ),
               ),
             ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => StreamProvider<UserDataModel?>.value(
-                value: DatabaseService(uid: user.uid).userData,
-                initialData: null,
-                catchError: (context, error) {
-                  print("Error: $error");
-                  return null; // return a default value
-                },
-                child: EditPost(
-                  uid: user.uid,
-                  goalId: goal?.id,
-                  post: null,
-                ),
+      floatingActionButton: widget.othersUid != null
+          ? null
+          : FloatingActionButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => StreamProvider<UserDataModel?>.value(
+                      value: DatabaseService(uid: user.uid).userData,
+                      initialData: null,
+                      catchError: (context, error) {
+                        print("Error: $error");
+                        return null; // return a default value
+                      },
+                      child: EditPost(
+                        uid: user.uid,
+                        goalId: goal?.id,
+                        post: null,
+                      ),
+                    ),
+                  ),
+                );
+              },
+              child: Icon(
+                Icons.add,
               ),
             ),
-          );
-        },
-        child: Icon(
-          Icons.add,
-        ),
-      ),
       floatingActionButtonLocation:
           FloatingActionButtonLocation.miniCenterFloat,
     );
@@ -562,6 +567,7 @@ class FlexibleAppBar extends StatelessWidget {
 
 class PostsListView extends StatefulWidget {
   final List<PostModel> posts;
+  final String? othersUid;
   final String uid;
   final String goalId;
 
@@ -569,6 +575,7 @@ class PostsListView extends StatefulWidget {
     super.key,
     required this.posts,
     required this.uid,
+    required this.othersUid,
     required this.goalId,
   });
 
@@ -582,7 +589,7 @@ class _PostsListViewState extends State<PostsListView> {
     return CustomScrollView(
       slivers: [
         SliverPadding(
-          padding: EdgeInsets.fromLTRB(32, 6, 32, 90),
+          padding: EdgeInsets.fromLTRB(32, 26, 32, 90),
           sliver: SliverList(
             delegate: SliverChildBuilderDelegate(
               (BuildContext context, int index) {
@@ -597,10 +604,16 @@ class _PostsListViewState extends State<PostsListView> {
                           height: 2,
                         ),
                       )
-                    : PostCard(
-                        post: widget.posts[index],
-                        uid: widget.uid,
-                        goalId: widget.goalId,
+                    : Padding(
+                        padding: widget.othersUid != null
+                            ? EdgeInsets.only(top: 10, bottom: 10)
+                            : EdgeInsets.zero,
+                        child: PostCard(
+                          post: widget.posts[index],
+                          uid: widget.uid,
+                          othersUid: widget.othersUid,
+                          goalId: widget.goalId,
+                        ),
                       );
               },
               childCount: widget.posts.length == 0 ? 1 : widget.posts.length,
@@ -617,12 +630,14 @@ class PostCard extends StatefulWidget {
     super.key,
     required this.post,
     required this.uid,
+    required this.othersUid,
     required this.goalId,
   });
 
   final PostModel post;
   final String uid;
   final String goalId;
+  final String? othersUid;
 
   @override
   State<PostCard> createState() => _PostCardState();
@@ -866,15 +881,17 @@ class _PostCardState extends State<PostCard> {
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(right: 10.0, bottom: 3),
-              child: IconButton(
-                  padding: EdgeInsets.zero,
-                  alignment: Alignment.bottomRight,
-                  color: Color.fromARGB(255, 91, 91, 91),
-                  icon: Icon(Icons.more_horiz),
-                  onPressed: () => showPostOptions()),
-            )
+            widget.othersUid != null
+                ? SizedBox()
+                : Padding(
+                    padding: const EdgeInsets.only(right: 10.0, bottom: 3),
+                    child: IconButton(
+                        padding: EdgeInsets.zero,
+                        alignment: Alignment.bottomRight,
+                        color: Color.fromARGB(255, 91, 91, 91),
+                        icon: Icon(Icons.more_horiz),
+                        onPressed: () => showPostOptions()),
+                  )
           ],
         ),
         Card(
