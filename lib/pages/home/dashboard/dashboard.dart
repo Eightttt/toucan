@@ -86,7 +86,6 @@ class _DashboardState extends State<Dashboard> {
         _isAnimating = false;
       });
     });
-
   }
 
   bool get _isShrink {
@@ -279,86 +278,157 @@ class FlexibleAppBar extends StatelessWidget {
         color: Color(0xfff28705),
         padding: EdgeInsets.only(
             top: AppBar().preferredSize.height / 2, left: 15, right: 15),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            SizedBox(height: otherUid != null ? 5 : 0),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: Text(
-                    otherUid == null
-                        ? '${DateFormat('MMM dd').format(today)}'
-                        : username,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 48,
-                    ),
-                  ),
-                ),
-                ClipOval(
-                  child: Container(
-                    color: Color(0xFFFDFDF5),
-                    height: imageSize,
-                    width: imageSize,
-                    child: CachedNetworkImage(
-                      imageUrl: urlProfilePhoto,
-                      fit: BoxFit.cover,
-                      progressIndicatorBuilder: (context, url, progress) {
-                        return Container(
-                          margin: EdgeInsets.all(imageSize * .35),
-                          width: imageSize * .3,
-                          height: imageSize * .3,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                          ),
-                          child: CircularProgressIndicator(
-                            color: Color(0xfff28705),
-                            backgroundColor: Color.fromARGB(69, 242, 135, 5),
-                            strokeWidth: 4,
-                            value: progress.totalSize != null
-                                ? progress.downloaded / progress.totalSize!
-                                : null,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Text(
-                    description,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontStyle: FontStyle.italic,
-                      fontSize: 20,
-                    ),
-                    maxLines: 4,
-                    softWrap: true,
-                  ),
-                ),
-                otherUid != null
-                    ? SizedBox()
-                    : IconButton(
-                        color: Colors.black,
-                        onPressed: () => showDialog(
-                            context: context,
-                            builder: (context) => Settings(uid: uid)),
-                        icon: Icon(Icons.settings),
+        child: otherUid != null
+            ? Padding(
+                padding: const EdgeInsets.only(left: 20, top: 10, right: 20),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    ClipOval(
+                      child: Container(
+                        color: Color(0xFFFDFDF5),
+                        height: imageSize,
+                        width: imageSize,
+                        child: CachedNetworkImage(
+                          imageUrl: urlProfilePhoto,
+                          fit: BoxFit.cover,
+                          progressIndicatorBuilder: (context, url, progress) {
+                            return Container(
+                              margin: EdgeInsets.all(imageSize * .35),
+                              width: imageSize * .3,
+                              height: imageSize * .3,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                              ),
+                              child: CircularProgressIndicator(
+                                color: Color(0xfff28705),
+                                backgroundColor:
+                                    Color.fromARGB(69, 242, 135, 5),
+                                strokeWidth: 4,
+                                value: progress.totalSize != null
+                                    ? progress.downloaded / progress.totalSize!
+                                    : null,
+                              ),
+                            );
+                          },
+                        ),
                       ),
-              ],
-            ),
-          ],
-        ),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 20),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              username,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 20,
+                              ),
+                              maxLines: 4,
+                              softWrap: true,
+                            ),
+                            SizedBox(height: 5),
+                            Text(
+                              description,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 20,
+                              ),
+                              maxLines: 6,
+                              softWrap: true,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  SizedBox(height: 0),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 20),
+                        child: Text(
+                          otherUid == null
+                              ? '${DateFormat('MMM dd').format(today)}'
+                              : username,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 48,
+                          ),
+                        ),
+                      ),
+                      ClipOval(
+                        child: Container(
+                          color: Color(0xFFFDFDF5),
+                          height: imageSize,
+                          width: imageSize,
+                          child: CachedNetworkImage(
+                            imageUrl: urlProfilePhoto,
+                            fit: BoxFit.cover,
+                            progressIndicatorBuilder: (context, url, progress) {
+                              return Container(
+                                margin: EdgeInsets.all(imageSize * .35),
+                                width: imageSize * .3,
+                                height: imageSize * .3,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                ),
+                                child: CircularProgressIndicator(
+                                  color: Color(0xfff28705),
+                                  backgroundColor:
+                                      Color.fromARGB(69, 242, 135, 5),
+                                  strokeWidth: 4,
+                                  value: progress.totalSize != null
+                                      ? progress.downloaded /
+                                          progress.totalSize!
+                                      : null,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          description,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontStyle: FontStyle.italic,
+                            fontSize: 20,
+                          ),
+                          maxLines: 4,
+                          softWrap: true,
+                        ),
+                      ),
+                      otherUid != null
+                          ? SizedBox()
+                          : IconButton(
+                              color: Colors.black,
+                              onPressed: () => showDialog(
+                                  context: context,
+                                  builder: (context) => Settings(uid: uid)),
+                              icon: Icon(Icons.settings),
+                            ),
+                    ],
+                  ),
+                ],
+              ),
       ),
     );
   }
