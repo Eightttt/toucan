@@ -23,6 +23,7 @@ class _SocialsState extends State<Socials> {
   Color toucanWhite = Color(0xFFFDFDF5);
   List<PostModel>? yourFollowingsPosts;
   List<UserDataModel>? yourFollowingsUserData;
+  final double imageSize = 60;
 
   showFollowUser(
       String uid, int yourFollowCode, List<dynamic> yourFollowingList) {
@@ -105,25 +106,57 @@ class _SocialsState extends State<Socials> {
               toolbarHeight: kToolbarHeight + 30,
               elevation: 4,
               title: Container(
-                height: kToolbarHeight,
+                height: imageSize,
                 color: toucanOrange,
                 child: ListView.builder(
                   padding: EdgeInsets.zero,
                   scrollDirection: Axis.horizontal,
-                  itemCount: yourFollowingsUserData!.length,
+                  itemCount: yourFollowingsUserData!.length == 0
+                      ? 1
+                      : yourFollowingsUserData!.length,
                   itemBuilder: (context, index) {
-                    return Container(
-                      alignment: Alignment.center,
-                      width: 80,
-                      child: GestureDetector(
-                        onTap: () => openFollowingUserProfile(
-                            yourFollowingsUserData![index].uid),
-                        child: ClipOval(
-                          child: Image.network(
-                              yourFollowingsUserData![index].urlProfilePhoto),
-                        ),
-                      ),
-                    );
+                    return yourFollowingsUserData!.length == 0
+                        ? ClipOval(
+                            child: Image.asset("assets/toucan-title-logo.png"),
+                          )
+                        : Padding(
+                            padding: EdgeInsets.only(left: 8, right: 8),
+                            child: ClipOval(
+                              child: Container(
+                                width: imageSize,
+                                height: imageSize,
+                                color: toucanWhite,
+                                child: GestureDetector(
+                                  onTap: () => openFollowingUserProfile(
+                                      yourFollowingsUserData![index].uid),
+                                  child: CachedNetworkImage(
+                                    imageUrl: yourFollowingsUserData![index]
+                                        .urlProfilePhoto,
+                                    fit: BoxFit.cover,
+                                    progressIndicatorBuilder:
+                                        (context, url, progress) {
+                                      return Container(
+                                        margin: EdgeInsets.all(imageSize * .2),
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: CircularProgressIndicator(
+                                          color: Color(0xfff28705),
+                                          backgroundColor:
+                                              Color.fromARGB(69, 242, 135, 5),
+                                          strokeWidth: 4,
+                                          value: progress.totalSize != null
+                                              ? progress.downloaded /
+                                                  progress.totalSize!
+                                              : null,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
                   },
                 ),
               ),
@@ -138,17 +171,22 @@ class _SocialsState extends State<Socials> {
             )
           : ListView.builder(
               padding: EdgeInsets.only(top: 20, bottom: 80),
-              itemCount: yourFollowingsPosts!.length,
+              itemCount: yourFollowingsPosts!.length == 0
+                  ? 1
+                  : yourFollowingsPosts!.length,
               itemBuilder: (context, index) {
                 return yourFollowingsPosts!.length == 0
-                    ? Text(
-                        "No posts to be found here\nFollow people to see their posts",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontStyle: FontStyle.italic,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 15,
-                          height: 2,
+                    ? Padding(
+                        padding: EdgeInsets.fromLTRB(32, 50, 32, 10),
+                        child: Text(
+                          "No posts to be found here\nFollow people to see their posts",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontStyle: FontStyle.italic,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                            height: 2,
+                          ),
                         ),
                       )
                     : Padding(
