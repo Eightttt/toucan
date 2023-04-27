@@ -242,7 +242,7 @@ class _CalendarState extends State<Calendar> {
             ),
             IconButton(
               onPressed: () => showEditTask(null),
-              icon: Icon(Icons.add_circle_outline_rounded),
+              icon: Icon(Icons.add_task_rounded),
               color: toucanOrange,
               iconSize: 35,
             ),
@@ -289,10 +289,9 @@ class _CalendarState extends State<Calendar> {
                       ),
                       child: Column(
                         children: [
-                          // Task Titles Drop Down
                           Container(
                             alignment: Alignment.centerLeft,
-                            padding: EdgeInsets.fromLTRB(25, 20, 10, 10),
+                            padding: EdgeInsets.fromLTRB(25, 20, 18, 15),
                             child: DropdownButton(
                               isDense: true,
                               dropdownColor: toucanWhite,
@@ -328,7 +327,12 @@ class _CalendarState extends State<Calendar> {
                               underline: SizedBox(),
                             ),
                           ),
-
+                          Divider(
+                            height: 0,
+                            thickness: 1,
+                            indent: 15,
+                            endIndent: 15,
+                          ),
                           // List of Tasks
                           Expanded(
                             child: ListView.builder(
