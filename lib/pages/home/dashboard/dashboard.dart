@@ -15,8 +15,8 @@ import 'package:toucan/services/notification.dart';
 import '../../../shared/loading.dart';
 
 class Dashboard extends StatefulWidget {
-  const Dashboard({Key? key, required this.uid}) : super(key: key);
-  final String uid;
+  final String? othersUid;
+  const Dashboard({Key? key, this.othersUid}) : super(key: key);
 
   @override
   State<Dashboard> createState() => _DashboardState();
@@ -115,13 +115,16 @@ class _DashboardState extends State<Dashboard> {
         context: context,
         builder: (BuildContext context) {
           // Pass null to goalUid to create a new goal with a unique UID
-          return EditGoal(uid: widget.uid, goal: null);
+          return EditGoal(goal: null);
         });
   }
 
-  scheduleNotificationDates(
-      List<GoalModel>? unarchivedGoals, UserDataModel? userData) {
-    if (userData != null && unarchivedGoals != null) {
+  scheduleNotificationDates(List<GoalModel>? goals, UserDataModel? userData) {
+    if (userData != null && goals != null) {
+      List<GoalModel> unarchivedGoals = goals
+          .where((goal) =>
+              goal.endDate.isAfter(DateTime.now().subtract(Duration(days: 1))))
+          .toList();
       if (userData != prevUserData || unarchivedGoals != prevUnarchivedGoals) {
         prevUserData = userData;
         prevUnarchivedGoals = unarchivedGoals;
@@ -136,8 +139,7 @@ class _DashboardState extends State<Dashboard> {
   @override
   Widget build(BuildContext context) {
     final UserDataModel? userData = Provider.of<UserDataModel?>(context);
-    final List<GoalModel>? unarchivedGoals =
-        Provider.of<List<GoalModel>?>(context);
+    final List<GoalModel>? goals = Provider.of<List<GoalModel>?>(context);
     DateTime today = new DateTime.now();
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -154,11 +156,13 @@ class _DashboardState extends State<Dashboard> {
       });
 
       // Schedule the new notification dates as dashboard finished building
-      scheduleNotificationDates(unarchivedGoals, userData);
+      if (widget.othersUid == null) {
+        scheduleNotificationDates(goals, userData);
+      }
     });
 
     return Scaffold(
-      body: unarchivedGoals == null || userData == null
+      body: goals == null || userData == null
           ? Stack(
               children: [
                 ListView(
@@ -178,10 +182,18 @@ class _DashboardState extends State<Dashboard> {
                 headerSliverBuilder: (context, innerBoxIsScrolled) {
                   return [
                     SliverAppBar(
+                      titleSpacing: 0,
                       backgroundColor: Color(0xFFFDFDF5),
                       elevation: 5,
                       pinned: true,
                       expandedHeight: height,
+                      leading: widget.othersUid == null
+                          ? null
+                          : IconButton(
+                              color: Colors.black,
+                              icon: Icon(Icons.arrow_back_ios_new_sharp),
+                              onPressed: () => Navigator.of(context).pop(),
+                            ),
                       title: FadingOnScroll(
                         scrollController: _scrollController,
                         offset: _offset,
@@ -193,37 +205,42 @@ class _DashboardState extends State<Dashboard> {
                               fit: BoxFit.fitHeight,
                               height: kToolbarHeight,
                             ),
-                            IconButton(
-                              disabledColor: Colors.black,
-                              enableFeedback: !_isShrink ? false : true,
-                              onPressed: _isShrink
-                                  ? () => showDialog(
-                                      context: context,
-                                      builder: (context) => Settings(
-                                            uid: widget.uid,
-                                          ))
-                                  : null,
-                              icon: Icon(Icons.settings),
-                            ),
+                            widget.othersUid != null
+                                ? SizedBox()
+                                : IconButton(
+                                    disabledColor: Colors.black,
+                                    enableFeedback: !_isShrink ? false : true,
+                                    onPressed: _isShrink
+                                        ? () => showDialog(
+                                            context: context,
+                                            builder: (context) => Settings(
+                                                  uid: userData.uid,
+                                                ))
+                                        : null,
+                                    icon: Icon(Icons.settings),
+                                  ),
                           ],
                         ),
                       ),
                       flexibleSpace: FlexibleAppBar(
                         today: today,
                         description: userData.greeter,
-                        uid: widget.uid,
+                        uid: userData.uid,
+                        otherUid: widget.othersUid,
+                        username: userData.username,
                         urlProfilePhoto: userData.urlProfilePhoto,
                       ),
                     ),
                   ];
                 },
                 body: GoalsListView(
-                  uid: widget.uid,
-                  goals: unarchivedGoals,
+                  uid: userData.uid,
+                  othersUid: widget.othersUid,
+                  goals: goals,
                 ),
               ),
             ),
-      floatingActionButton: unarchivedGoals == null
+      floatingActionButton: goals == null || widget.othersUid != null
           ? null
           : FloatingActionButton(
               onPressed: () {
@@ -243,13 +260,17 @@ class FlexibleAppBar extends StatelessWidget {
     super.key,
     required this.today,
     required this.description,
+    required this.username,
     required this.uid,
+    required this.otherUid,
     required this.urlProfilePhoto,
   });
 
   final DateTime today;
   final String description;
   final String uid;
+  final String? otherUid;
+  final String username;
   final String urlProfilePhoto;
   final double imageSize = 100;
   bool hasInitialized = false;
@@ -266,6 +287,7 @@ class FlexibleAppBar extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
+            SizedBox(height: otherUid != null ? 5 : 0),
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -273,7 +295,9 @@ class FlexibleAppBar extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 20),
                   child: Text(
-                    '${DateFormat('MMMM dd').format(today)}',
+                    otherUid == null
+                        ? '${DateFormat('MMM dd').format(today)}'
+                        : username,
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 48,
@@ -326,13 +350,15 @@ class FlexibleAppBar extends StatelessWidget {
                     softWrap: true,
                   ),
                 ),
-                IconButton(
-                  color: Colors.black,
-                  onPressed: () => showDialog(
-                      context: context,
-                      builder: (context) => Settings(uid: uid)),
-                  icon: Icon(Icons.settings),
-                ),
+                otherUid != null
+                    ? SizedBox()
+                    : IconButton(
+                        color: Colors.black,
+                        onPressed: () => showDialog(
+                            context: context,
+                            builder: (context) => Settings(uid: uid)),
+                        icon: Icon(Icons.settings),
+                      ),
               ],
             ),
           ],
@@ -345,11 +371,13 @@ class FlexibleAppBar extends StatelessWidget {
 class GoalsListView extends StatefulWidget {
   final List<GoalModel> goals;
   final String uid;
+  final String? othersUid;
 
   GoalsListView({
     super.key,
     required this.goals,
     required this.uid,
+    required this.othersUid,
   });
 
   @override
@@ -377,7 +405,10 @@ class _GoalsListViewState extends State<GoalsListView> {
                           height: 2,
                         ),
                       )
-                    : GoalCard(uid: widget.uid, goal: widget.goals[index]);
+                    : GoalCard(
+                        uid: widget.uid,
+                        othersUid: widget.othersUid,
+                        goal: widget.goals[index]);
               },
               childCount: widget.goals.length == 0 ? 1 : widget.goals.length,
             ),
@@ -393,10 +424,12 @@ class GoalCard extends StatelessWidget {
     super.key,
     required this.goal,
     required this.uid,
+    required this.othersUid,
   });
 
   final GoalModel goal;
   final String uid;
+  final String? othersUid;
   final Color toucanWhite = Color(0xFFFDFDF5);
   final Color toucanRed = Color.fromARGB(255, 224, 88, 39);
   final Color toucanYellow = Color.fromARGB(255, 242, 203, 5);
@@ -447,7 +480,7 @@ class GoalCard extends StatelessWidget {
                       },
                     ),
                   ],
-                  child: ViewGoal(),
+                  child: ViewGoal(othersUid: othersUid),
                 ),
               ),
             ),

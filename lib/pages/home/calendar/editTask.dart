@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:toucan/models/taskModel.dart';
+import 'package:toucan/models/userModel.dart';
 import 'package:toucan/services/database.dart';
 
 class EditTask extends StatefulWidget {
   final TaskModel? task;
-  final String uid;
 
   const EditTask({
     required this.task,
-    required this.uid,
   });
 
-  updateTaskStatus(bool isDone) async {
+  updateTaskStatus(String uid, bool isDone) async {
     DatabaseService(uid: uid).updateTaskStatus(task!.id, isDone);
   }
 
@@ -31,12 +31,12 @@ class _EditTaskState extends State<EditTask> {
 
   DateTime? _pickedDate;
 
-  saveTask() async {
+  saveTask(String uid) async {
     final isValid = formKey.currentState?.validate();
     if (isValid!) {
       formKey.currentState!.save();
 
-      DatabaseService(uid: widget.uid)
+      DatabaseService(uid: uid)
           .updateTaskData(widget.task?.id, _taskTitle, _chosenDate, false);
       print("Task title: $_taskTitle\nChosen date: $_chosenDate");
 
@@ -58,6 +58,8 @@ class _EditTaskState extends State<EditTask> {
 
   @override
   Widget build(BuildContext context) {
+    final UserModel user = Provider.of<UserModel>(context);
+
     return Container(
       decoration: BoxDecoration(
           color: Color(0xFFFDFDF5),
@@ -151,7 +153,7 @@ class _EditTaskState extends State<EditTask> {
                       Expanded(
                         flex: 4,
                         child: ElevatedButton(
-                            onPressed: () => saveTask(),
+                            onPressed: () => saveTask(user.uid),
                             style: ElevatedButton.styleFrom(
                               elevation: 4,
                             ),

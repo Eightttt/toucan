@@ -9,7 +9,6 @@ import 'package:toucan/pages/home/dashboard/dashboard.dart';
 import 'package:toucan/pages/home/socials/socials.dart';
 import 'package:toucan/services/database.dart';
 
-
 class Home extends StatefulWidget {
   final String uid;
   const Home({super.key, required this.uid});
@@ -39,7 +38,7 @@ class _HomeState extends State<Home> {
             },
           ),
         ],
-        child: Calendar(uid: widget.uid),
+        child: Calendar(),
       ),
 
       // Dashboard Page = 1
@@ -62,7 +61,7 @@ class _HomeState extends State<Home> {
             },
           ),
         ],
-        child: Dashboard(uid: widget.uid),
+        child: Dashboard(),
       ),
 
       // Socials Page = 2
@@ -70,6 +69,14 @@ class _HomeState extends State<Home> {
         providers: [
           StreamProvider<List<PostModel>?>.value(
             value: DatabaseService(uid: widget.uid).followingsPosts,
+            initialData: null,
+            catchError: (context, error) {
+              print("Error: $error");
+              return null; // return a default value
+            },
+          ),
+          StreamProvider<List<UserDataModel>?>.value(
+            value: DatabaseService(uid: widget.uid).followingsUsersData,
             initialData: null,
             catchError: (context, error) {
               print("Error: $error");
@@ -84,9 +91,7 @@ class _HomeState extends State<Home> {
             print("Error: $error");
             return null; // return a default value
           },
-          child: Socials(
-            uid: widget.uid,
-          ),
+          child: Socials(),
         ),
       ),
     ];

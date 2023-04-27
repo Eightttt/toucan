@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class UserDataModel {
+  final String _uid;
   final String _username;
   final int _followCode;
   final List<dynamic> _followingList;
@@ -8,9 +9,13 @@ class UserDataModel {
   final TimeOfDay _notificationTime;
   final String _urlProfilePhoto;
 
-  UserDataModel(this._username, this._followingList, this._followCode,
+  UserDataModel(this._uid, this._username, this._followingList, this._followCode,
       this._greeter, this._notificationTime, this._urlProfilePhoto);
 
+  String get uid {
+    return _uid;
+  }
+  
   String get username {
     return _username;
   }

@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:toucan/models/taskModel.dart';
+import 'package:toucan/models/userModel.dart';
 import 'package:toucan/pages/home/calendar/editTask.dart';
 import 'package:toucan/services/database.dart';
 import 'package:toucan/shared/loading.dart';
 
 class Calendar extends StatefulWidget {
-  final String uid;
-
-  Calendar({Key? key, required this.uid}) : super(key: key);
+  Calendar({Key? key}) : super(key: key);
 
   @override
   State<Calendar> createState() => _CalendarState();
@@ -61,12 +60,12 @@ class _CalendarState extends State<Calendar> {
       barrierColor: Color.fromARGB(85, 0, 0, 0),
       enableDrag: false,
       context: context,
-      builder: (context) => EditTask(uid: widget.uid, task: task),
+      builder: (context) => EditTask(task: task),
     );
   }
 
-  void updateStatus(TaskModel task, bool isDone) {
-    EditTask(uid: widget.uid, task: task).updateTaskStatus(isDone);
+  void updateStatus(String uid, TaskModel task, bool isDone) {
+    EditTask(task: task).updateTaskStatus(uid, isDone);
   }
 
   showConfirmDeleteTask(String uid, TaskModel task) {
@@ -208,6 +207,7 @@ class _CalendarState extends State<Calendar> {
 
   @override
   Widget build(BuildContext context) {
+    final UserModel user = Provider.of<UserModel>(context);
     final List<TaskModel>? tasks = Provider.of<List<TaskModel>?>(context);
 
     if (tasks != null && tasks != _prevTasks) {
@@ -361,7 +361,9 @@ class _CalendarState extends State<Calendar> {
                                           ),
                                           onTap: () {
                                             setState(() {
-                                              updateStatus(_viewedTasks![index],
+                                              updateStatus(
+                                                  user.uid,
+                                                  _viewedTasks![index],
                                                   !_viewedTasks![index].isDone);
                                             });
                                           },
@@ -402,7 +404,7 @@ class _CalendarState extends State<Calendar> {
                                                 iconSize: 25,
                                                 onPressed: () =>
                                                     showConfirmDeleteTask(
-                                                        widget.uid,
+                                                        user.uid,
                                                         _viewedTasks![index]),
                                                 icon: Icon(
                                                   Icons.delete_forever_rounded,
