@@ -109,7 +109,7 @@ class _EditProfileState extends State<EditProfile> {
       });
       Navigator.of(context).pop();
     } else {
-      print("error");
+      print("Error: Invalid form");
     }
   }
 

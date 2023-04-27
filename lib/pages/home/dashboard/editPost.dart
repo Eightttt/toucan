@@ -106,7 +106,6 @@ class _EditPostState extends State<EditPost> {
   }
 
   updateImage(File? imageFile) {
-    print("Inside Update image: $imageFile");
     if (imageFile != null) {
       setState(() {
         _postPhoto = imageFile;
@@ -175,7 +174,7 @@ class _EditPostState extends State<EditPost> {
       });
       Navigator.of(context).pop();
     } else {
-      print("error");
+      print("Error: Invalid form");
     }
   }
 

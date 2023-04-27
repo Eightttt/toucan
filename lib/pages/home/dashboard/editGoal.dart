@@ -71,7 +71,7 @@ class _EditGoalState extends State<EditGoal> {
       );
       Navigator.of(context).pop();
     } else {
-      print("error");
+      print("Error: Invalid form");
     }
   }
 

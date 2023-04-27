@@ -55,7 +55,6 @@ class _DashboardState extends State<Dashboard> {
   }
 
   _scrollDown() async {
-    // print("start animation down");
     setState(() {
       _isAnimating = true;
     });
@@ -70,11 +69,9 @@ class _DashboardState extends State<Dashboard> {
         _isAnimating = false;
       });
     });
-    // print("end animation down");
   }
 
   _scrollUp() async {
-    // print("start animation up");
     setState(() {
       _isAnimating = true;
     });
@@ -90,7 +87,6 @@ class _DashboardState extends State<Dashboard> {
       });
     });
 
-    // print("end animation up");
   }
 
   bool get _isShrink {
@@ -182,7 +178,7 @@ class _DashboardState extends State<Dashboard> {
                 headerSliverBuilder: (context, innerBoxIsScrolled) {
                   return [
                     SliverAppBar(
-                      titleSpacing: 0,
+                      titleSpacing: widget.othersUid == null ? null : 0,
                       backgroundColor: Color(0xFFFDFDF5),
                       elevation: 5,
                       pinned: true,

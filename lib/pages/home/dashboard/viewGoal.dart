@@ -52,7 +52,6 @@ class _ViewGoalState extends State<ViewGoal> {
   }
 
   _scrollDown() async {
-    // print("start animation down");
     setState(() {
       _isAnimating = true;
     });
@@ -67,11 +66,9 @@ class _ViewGoalState extends State<ViewGoal> {
         _isAnimating = false;
       });
     });
-    // print("end animation down");
   }
 
   _scrollUp() async {
-    // print("start animation up");
     setState(() {
       _isAnimating = true;
     });
@@ -86,8 +83,6 @@ class _ViewGoalState extends State<ViewGoal> {
         _isAnimating = false;
       });
     });
-
-    // print("end animation up");
   }
 
   bool get _isShrink {
