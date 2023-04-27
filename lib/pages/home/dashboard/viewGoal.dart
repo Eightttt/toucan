@@ -844,7 +844,14 @@ class _PostCardState extends State<PostCard> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
-                    '${DateFormat('MMM d, yy h:mm a').format(widget.post.date)}',
+                    "${widget.post.username} ",
+                    style: TextStyle(
+                      color: toucanOrange,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  Text(
+                    '- ${DateFormat('MMM d, yy h:mm a').format(widget.post.date)}',
                     style: TextStyle(
                         fontWeight: FontWeight.w300,
                         color: Color.fromARGB(255, 91, 91, 91)),

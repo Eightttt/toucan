@@ -171,11 +171,10 @@ class DatabaseService {
   }
 
   // Get goals list stream that are not yet done
-  Stream<List<GoalModel>> get unarchivedGoals {
+  Stream<List<GoalModel>> get goals {
     return userDataCollection
         .doc(uid)
         .collection("goals")
-        .where("endDate", isGreaterThan: Timestamp.fromDate(DateTime.now()))
         .snapshots()
         .map(_goalsListFromSnapshot);
   }
@@ -243,6 +242,7 @@ class DatabaseService {
   Future<String?> updatePostData(
     String goalId,
     String? postId,
+    String username,
     int followCode,
     String caption,
     String imageURL,
@@ -280,6 +280,7 @@ class DatabaseService {
             .collection("posts")
             .doc(postId)
             .set({
+          "username": username,
           "followCode": followCode,
           "caption": caption,
           "imageURL": imageURL,
@@ -335,6 +336,7 @@ class DatabaseService {
   List<PostModel> _postsListFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.docs.map((doc) {
       return PostModel(
+        doc.get('username'),
         doc.get('followCode'),
         doc.id,
         doc.get('caption'),
@@ -350,6 +352,7 @@ class DatabaseService {
   List<PostModel> _postsListOfOthersFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.docs.map((doc) {
       return PostModel(
+        doc.get('username'),
         doc.get('followCode'),
         doc.id,
         doc.get('caption'),
@@ -402,6 +405,7 @@ class DatabaseService {
   // Post from snapshot
   PostModel _postFromSnapshot(DocumentSnapshot postSnapshot) {
     return PostModel(
+      postSnapshot.get('username'),
       postSnapshot.get('followCode'),
       postSnapshot.id,
       postSnapshot.get('caption'),

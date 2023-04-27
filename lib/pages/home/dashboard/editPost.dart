@@ -17,10 +17,7 @@ class EditPost extends StatefulWidget {
   final PostModel? post;
 
   const EditPost(
-      {Key? key,
-      required this.uid,
-      required this.goalId,
-      required this.post})
+      {Key? key, required this.uid, required this.goalId, required this.post})
       : super(key: key);
 
   @override
@@ -125,7 +122,7 @@ class _EditPostState extends State<EditPost> {
     }
   }
 
-  savePostData(int followCode) async {
+  savePostData(String username, int followCode) async {
     String? postId = widget.post?.id;
     _textFocusNode.unfocus();
     final isValid = formKeyUser.currentState?.validate();
@@ -143,6 +140,7 @@ class _EditPostState extends State<EditPost> {
         postId = await DatabaseService(uid: widget.uid).updatePostData(
           widget.goalId!,
           postId,
+          username,
           followCode,
           _caption!,
           _urlPostPhoto ?? '',
@@ -165,6 +163,7 @@ class _EditPostState extends State<EditPost> {
       await DatabaseService(uid: widget.uid).updatePostData(
         widget.goalId!,
         postId,
+        username,
         followCode,
         _caption!,
         _urlPostPhoto ?? widget.post!.imageURL,
@@ -247,7 +246,8 @@ class _EditPostState extends State<EditPost> {
             Padding(
               padding: const EdgeInsets.only(right: 36),
               child: ElevatedButton(
-                onPressed: () => savePostData(userData!.followCode),
+                onPressed: () =>
+                    savePostData(userData!.username, userData.followCode),
                 child: Text(
                   _isEdit ? "Save" : "Post",
                   style: TextStyle(

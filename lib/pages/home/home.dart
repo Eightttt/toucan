@@ -6,9 +6,9 @@ import 'package:toucan/models/taskModel.dart';
 import 'package:toucan/models/userDataModel.dart';
 import 'package:toucan/pages/home/calendar/calendar.dart';
 import 'package:toucan/pages/home/dashboard/dashboard.dart';
+import 'package:toucan/pages/home/socials/socials.dart';
 import 'package:toucan/services/database.dart';
 
-import 'socials/tempSocials.dart';
 
 class Home extends StatefulWidget {
   final String uid;
@@ -46,7 +46,7 @@ class _HomeState extends State<Home> {
       MultiProvider(
         providers: [
           StreamProvider<List<GoalModel>?>.value(
-            value: DatabaseService(uid: widget.uid).unarchivedGoals,
+            value: DatabaseService(uid: widget.uid).goals,
             initialData: null,
             catchError: (context, error) {
               print("Error: $error");
@@ -84,7 +84,9 @@ class _HomeState extends State<Home> {
             print("Error: $error");
             return null; // return a default value
           },
-          child: TempSocials(uid: widget.uid),
+          child: Socials(
+            uid: widget.uid,
+          ),
         ),
       ),
     ];

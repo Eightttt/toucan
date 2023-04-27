@@ -6,7 +6,6 @@ import 'package:toucan/pages/landing.dart';
 import 'package:toucan/models/userModel.dart';
 import 'package:toucan/services/auth.dart';
 import 'package:toucan/services/notification.dart';
-import 'package:toucan/pages/home/socials/socialsPage.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -116,7 +115,7 @@ class ToucanApp extends StatelessWidget {
             elevation: 0,
           ),
         ),
-        home: SocialsPage(),
+        home: Landing(),
       ),
     );
   }
