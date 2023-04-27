@@ -592,32 +592,6 @@ class Settings extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.fromLTRB(45, 10, 45, 10),
           child: ElevatedButton(
-            onPressed: () => {},
-            child: Text(
-              "Feedback",
-              style: TextStyle(fontSize: 14),
-            ),
-            style: ElevatedButton.styleFrom(
-              elevation: 4,
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(45, 10, 45, 10),
-          child: ElevatedButton(
-            onPressed: () => {},
-            child: Text(
-              "Archive",
-              style: TextStyle(fontSize: 14),
-            ),
-            style: ElevatedButton.styleFrom(
-              elevation: 4,
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(45, 10, 45, 10),
-          child: ElevatedButton(
             onPressed: () {
               _authService.logout();
               Navigator.of(context).pop();
