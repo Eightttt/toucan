@@ -1,4 +1,5 @@
 class PostModel {
+  final int _followCode;
   final String _id;
   final String _caption;
   final String _imageURL;
@@ -6,6 +7,7 @@ class PostModel {
   final bool _isEdited;
 
   PostModel(
+    this._followCode,
     this._id,
     this._caption,
     this._imageURL,
@@ -13,6 +15,7 @@ class PostModel {
     this._isEdited,
   );
 
+  int get followCode => _followCode;
   String get id => _id;
   String get caption => _caption;
   String get imageURL => _imageURL;
