@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:toucan/models/postModel.dart';
+import 'package:toucan/models/userDataModel.dart';
 import 'package:toucan/pages/home/socials/followUser.dart';
 import 'package:toucan/services/database.dart';
 
@@ -13,11 +14,7 @@ class TempSocials extends StatefulWidget {
 }
 
 class _TempSocialsState extends State<TempSocials> {
-  showFollowUser() async {
-    int yourFollowCode = await DatabaseService(uid: widget.uid).followCode;
-    List<dynamic> yourFollowingList =
-        await DatabaseService(uid: widget.uid).followingList;
-
+  showFollowUser(int yourFollowCode, List<dynamic> yourFollowingList) {
     showDialog(
       context: context,
       builder: (context) => StreamProvider.value(
@@ -38,31 +35,51 @@ class _TempSocialsState extends State<TempSocials> {
 
   @override
   Widget build(BuildContext context) {
+    final UserDataModel? userData = Provider.of<UserDataModel?>(context);
     List<PostModel>? followingsPosts = Provider.of<List<PostModel>?>(context);
 
-    if (followingsPosts != null) {
-      print(followingsPosts.map((e) {
+    if (followingsPosts != null && userData != null) {
+      List<PostModel> yourFollowingsPosts = followingsPosts
+          .where((post) =>
+              post.followCode != userData.followCode &&
+              userData.followingList.contains(post.followCode))
+          .toList();
+
+      print("======== FOLLOW LIST ========");
+      userData.followingList.forEach((element) {
+        print(element);
+      });
+      print("======== FOLLOW CODE OF ALL POSTS ========");
+      followingsPosts.forEach((element) {
+        print(element.followCode);
+      });
+      print("\n\n==== POSTS THAT YOU ARE FOLLOWING ====");
+      yourFollowingsPosts.forEach((post) {
         // TODO: filter based on followings list
         // TODO: from followings list, get UID
-        print("\n\n==== POST ====");
-        print(e.caption);
-        print(e.date);
-        print(e.id);
-        print(e.imageURL);
-        print(e.isEdited);
+
+        print(post.caption);
+        print(post.date);
+        print(post.followCode);
+        print(post.id);
+        print(post.imageURL);
+        print(post.isEdited);
         print("==== END ==== \n");
-      }));
+      });
     }
 
     return Scaffold(
       body: Container(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => showFollowUser(),
-        child: Icon(
-          Icons.person_add_alt_1_rounded,
-          size: 25,
-        ),
-      ),
+      floatingActionButton: followingsPosts == null || userData == null
+          ? null
+          : FloatingActionButton(
+              onPressed: () =>
+                  showFollowUser(userData.followCode, userData.followingList),
+              child: Icon(
+                Icons.person_add_alt_1_rounded,
+                size: 25,
+              ),
+            ),
     );
   }
 }

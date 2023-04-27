@@ -86,6 +86,8 @@ class DatabaseService {
     //
     return UserDataModel(
       userDataDoc.get("username"),
+      userDataDoc.get("followingList"),
+      userDataDoc.get("followCode"),
       userDataDoc.get("greeter"),
       _timeOfDayFromFirebase(userDataDoc.get("notificationTime")),
       userDataDoc.get("urlProfilePhoto"),
@@ -95,18 +97,6 @@ class DatabaseService {
   // Get userdata stream
   Stream<UserDataModel> get userData {
     return userDataCollection.doc(uid).snapshots().map(_userDataFromSnapshot);
-  }
-
-  // Get user follow code
-  Future<int> get followCode async {
-    DocumentSnapshot userDataDoc = await userDataCollection.doc(uid).get();
-    return await userDataDoc.get("followCode");
-  }
-
-  // Get user follow list
-  Future<List<dynamic>> get followingList async {
-    DocumentSnapshot userDataDoc = await userDataCollection.doc(uid).get();
-    return await userDataDoc.get("followingList");
   }
 
   // Format timeOfDay to Map to save in Firebase
@@ -253,6 +243,7 @@ class DatabaseService {
   Future<String?> updatePostData(
     String goalId,
     String? postId,
+    int followCode,
     String caption,
     String imageURL,
     bool isEdit,
@@ -357,7 +348,8 @@ class DatabaseService {
 
   // Posts list from snapshot
   List<PostModel> _postsListOfOthersFromSnapshot(QuerySnapshot snapshot) {
-    return snapshot.docs.where((doc) => doc.get("followCode") != followCode).map((doc) {
+    return snapshot.docs
+        .map((doc) {
       return PostModel(
         doc.get('followCode'),
         doc.id,
@@ -502,6 +494,4 @@ class DatabaseService {
       snapshot = await subcollectionRef.limit(batchSize).get();
     }
   }
-
-  // TODO: Add friends list
 }
