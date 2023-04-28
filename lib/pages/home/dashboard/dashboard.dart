@@ -15,8 +15,8 @@ import 'package:toucan/services/notification.dart';
 import '../../../shared/loading.dart';
 
 class Dashboard extends StatefulWidget {
-  final String? othersUid;
-  const Dashboard({Key? key, this.othersUid}) : super(key: key);
+  final String? myUid;
+  const Dashboard({Key? key, this.myUid}) : super(key: key);
 
   @override
   State<Dashboard> createState() => _DashboardState();
@@ -32,6 +32,9 @@ class _DashboardState extends State<Dashboard> {
   bool _isAnimating = false;
   double _offset = 0;
   int currentIndex = 1;
+
+  Color toucanOrange = Color(0xfff28705);
+  Color toucanWhite = Color(0xFFFDFDF5);
 
   @override
   void initState() {
@@ -131,6 +134,11 @@ class _DashboardState extends State<Dashboard> {
     }
   }
 
+  unfollowUser(String othersUid) async {
+    await DatabaseService(uid: widget.myUid).unfollowUser(othersUid);
+    Navigator.of(context).pop();
+  }
+
   @override
   Widget build(BuildContext context) {
     final UserDataModel? userData = Provider.of<UserDataModel?>(context);
@@ -151,7 +159,7 @@ class _DashboardState extends State<Dashboard> {
       });
 
       // Schedule the new notification dates as dashboard finished building
-      if (widget.othersUid == null) {
+      if (widget.myUid == null) {
         scheduleNotificationDates(goals, userData);
       }
     });
@@ -177,65 +185,100 @@ class _DashboardState extends State<Dashboard> {
                 headerSliverBuilder: (context, innerBoxIsScrolled) {
                   return [
                     SliverAppBar(
-                      titleSpacing: widget.othersUid == null ? null : 0,
+                      titleSpacing: widget.myUid == null ? null : 0,
                       backgroundColor: Color(0xFFFDFDF5),
                       elevation: 5,
                       pinned: true,
                       expandedHeight: height,
-                      leading: widget.othersUid == null
+                      leading: widget.myUid == null
                           ? null
                           : IconButton(
                               color: Colors.black,
                               icon: Icon(Icons.arrow_back_ios_new_sharp),
                               onPressed: () => Navigator.of(context).pop(),
                             ),
-                      title: FadingOnScroll(
-                        scrollController: _scrollController,
-                        offset: _offset,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Image.asset(
-                              "assets/toucan-title-logo.png",
-                              fit: BoxFit.fitHeight,
-                              height: kToolbarHeight,
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          FadingOnScroll(
+                            scrollController: _scrollController,
+                            offset: _offset,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Image.asset(
+                                  "assets/toucan-title-logo.png",
+                                  fit: BoxFit.fitHeight,
+                                  height: kToolbarHeight,
+                                ),
+                                widget.myUid != null
+                                    ? SizedBox()
+                                    : IconButton(
+                                        disabledColor: Colors.black,
+                                        enableFeedback:
+                                            !_isShrink ? false : true,
+                                        onPressed: _isShrink
+                                            ? () => showDialog(
+                                                context: context,
+                                                builder: (context) => Settings(
+                                                      uid: userData.uid,
+                                                    ))
+                                            : null,
+                                        icon: Icon(Icons.settings),
+                                      ),
+                              ],
                             ),
-                            widget.othersUid != null
-                                ? SizedBox()
-                                : IconButton(
-                                    disabledColor: Colors.black,
-                                    enableFeedback: !_isShrink ? false : true,
-                                    onPressed: _isShrink
-                                        ? () => showDialog(
-                                            context: context,
-                                            builder: (context) => Settings(
-                                                  uid: userData.uid,
-                                                ))
-                                        : null,
-                                    icon: Icon(Icons.settings),
+                          ),
+                          widget.myUid == null
+                              ? SizedBox()
+                              : Padding(
+                                  padding: const EdgeInsets.only(right: 36),
+                                  child: ElevatedButton(
+                                    onPressed: () => unfollowUser(userData.uid),
+                                    style: ElevatedButton.styleFrom(
+                                      elevation: 2,
+                                      side: BorderSide(
+                                          width: 1, color: toucanWhite),
+                                      minimumSize: Size(76, 33),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(15)),
+                                      textStyle: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 15,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      "Unfollow",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
                                   ),
-                          ],
-                        ),
+                                ),
+                        ],
                       ),
                       flexibleSpace: FlexibleAppBar(
                         today: today,
                         description: userData.greeter,
                         uid: userData.uid,
-                        otherUid: widget.othersUid,
                         username: userData.username,
+                        othersProfile: widget.myUid != null,
                         urlProfilePhoto: userData.urlProfilePhoto,
                       ),
                     ),
                   ];
                 },
                 body: GoalsListView(
-                  uid: userData.uid,
-                  othersUid: widget.othersUid,
+                  uid: widget.myUid,
+                  othersProfile: widget.myUid != null,
                   goals: goals,
                 ),
               ),
             ),
-      floatingActionButton: goals == null || widget.othersUid != null
+      floatingActionButton: goals == null || widget.myUid != null
           ? null
           : FloatingActionButton(
               onPressed: () {
@@ -257,14 +300,14 @@ class FlexibleAppBar extends StatelessWidget {
     required this.description,
     required this.username,
     required this.uid,
-    required this.otherUid,
+    required this.othersProfile,
     required this.urlProfilePhoto,
   });
 
   final DateTime today;
   final String description;
-  final String uid;
-  final String? otherUid;
+  final String? uid;
+  final bool othersProfile;
   final String username;
   final String urlProfilePhoto;
   final double imageSize = 100;
@@ -272,13 +315,14 @@ class FlexibleAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final UserDataModel userData = Provider.of<UserDataModel>(context);
     return FlexibleSpaceBar(
       collapseMode: CollapseMode.parallax,
       background: Container(
         color: Color(0xfff28705),
         padding: EdgeInsets.only(
             top: AppBar().preferredSize.height / 2, left: 15, right: 15),
-        child: otherUid != null
+        child: othersProfile
             ? Padding(
                 padding: const EdgeInsets.only(left: 20, top: 10, right: 20),
                 child: Row(
@@ -359,7 +403,7 @@ class FlexibleAppBar extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 20),
                         child: Text(
-                          otherUid == null
+                          !othersProfile
                               ? '${DateFormat('MMM dd').format(today)}'
                               : username,
                           style: TextStyle(
@@ -416,13 +460,14 @@ class FlexibleAppBar extends StatelessWidget {
                           softWrap: true,
                         ),
                       ),
-                      otherUid != null
+                      othersProfile
                           ? SizedBox()
                           : IconButton(
                               color: Colors.black,
                               onPressed: () => showDialog(
                                   context: context,
-                                  builder: (context) => Settings(uid: uid)),
+                                  builder: (context) =>
+                                      Settings(uid: userData.uid)),
                               icon: Icon(Icons.settings),
                             ),
                     ],
@@ -436,14 +481,14 @@ class FlexibleAppBar extends StatelessWidget {
 
 class GoalsListView extends StatefulWidget {
   final List<GoalModel> goals;
-  final String uid;
-  final String? othersUid;
+  final String? uid;
+  final bool othersProfile;
 
   GoalsListView({
     super.key,
     required this.goals,
     required this.uid,
-    required this.othersUid,
+    required this.othersProfile,
   });
 
   @override
@@ -453,6 +498,7 @@ class GoalsListView extends StatefulWidget {
 class _GoalsListViewState extends State<GoalsListView> {
   @override
   Widget build(BuildContext context) {
+    final UserDataModel userData = Provider.of<UserDataModel>(context);
     return CustomScrollView(
       slivers: [
         SliverPadding(
@@ -472,8 +518,8 @@ class _GoalsListViewState extends State<GoalsListView> {
                         ),
                       )
                     : GoalCard(
-                        uid: widget.uid,
-                        othersUid: widget.othersUid,
+                        uid: userData.uid,
+                        othersProfile: widget.uid != null,
                         goal: widget.goals[index]);
               },
               childCount: widget.goals.length == 0 ? 1 : widget.goals.length,
@@ -490,12 +536,12 @@ class GoalCard extends StatelessWidget {
     super.key,
     required this.goal,
     required this.uid,
-    required this.othersUid,
+    required this.othersProfile,
   });
 
   final GoalModel goal;
   final String uid;
-  final String? othersUid;
+  final bool othersProfile;
   final Color toucanWhite = Color(0xFFFDFDF5);
   final Color toucanRed = Color.fromARGB(255, 224, 88, 39);
   final Color toucanYellow = Color.fromARGB(255, 242, 203, 5);
@@ -518,6 +564,7 @@ class GoalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final UserDataModel userData = Provider.of<UserDataModel>(context);
     return Card(
       margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
       child: Stack(
@@ -546,7 +593,7 @@ class GoalCard extends StatelessWidget {
                       },
                     ),
                   ],
-                  child: ViewGoal(othersUid: othersUid),
+                  child: ViewGoal(othersUid: userData.uid),
                 ),
               ),
             ),

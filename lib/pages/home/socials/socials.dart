@@ -45,7 +45,7 @@ class _SocialsState extends State<Socials> {
     );
   }
 
-  openFollowingUserProfile(String uid) {
+  openFollowingUserProfile(String myUid, String othersUid) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -53,11 +53,11 @@ class _SocialsState extends State<Socials> {
           return MultiProvider(
             providers: [
               StreamProvider<UserDataModel?>.value(
-                value: DatabaseService(uid: uid).userData,
+                value: DatabaseService(uid: othersUid).userData,
                 initialData: null,
               ),
               StreamProvider<List<GoalModel>?>.value(
-                value: DatabaseService(uid: uid).goals,
+                value: DatabaseService(uid: othersUid).goals,
                 initialData: null,
                 catchError: (context, error) {
                   print("Error: $error");
@@ -65,7 +65,7 @@ class _SocialsState extends State<Socials> {
                 },
               ),
             ],
-            child: Dashboard(othersUid: uid),
+            child: Dashboard(myUid: myUid),
           );
         },
       ),
@@ -128,6 +128,7 @@ class _SocialsState extends State<Socials> {
                                 color: toucanWhite,
                                 child: GestureDetector(
                                   onTap: () => openFollowingUserProfile(
+                                      user.uid,
                                       yourFollowingsUserData![index].uid),
                                   child: CachedNetworkImage(
                                     imageUrl: yourFollowingsUserData![index]

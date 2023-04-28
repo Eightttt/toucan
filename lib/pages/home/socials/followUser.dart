@@ -31,7 +31,8 @@ class _FollowUserState extends State<FollowUser> {
     final isValid = formKeyFollow.currentState?.validate();
     if (isValid != null && isValid) {
       formKeyFollow.currentState!.save();
-      await DatabaseService(uid: widget.uid).followUser(int.parse(_theirFriendCode));
+      await DatabaseService(uid: widget.uid)
+          .followUser(int.parse(_theirFriendCode));
       Navigator.of(context).pop();
     }
   }
@@ -89,8 +90,9 @@ class _FollowUserState extends State<FollowUser> {
                           baseOffset: 0,
                           extentOffset: yourFollowCodeController.text.length,
                         );
-                        Clipboard.setData(
-                            ClipboardData(text: yourFollowCodeController.text));
+                        Clipboard.setData(ClipboardData(
+                            text:
+                                "Follow me in Toucan!\nHere's my follow code: ${yourFollowCodeController.text}"));
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('Copied to clipboard')),
                         );

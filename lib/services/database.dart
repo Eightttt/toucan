@@ -92,6 +92,26 @@ class DatabaseService {
     }
   }
 
+  // Unfollow user
+  Future unfollowUser(
+    String othersUid,
+  ) async {
+    if (uid != null) {
+      DocumentSnapshot othersUserDataDoc =
+          await userDataCollection.doc(othersUid).get();
+      int othersFollowCode = await othersUserDataDoc.get("followCode");
+      print(othersFollowCode);
+      DocumentSnapshot userDataDoc = await userDataCollection.doc(uid).get();
+      List<dynamic> followingList = await userDataDoc.get("followingList");
+      print(followingList);
+      followingList.remove(othersFollowCode);
+      print(followingList);
+      await userDataCollection.doc(uid).update({
+        "followingList": followingList,
+      });
+    }
+  }
+
   // User data from snapshot
   UserDataModel _userDataFromSnapshot(DocumentSnapshot userDataDoc) {
     //
@@ -433,7 +453,7 @@ class DatabaseService {
         .collectionGroup("posts")
         .where("date", isLessThanOrEqualTo: Timestamp.fromDate(endOfDay))
         .where("date", isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
-        .orderBy("date")
+        .orderBy("date", descending: true)
         .snapshots()
         .map(_postsListOfOthersFromSnapshot);
   }
