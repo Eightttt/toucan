@@ -197,41 +197,51 @@ class _DashboardState extends State<Dashboard> {
                               icon: Icon(Icons.arrow_back_ios_new_sharp),
                               onPressed: () => Navigator.of(context).pop(),
                             ),
-                      title: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          FadingOnScroll(
-                            scrollController: _scrollController,
-                            offset: _offset,
-                            child: Row(
+                      title: widget.myUid == null
+                          ? FadingOnScroll(
+                              scrollController: _scrollController,
+                              offset: _offset,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Image.asset(
+                                    "assets/toucan-title-logo.png",
+                                    fit: BoxFit.fitHeight,
+                                    height: kToolbarHeight,
+                                  ),
+                                  widget.myUid != null
+                                      ? SizedBox()
+                                      : IconButton(
+                                          disabledColor: Colors.black,
+                                          enableFeedback:
+                                              !_isShrink ? false : true,
+                                          onPressed: _isShrink
+                                              ? () => showDialog(
+                                                  context: context,
+                                                  builder: (context) =>
+                                                      Settings(
+                                                        uid: userData.uid,
+                                                      ))
+                                              : null,
+                                          icon: Icon(Icons.settings),
+                                        ),
+                                ],
+                              ),
+                            )
+                          : Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Image.asset(
-                                  "assets/toucan-title-logo.png",
-                                  fit: BoxFit.fitHeight,
-                                  height: kToolbarHeight,
+                                FadingOnScroll(
+                                  scrollController: _scrollController,
+                                  offset: _offset,
+                                  child: Image.asset(
+                                    "assets/toucan-title-logo.png",
+                                    fit: BoxFit.fitHeight,
+                                    height: kToolbarHeight,
+                                  ),
                                 ),
-                                widget.myUid != null
-                                    ? SizedBox()
-                                    : IconButton(
-                                        disabledColor: Colors.black,
-                                        enableFeedback:
-                                            !_isShrink ? false : true,
-                                        onPressed: _isShrink
-                                            ? () => showDialog(
-                                                context: context,
-                                                builder: (context) => Settings(
-                                                      uid: userData.uid,
-                                                    ))
-                                            : null,
-                                        icon: Icon(Icons.settings),
-                                      ),
-                              ],
-                            ),
-                          ),
-                          widget.myUid == null
-                              ? SizedBox()
-                              : Padding(
+                                Padding(
                                   padding: const EdgeInsets.only(right: 36),
                                   child: ElevatedButton(
                                     onPressed: () => unfollowUser(userData.uid),
@@ -258,8 +268,8 @@ class _DashboardState extends State<Dashboard> {
                                     ),
                                   ),
                                 ),
-                        ],
-                      ),
+                              ],
+                            ),
                       flexibleSpace: FlexibleAppBar(
                         today: today,
                         description: userData.greeter,
