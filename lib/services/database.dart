@@ -100,12 +100,9 @@ class DatabaseService {
       DocumentSnapshot othersUserDataDoc =
           await userDataCollection.doc(othersUid).get();
       int othersFollowCode = await othersUserDataDoc.get("followCode");
-      print(othersFollowCode);
       DocumentSnapshot userDataDoc = await userDataCollection.doc(uid).get();
       List<dynamic> followingList = await userDataDoc.get("followingList");
-      print(followingList);
       followingList.remove(othersFollowCode);
-      print(followingList);
       await userDataCollection.doc(uid).update({
         "followingList": followingList,
       });
