@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:toucan/models/goalModel.dart';
 import 'package:toucan/models/postModel.dart';
 import 'package:toucan/models/userDataModel.dart';
-import 'package:toucan/models/userModel.dart';
 import 'package:toucan/pages/home/dashboard/editPost.dart';
 import 'package:toucan/services/database.dart';
 import 'package:toucan/shared/fadingOnScroll.dart';
@@ -13,8 +12,9 @@ import 'editGoal.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class ViewGoal extends StatefulWidget {
-  final String? othersUid;
-  const ViewGoal({super.key, this.othersUid});
+  final String uid;
+  final bool othersProfile;
+  const ViewGoal({super.key, required this.uid, required this.othersProfile});
 
   @override
   State<ViewGoal> createState() => _ViewGoalState();
@@ -325,7 +325,6 @@ class _ViewGoalState extends State<ViewGoal> {
   Widget build(BuildContext context) {
     final List<PostModel>? posts = Provider.of<List<PostModel>?>(context);
     final GoalModel? goal = Provider.of<GoalModel?>(context);
-    final UserModel user = Provider.of<UserModel>(context);
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       _scrollController.position.isScrollingNotifier.addListener(() {
@@ -384,7 +383,7 @@ class _ViewGoalState extends State<ViewGoal> {
                               height: kToolbarHeight,
                             ),
                           ),
-                          widget.othersUid != null
+                          widget.othersProfile
                               ? SizedBox()
                               : Padding(
                                   padding: const EdgeInsets.only(right: 16),
@@ -392,7 +391,7 @@ class _ViewGoalState extends State<ViewGoal> {
                                       color: Colors.black,
                                       icon: Icon(Icons.more_horiz),
                                       onPressed: () =>
-                                          showGoalOptions(user.uid, goal)),
+                                          showGoalOptions(widget.uid, goal)),
                                 ),
                         ],
                       ),
@@ -404,27 +403,27 @@ class _ViewGoalState extends State<ViewGoal> {
                 },
                 body: PostsListView(
                   posts: posts,
-                  uid: user.uid,
-                  othersUid: widget.othersUid,
+                  uid: widget.uid,
+                  othersProfile: widget.othersProfile,
                   goalId: goal.id,
                 ),
               ),
             ),
-      floatingActionButton: widget.othersUid != null
+      floatingActionButton: widget.othersProfile
           ? null
           : FloatingActionButton(
               onPressed: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => StreamProvider<UserDataModel?>.value(
-                      value: DatabaseService(uid: user.uid).userData,
+                      value: DatabaseService(uid: widget.uid).userData,
                       initialData: null,
                       catchError: (context, error) {
                         print("Error: $error");
                         return null; // return a default value
                       },
                       child: EditPost(
-                        uid: user.uid,
+                        uid: widget.uid,
                         goalId: goal?.id,
                         post: null,
                       ),
@@ -562,7 +561,7 @@ class FlexibleAppBar extends StatelessWidget {
 
 class PostsListView extends StatefulWidget {
   final List<PostModel> posts;
-  final String? othersUid;
+  final bool othersProfile;
   final String uid;
   final String goalId;
 
@@ -570,7 +569,7 @@ class PostsListView extends StatefulWidget {
     super.key,
     required this.posts,
     required this.uid,
-    required this.othersUid,
+    required this.othersProfile,
     required this.goalId,
   });
 
@@ -590,7 +589,9 @@ class _PostsListViewState extends State<PostsListView> {
               (BuildContext context, int index) {
                 return widget.posts.length == 0
                     ? Text(
-                        "No posts added yet\nClick the \"+\" button to add a post",
+                        widget.othersProfile
+                            ? "They have yet to add a post\nCheck it out again later"
+                            : "No posts added yet\nClick the \"+\" button to add a post",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontStyle: FontStyle.italic,
@@ -600,13 +601,13 @@ class _PostsListViewState extends State<PostsListView> {
                         ),
                       )
                     : Padding(
-                        padding: widget.othersUid != null
+                        padding: widget.othersProfile
                             ? EdgeInsets.only(top: 10, bottom: 10)
                             : EdgeInsets.zero,
                         child: PostCard(
                           post: widget.posts[index],
                           uid: widget.uid,
-                          othersUid: widget.othersUid,
+                          othersProfile: widget.othersProfile,
                           goalId: widget.goalId,
                         ),
                       );
@@ -625,14 +626,14 @@ class PostCard extends StatefulWidget {
     super.key,
     required this.post,
     required this.uid,
-    required this.othersUid,
+    required this.othersProfile,
     required this.goalId,
   });
 
   final PostModel post;
   final String uid;
   final String goalId;
-  final String? othersUid;
+  final bool othersProfile;
 
   @override
   State<PostCard> createState() => _PostCardState();
@@ -876,7 +877,7 @@ class _PostCardState extends State<PostCard> {
                 ],
               ),
             ),
-            widget.othersUid != null
+            widget.othersProfile
                 ? SizedBox()
                 : Padding(
                     padding: const EdgeInsets.only(right: 10.0, bottom: 3),

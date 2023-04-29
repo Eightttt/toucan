@@ -593,7 +593,8 @@ class GoalCard extends StatelessWidget {
                       },
                     ),
                   ],
-                  child: ViewGoal(othersUid: userData.uid),
+                  child:
+                      ViewGoal(uid: userData.uid, othersProfile: othersProfile),
                 ),
               ),
             ),

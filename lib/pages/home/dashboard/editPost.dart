@@ -236,7 +236,7 @@ class _EditPostState extends State<EditPost> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              "New Post",
+              _isEdit ? "Edit Post" : "New Post",
               style: TextStyle(
                 color: toucanOrange,
                 fontWeight: FontWeight.w600,
