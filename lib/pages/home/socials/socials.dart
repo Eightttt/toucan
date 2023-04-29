@@ -117,7 +117,12 @@ class _SocialsState extends State<Socials> {
                   itemBuilder: (context, index) {
                     return yourFollowingsUserData!.length == 0
                         ? ClipOval(
-                            child: Image.asset("assets/toucan-title-logo.png"),
+                            child: Container(
+                              color: Colors.white,
+                              child: Image.asset(
+                                "assets/toucan-logo.png",
+                              ),
+                            ),
                           )
                         : Padding(
                             padding: EdgeInsets.only(left: 8, right: 8),
